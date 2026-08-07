@@ -20,7 +20,7 @@ export const Route = createFileRoute("/clubs/")({
       },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>): { q?: string } => ({
+  validateSearch: (search: Record<string, unknown>): { q?: string | undefined } => ({
     q: (search["q"] as string) || undefined,
   }),
   loaderDeps: ({ search: { q } }) => ({ q: q ?? "" }),
