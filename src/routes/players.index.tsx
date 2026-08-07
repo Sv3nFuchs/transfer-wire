@@ -20,8 +20,10 @@ export const Route = createFileRoute("/players/")({
       },
     ],
   }),
-  validateSearch: (search: Record<string, unknown>) => ({ q: (search["q"] as string) ?? "" }),
-  loaderDeps: ({ search: { q } }) => ({ q }),
+  validateSearch: (search: Record<string, unknown>): { q?: string } => ({
+    q: (search["q"] as string) || undefined,
+  }),
+  loaderDeps: ({ search: { q } }) => ({ q: q ?? "" }),
   loader: ({ context, deps }) => context.queryClient.ensureQueryData(playersQuery(deps.q)),
   component: PlayersPage,
   errorComponent: ({ error }) => (
