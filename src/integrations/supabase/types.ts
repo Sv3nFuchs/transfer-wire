@@ -19,7 +19,7 @@ export type Database = {
           city: string | null
           country: string
           created_at: string
-          created_by: string
+          created_by: string | null
           description: string | null
           founded_year: number | null
           id: string
@@ -30,7 +30,7 @@ export type Database = {
           city?: string | null
           country?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           founded_year?: number | null
           id?: string
@@ -41,7 +41,7 @@ export type Database = {
           city?: string | null
           country?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           description?: string | null
           founded_year?: number | null
           id?: string
@@ -56,7 +56,7 @@ export type Database = {
           birth_year: number | null
           club_id: string | null
           created_at: string
-          created_by: string
+          created_by: string | null
           full_name: string
           height_cm: number | null
           id: string
@@ -71,7 +71,7 @@ export type Database = {
           birth_year?: number | null
           club_id?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           full_name: string
           height_cm?: number | null
           id?: string
@@ -86,7 +86,7 @@ export type Database = {
           birth_year?: number | null
           club_id?: string | null
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           full_name?: string
           height_cm?: number | null
           id?: string
@@ -136,7 +136,7 @@ export type Database = {
           age_group: string | null
           club_id: string
           created_at: string
-          created_by: string
+          created_by: string | null
           id: string
           league: string | null
           name: string
@@ -146,7 +146,7 @@ export type Database = {
           age_group?: string | null
           club_id: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           league?: string | null
           name: string
@@ -156,7 +156,7 @@ export type Database = {
           age_group?: string | null
           club_id?: string
           created_at?: string
-          created_by?: string
+          created_by?: string | null
           id?: string
           league?: string | null
           name?: string
