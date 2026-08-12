@@ -37,7 +37,7 @@ export const Route = createFileRoute("/players/")({
 function PlayersPage() {
   const { q } = Route.useSearch();
   const navigate = useNavigate();
-  const { data: players } = useSuspenseQuery(playersQuery(q));
+  const { data: players } = useSuspenseQuery(playersQuery(q ?? ""));
 
   return (
     <div className="min-h-screen">
@@ -45,7 +45,7 @@ function PlayersPage() {
       <main className="mx-auto max-w-6xl px-4 py-12">
         <h1 className="text-4xl">Spelare</h1>
         <Input
-          value={q}
+          value={q ?? ""}
           placeholder="Sök på namn…"
           className="mt-6 max-w-sm"
           onChange={(event) =>

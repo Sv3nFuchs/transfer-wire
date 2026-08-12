@@ -37,7 +37,7 @@ export const Route = createFileRoute("/clubs/")({
 function ClubsPage() {
   const { q } = Route.useSearch();
   const navigate = useNavigate();
-  const { data: clubs } = useSuspenseQuery(clubsQuery(q));
+  const { data: clubs } = useSuspenseQuery(clubsQuery(q ?? ""));
 
   return (
     <div className="min-h-screen">
@@ -45,7 +45,7 @@ function ClubsPage() {
       <main className="mx-auto max-w-6xl px-4 py-12">
         <h1 className="text-4xl">Klubbar</h1>
         <Input
-          value={q}
+          value={q ?? ""}
           placeholder="Sök klubbnamn…"
           className="mt-6 max-w-sm"
           onChange={(event) =>

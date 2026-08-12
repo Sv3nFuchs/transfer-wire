@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
+
 
 export const Route = createFileRoute("/players/$playerId")({
   loader: async ({ context, params }) => {
