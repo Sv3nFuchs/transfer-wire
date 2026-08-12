@@ -17,6 +17,7 @@ import { Route as ClubsIndexRouteImport } from './routes/clubs.index'
 import { Route as ClubsClubIdRouteImport } from './routes/clubs.$clubId'
 import { Route as PlayersIndexRouteImport } from './routes/players.index'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
+import { Route as AuthenticatedPlayersPlayerIdEditRouteImport } from './routes/_authenticated/players.$playerId.edit'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -57,6 +58,12 @@ const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
   path: '/players/$playerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPlayersPlayerIdEditRoute =
+  AuthenticatedPlayersPlayerIdEditRouteImport.update({
+    id: '/players/$playerId/edit',
+    path: '/players/$playerId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByFullPath {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs/': typeof ClubsIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -75,6 +83,7 @@ export interface FileRoutesByTo {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs': typeof ClubsIndexRoute
   '/players': typeof PlayersIndexRoute
+  '/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -86,6 +95,7 @@ export interface FileRoutesById {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs/': typeof ClubsIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/_authenticated/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs/'
     | '/players/'
+    | '/players/$playerId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs'
     | '/players'
+    | '/players/$playerId/edit'
   id:
     | '__root__'
     | '/'
@@ -116,6 +128,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs/'
     | '/players/'
+    | '/_authenticated/players/$playerId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -186,15 +199,24 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayersPlayerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/players/$playerId/edit': {
+      id: '/_authenticated/players/$playerId/edit'
+      path: '/players/$playerId/edit'
+      fullPath: '/players/$playerId/edit'
+      preLoaderRoute: typeof AuthenticatedPlayersPlayerIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedPlayersPlayerIdEditRoute: typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedPlayersPlayerIdEditRoute: AuthenticatedPlayersPlayerIdEditRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
