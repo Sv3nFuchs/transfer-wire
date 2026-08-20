@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { PlayerFlags } from "@/components/PlayerFlags";
 
 
 export const Route = createFileRoute("/players/$playerId")({
@@ -75,6 +76,7 @@ function PlayerPage() {
               <span className="mr-3 text-accent">{player.shirt_number}</span>
             ) : null}
             {player.full_name}
+            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle text-4xl" />
           </h1>
           <p className="mt-3 opacity-85">
             {[player.position, player.nationality, player.birth_year && `Född ${player.birth_year}`]

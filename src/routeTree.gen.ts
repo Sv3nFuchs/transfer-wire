@@ -17,6 +17,7 @@ import { Route as ClubsIndexRouteImport } from './routes/clubs.index'
 import { Route as ClubsClubIdRouteImport } from './routes/clubs.$clubId'
 import { Route as PlayersIndexRouteImport } from './routes/players.index'
 import { Route as PlayersPlayerIdRouteImport } from './routes/players.$playerId'
+import { Route as AuthenticatedClubsClubIdEditRouteImport } from './routes/_authenticated/clubs.$clubId.edit'
 import { Route as AuthenticatedPlayersPlayerIdEditRouteImport } from './routes/_authenticated/players.$playerId.edit'
 
 const IndexRoute = IndexRouteImport.update({
@@ -58,6 +59,12 @@ const PlayersPlayerIdRoute = PlayersPlayerIdRouteImport.update({
   path: '/players/$playerId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedClubsClubIdEditRoute =
+  AuthenticatedClubsClubIdEditRouteImport.update({
+    id: '/clubs/$clubId/edit',
+    path: '/clubs/$clubId/edit',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPlayersPlayerIdEditRoute =
   AuthenticatedPlayersPlayerIdEditRouteImport.update({
     id: '/players/$playerId/edit',
@@ -73,6 +80,7 @@ export interface FileRoutesByFullPath {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs/': typeof ClubsIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/clubs/$clubId/edit': typeof AuthenticatedClubsClubIdEditRoute
   '/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRoutesByTo {
@@ -83,6 +91,7 @@ export interface FileRoutesByTo {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs': typeof ClubsIndexRoute
   '/players': typeof PlayersIndexRoute
+  '/clubs/$clubId/edit': typeof AuthenticatedClubsClubIdEditRoute
   '/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRoutesById {
@@ -95,6 +104,7 @@ export interface FileRoutesById {
   '/players/$playerId': typeof PlayersPlayerIdRoute
   '/clubs/': typeof ClubsIndexRoute
   '/players/': typeof PlayersIndexRoute
+  '/_authenticated/clubs/$clubId/edit': typeof AuthenticatedClubsClubIdEditRoute
   '/_authenticated/players/$playerId/edit': typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 export interface FileRouteTypes {
@@ -107,6 +117,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs/'
     | '/players/'
+    | '/clubs/$clubId/edit'
     | '/players/$playerId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -117,6 +128,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs'
     | '/players'
+    | '/clubs/$clubId/edit'
     | '/players/$playerId/edit'
   id:
     | '__root__'
@@ -128,6 +140,7 @@ export interface FileRouteTypes {
     | '/players/$playerId'
     | '/clubs/'
     | '/players/'
+    | '/_authenticated/clubs/$clubId/edit'
     | '/_authenticated/players/$playerId/edit'
   fileRoutesById: FileRoutesById
 }
@@ -199,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayersPlayerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/clubs/$clubId/edit': {
+      id: '/_authenticated/clubs/$clubId/edit'
+      path: '/clubs/$clubId/edit'
+      fullPath: '/clubs/$clubId/edit'
+      preLoaderRoute: typeof AuthenticatedClubsClubIdEditRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/players/$playerId/edit': {
       id: '/_authenticated/players/$playerId/edit'
       path: '/players/$playerId/edit'
@@ -211,11 +231,13 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedClubsClubIdEditRoute: typeof AuthenticatedClubsClubIdEditRoute
   AuthenticatedPlayersPlayerIdEditRoute: typeof AuthenticatedPlayersPlayerIdEditRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedClubsClubIdEditRoute: AuthenticatedClubsClubIdEditRoute,
   AuthenticatedPlayersPlayerIdEditRoute: AuthenticatedPlayersPlayerIdEditRoute,
 }
 
