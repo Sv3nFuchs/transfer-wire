@@ -57,6 +57,8 @@ export type Database = {
           club_id: string | null
           created_at: string
           created_by: string | null
+          flag_1: string | null
+          flag_2: string | null
           full_name: string
           height_cm: number | null
           id: string
@@ -72,6 +74,8 @@ export type Database = {
           club_id?: string | null
           created_at?: string
           created_by?: string | null
+          flag_1?: string | null
+          flag_2?: string | null
           full_name: string
           height_cm?: number | null
           id?: string
@@ -87,6 +91,8 @@ export type Database = {
           club_id?: string | null
           created_at?: string
           created_by?: string | null
+          flag_1?: string | null
+          flag_2?: string | null
           full_name?: string
           height_cm?: number | null
           id?: string
