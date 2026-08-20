@@ -8,7 +8,7 @@ export const listPlayers = createServerFn({ method: "GET" })
     let query = supabase
       .from("players")
       .select(
-        "id, full_name, birth_year, position, nationality, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
+        "id, full_name, birth_year, position, nationality, flag_1, flag_2, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
       )
       .order("created_at", { ascending: false })
       .limit(60);
