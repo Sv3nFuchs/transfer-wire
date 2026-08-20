@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { COUNTRIES, flagEmoji } from "@/lib/flags";
 
 export const Route = createFileRoute("/_authenticated/players/$playerId/edit")({
   component: EditPlayerPage,
@@ -21,6 +22,8 @@ type FormState = {
   preferred_foot: string;
   height_cm: string;
   nationality: string;
+  flag_1: string;
+  flag_2: string;
   shirt_number: string;
   club_id: string;
   team_id: string;
@@ -34,6 +37,8 @@ const emptyForm: FormState = {
   preferred_foot: "",
   height_cm: "",
   nationality: "",
+  flag_1: "",
+  flag_2: "",
   shirt_number: "",
   club_id: "",
   team_id: "",
@@ -93,6 +98,8 @@ function EditPlayerPage() {
       preferred_foot: player.preferred_foot ?? "",
       height_cm: player.height_cm ? String(player.height_cm) : "",
       nationality: player.nationality ?? "",
+      flag_1: player.flag_1 ?? "",
+      flag_2: player.flag_2 ?? "",
       shirt_number: player.shirt_number ? String(player.shirt_number) : "",
       club_id: player.club_id ?? "",
       team_id: player.team_id ?? "",
@@ -123,6 +130,8 @@ function EditPlayerPage() {
         preferred_foot: str(form.preferred_foot),
         height_cm: num(form.height_cm),
         nationality: str(form.nationality),
+        flag_1: str(form.flag_1),
+        flag_2: str(form.flag_2),
         shirt_number: num(form.shirt_number),
         club_id: str(form.club_id),
         team_id: str(form.team_id),
@@ -222,6 +231,38 @@ function EditPlayerPage() {
           <div>
             <Label htmlFor="nationality">Nationalitet</Label>
             <Input id="nationality" value={form.nationality} onChange={(e) => set("nationality", e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="flag_1">Flagga 1</Label>
+            <select
+              id="flag_1"
+              value={form.flag_1}
+              onChange={(e) => set("flag_1", e.target.value)}
+              className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Ingen flagga</option>
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {flagEmoji(country.code)} {country.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="flag_2">Flagga 2 (valfri)</Label>
+            <select
+              id="flag_2"
+              value={form.flag_2}
+              onChange={(e) => set("flag_2", e.target.value)}
+              className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Ingen flagga</option>
+              {COUNTRIES.map((country) => (
+                <option key={country.code} value={country.code}>
+                  {flagEmoji(country.code)} {country.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <Label htmlFor="club_id">Klubb</Label>

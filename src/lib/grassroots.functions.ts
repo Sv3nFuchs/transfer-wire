@@ -8,7 +8,7 @@ export const listPlayers = createServerFn({ method: "GET" })
     let query = supabase
       .from("players")
       .select(
-        "id, full_name, birth_year, position, nationality, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
+        "id, full_name, birth_year, position, nationality, flag_1, flag_2, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
       )
       .order("created_at", { ascending: false })
       .limit(60);
@@ -68,7 +68,7 @@ export const getClub = createServerFn({ method: "GET" })
     if (!club) return null;
     const { data: players, error: playersError } = await supabase
       .from("players")
-      .select("id, full_name, position, birth_year, shirt_number, nationality, team_id")
+      .select("id, full_name, position, birth_year, shirt_number, nationality, flag_1, flag_2, team_id")
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);

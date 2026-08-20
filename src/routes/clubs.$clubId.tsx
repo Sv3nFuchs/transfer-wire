@@ -2,6 +2,8 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { clubQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { PlayerFlags } from "@/components/PlayerFlags";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export const Route = createFileRoute("/clubs/$clubId")({
   loader: async ({ context, params }) => {
@@ -50,6 +52,7 @@ function ClubNotFound() {
 function ClubPage() {
   const { clubId } = Route.useParams();
   const { data } = useSuspenseQuery(clubQuery(clubId));
+  const { isAdmin } = useIsAdmin();
   if (!data) return <ClubNotFound />;
   const { club, players } = data;
   const unassigned = players.filter((player) => !player.team_id);
@@ -68,6 +71,15 @@ function ClubPage() {
           </p>
           {club.description ? (
             <p className="mt-4 max-w-2xl text-sm opacity-80">{club.description}</p>
+          ) : null}
+          {isAdmin ? (
+            <Link
+              to="/clubs/$clubId/edit"
+              params={{ clubId }}
+              className="mt-5 inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
+            >
+              Redigera klubb
+            </Link>
           ) : null}
         </div>
       </section>
@@ -119,6 +131,8 @@ type SquadPlayer = {
   birth_year: number | null;
   shirt_number: number | null;
   nationality: string | null;
+  flag_1?: string | null;
+  flag_2?: string | null;
 };
 
 function Squad({ squad }: { squad: SquadPlayer[] }) {
@@ -138,6 +152,7 @@ function Squad({ squad }: { squad: SquadPlayer[] }) {
               {player.shirt_number ?? "–"}
             </span>
             <span className="font-display text-lg">{player.full_name}</span>
+            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="text-base" />
             <span className="ml-auto text-sm text-muted-foreground">
               {[player.position, player.birth_year, player.nationality].filter(Boolean).join(" · ")}
             </span>
