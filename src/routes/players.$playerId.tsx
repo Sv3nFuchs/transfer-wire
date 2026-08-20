@@ -61,6 +61,7 @@ function Fact({ label, value }: { label: string; value: string | number | null |
 function PlayerPage() {
   const { playerId } = Route.useParams();
   const { data: player } = useSuspenseQuery(playerQuery(playerId));
+  const { isAdmin } = useIsAdmin();
   if (!player) return <PlayerNotFound />;
 
   return (
@@ -80,18 +81,30 @@ function PlayerPage() {
               .filter(Boolean)
               .join(" · ")}
           </p>
-          {player.clubs ? (
-            <Link
-              to="/clubs/$clubId"
-              params={{ clubId: player.clubs.id }}
-              className="mt-5 inline-block rounded bg-accent px-3 py-1 font-display tracking-wide text-accent-foreground"
-            >
-              {player.clubs.name}
-              {player.teams ? ` — ${player.teams.name}` : ""}
-            </Link>
-          ) : null}
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            {player.clubs ? (
+              <Link
+                to="/clubs/$clubId"
+                params={{ clubId: player.clubs.id }}
+                className="inline-block rounded bg-accent px-3 py-1 font-display tracking-wide text-accent-foreground"
+              >
+                {player.clubs.name}
+                {player.teams ? ` — ${player.teams.name}` : ""}
+              </Link>
+            ) : null}
+            {isAdmin ? (
+              <Link
+                to="/players/$playerId/edit"
+                params={{ playerId }}
+                className="inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
+              >
+                Redigera
+              </Link>
+            ) : null}
+          </div>
         </div>
       </section>
+
 
       <main className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[2fr_1fr]">
         <div>
