@@ -178,6 +178,73 @@ export type Database = {
           },
         ]
       }
+      transfers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          from_club_id: string | null
+          from_club_name: string | null
+          id: string
+          note: string | null
+          player_id: string
+          to_club_id: string | null
+          to_club_name: string | null
+          transfer_date: string | null
+          transfer_type: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          from_club_id?: string | null
+          from_club_name?: string | null
+          id?: string
+          note?: string | null
+          player_id: string
+          to_club_id?: string | null
+          to_club_name?: string | null
+          transfer_date?: string | null
+          transfer_type?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          from_club_id?: string | null
+          from_club_name?: string | null
+          id?: string
+          note?: string | null
+          player_id?: string
+          to_club_id?: string | null
+          to_club_name?: string | null
+          transfer_date?: string | null
+          transfer_type?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transfers_from_club_id_fkey"
+            columns: ["from_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transfers_to_club_id_fkey"
+            columns: ["to_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
