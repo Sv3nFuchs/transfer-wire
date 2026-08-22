@@ -24,11 +24,17 @@ export const getPlayer = createServerFn({ method: "GET" })
     const supabase = createPublicClient();
     const { data: row, error } = await supabase
       .from("players")
-      .select("*, clubs(id, name, city, level, country), teams(id, name, age_group, league, season)")
+      .select(
+        "*, clubs(id, name, city, level, country), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name), to_club:clubs!transfers_to_club_id_fkey(id, name))",
+      )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row;
+    if (!row) return null;
+    const transfers = [...(row.transfers ?? [])].sort((a, b) =>
+      (a.transfer_date ?? "").localeCompare(b.transfer_date ?? ""),
+    );
+    return { ...row, transfers };
   });
 
 export const listClubs = createServerFn({ method: "GET" })
