@@ -317,8 +317,179 @@ function EditPlayerPage() {
             </Button>
           </div>
         </form>
+
+        <TransfersEditor playerId={playerId} clubs={clubs ?? []} />
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+type ClubOption = { id: string; name: string };
+
+function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOption[] }) {
+  const queryClient = useQueryClient();
+  const [fromClub, setFromClub] = useState("");
+  const [toClub, setToClub] = useState("");
+  const [date, setDate] = useState("");
+  const [type, setType] = useState("");
+  const [note, setNote] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const { data: transfers } = useQuery({
+    queryKey: ["transfers-edit", playerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("transfers")
+        .select(
+          "id, transfer_date, transfer_type, note, from_club_id, to_club_id, from_club_name, to_club_name",
+        )
+        .eq("player_id", playerId)
+        .order("transfer_date", { ascending: true });
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+
+  const clubName = (id: string | null, fallback: string | null) =>
+    clubs.find((club) => club.id === id)?.name ?? fallback ?? "Okänd klubb";
+
+  async function handleAdd(event: React.FormEvent) {
+    event.preventDefault();
+    if (!fromClub && !toClub) {
+      toast.error("Välj minst en klubb.");
+      return;
+    }
+    setBusy(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("transfers").insert({
+      player_id: playerId,
+      from_club_id: fromClub || null,
+      to_club_id: toClub || null,
+      transfer_date: date || null,
+      transfer_type: type.trim() || null,
+      note: note.trim() || null,
+      created_by: userData.user?.id ?? null,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error("Kunde inte lägga till övergången: " + error.message);
+      return;
+    }
+    setFromClub("");
+    setToClub("");
+    setDate("");
+    setType("");
+    setNote("");
+    await queryClient.invalidateQueries();
+    toast.success("Övergången är tillagd.");
+  }
+
+  async function handleDelete(id: string) {
+    if (!window.confirm("Ta bort övergången?")) return;
+    const { error } = await supabase.from("transfers").delete().eq("id", id);
+    if (error) {
+      toast.error("Kunde inte ta bort: " + error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success("Övergången är borttagen.");
+  }
+
+  return (
+    <section className="mt-14">
+      <h2 className="text-3xl">Övergångar</h2>
+      {(transfers ?? []).length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">Inga övergångar registrerade ännu.</p>
+      ) : (
+        <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          {(transfers ?? []).map((transfer) => (
+            <li key={transfer.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              <span className="label-caps w-28 text-muted-foreground">
+                {transfer.transfer_date ?? "Okänt datum"}
+              </span>
+              <span className="font-display text-lg">
+                {clubName(transfer.from_club_id, transfer.from_club_name)}
+              </span>
+              <span className="text-accent">→</span>
+              <span className="font-display text-lg">
+                {clubName(transfer.to_club_id, transfer.to_club_name)}
+              </span>
+              {transfer.transfer_type ? (
+                <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase">
+                  {transfer.transfer_type}
+                </span>
+              ) : null}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => handleDelete(transfer.id)}
+              >
+                Ta bort
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <form onSubmit={handleAdd} className="mt-6 grid gap-4 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="from_club">Från klubb</Label>
+          <select
+            id="from_club"
+            value={fromClub}
+            onChange={(e) => setFromClub(e.target.value)}
+            className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Okänd / ingen</option>
+            {clubs.map((club) => (
+              <option key={club.id} value={club.id}>
+                {club.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="to_club">Till klubb</Label>
+          <select
+            id="to_club"
+            value={toClub}
+            onChange={(e) => setToClub(e.target.value)}
+            className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Okänd / ingen</option>
+            {clubs.map((club) => (
+              <option key={club.id} value={club.id}>
+                {club.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="transfer_date">Datum</Label>
+          <Input
+            id="transfer_date"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label htmlFor="transfer_type">Typ (t.ex. Permanent, Lån)</Label>
+          <Input id="transfer_type" value={type} onChange={(e) => setType(e.target.value)} />
+        </div>
+        <div className="sm:col-span-2">
+          <Label htmlFor="transfer_note">Notering</Label>
+          <Textarea id="transfer_note" rows={3} value={note} onChange={(e) => setNote(e.target.value)} />
+        </div>
+        <div className="sm:col-span-2">
+          <Button type="submit" variant="accent" disabled={busy}>
+            {busy ? "Sparar…" : "Lägg till övergång"}
+          </Button>
+        </div>
+      </form>
+    </section>
   );
 }
