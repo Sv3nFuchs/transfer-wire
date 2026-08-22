@@ -50,6 +50,20 @@ function PlayerNotFound() {
   );
 }
 
+const MONTHS = [
+  "januari","februari","mars","april","maj","juni",
+  "juli","augusti","september","oktober","november","december",
+];
+
+export function formatTransferDate(date: string | null | undefined) {
+  if (!date) return "Okänt datum";
+  const [year, month, day] = date.split("-");
+  if (!year) return date;
+  const monthName = month ? MONTHS[Number(month) - 1] : undefined;
+  if (!monthName) return year;
+  return `${day && day !== "01" ? `${Number(day)} ` : ""}${monthName} ${year}`;
+}
+
 function Fact({ label, value }: { label: string; value: string | number | null | undefined }) {
   return (
     <div className="border-t border-border py-3">
