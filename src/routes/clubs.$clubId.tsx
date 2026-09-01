@@ -62,8 +62,13 @@ function ClubPage() {
       <SiteHeader />
       <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
         <div className="mx-auto max-w-6xl px-4 py-14">
-          <p className="label-caps text-accent">Klubb</p>
-          <h1 className="mt-2 text-5xl sm:text-6xl">{club.name}</h1>
+          <div className="flex items-center gap-5">
+            <ClubLogo name={club.name} url={club.logo_url} className="size-20 sm:size-24" />
+            <div>
+              <p className="label-caps text-accent">Klubb</p>
+              <h1 className="mt-2 text-5xl sm:text-6xl">{club.name}</h1>
+            </div>
+          </div>
           <p className="mt-3 opacity-85">
             {[club.city, club.country, club.level, club.founded_year && `Grundad ${club.founded_year}`]
               .filter(Boolean)
