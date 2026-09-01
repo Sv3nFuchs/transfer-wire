@@ -94,6 +94,10 @@ function EditClubPage() {
       founded_year: club.founded_year ? String(club.founded_year) : "",
       description: club.description ?? "",
     });
+    const stored = club.logo_url ?? "";
+    setLogoValue(stored);
+    void previewFor(stored).then(setLogoPreview);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [club]);
 
   function set<K extends keyof FormState>(key: K, value: string) {
