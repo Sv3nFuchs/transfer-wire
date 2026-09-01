@@ -63,8 +63,11 @@ function ClubsPage() {
                   params={{ clubId: club.id }}
                   className="flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-lift"
                 >
-                  <span className="font-display text-2xl leading-tight">{club.name}</span>
-                  <span className="mt-1 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-3">
+                    <ClubLogo name={club.name} url={club.logo_url} className="size-12" />
+                    <span className="font-display text-2xl leading-tight">{club.name}</span>
+                  </span>
+                  <span className="mt-2 text-sm text-muted-foreground">
                     {[club.city, club.country].filter(Boolean).join(", ")}
                   </span>
                   <span className="mt-4 flex gap-4 text-sm">
