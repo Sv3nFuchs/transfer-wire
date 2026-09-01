@@ -69,12 +69,13 @@ export const listClubs = createServerFn({ method: "GET" })
     const supabase = createPublicClient();
     let query = supabase
       .from("clubs")
-      .select("id, name, city, country, level, founded_year, teams(id), players(id)")
+      .select("id, name, city, country, level, founded_year, logo_url, teams(id), players(id)")
       .order("name", { ascending: true })
       .limit(60);
     if (data.q) query = query.ilike("name", `%${data.q}%`);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
+    const logoMap = await resolveLogoUrls((rows ?? []).map((club) => club.logo_url));
     return (rows ?? []).map((club) => ({
       id: club.id,
       name: club.name,
@@ -82,6 +83,7 @@ export const listClubs = createServerFn({ method: "GET" })
       country: club.country,
       level: club.level,
       founded_year: club.founded_year,
+      logo_url: applyLogo(club.logo_url, logoMap),
       team_count: club.teams?.length ?? 0,
       player_count: club.players?.length ?? 0,
     }));
