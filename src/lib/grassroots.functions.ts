@@ -106,7 +106,11 @@ export const getClub = createServerFn({ method: "GET" })
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);
-    return { club, players: players ?? [] };
+    const logoMap = await resolveLogoUrls([club.logo_url]);
+    return {
+      club: { ...club, logo_url: applyLogo(club.logo_url, logoMap) },
+      players: players ?? [],
+    };
   });
 
 export const getOverview = createServerFn({ method: "GET" }).handler(async () => {
