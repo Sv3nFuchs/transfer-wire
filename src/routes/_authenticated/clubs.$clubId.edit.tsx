@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { ClubLogo } from "@/components/ClubLogo";
 
 export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
   component: EditClubPage,
@@ -39,6 +40,37 @@ function EditClubPage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [logoValue, setLogoValue] = useState("");
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function previewFor(value: string) {
+    if (!value) return null;
+    if (/^https?:\/\//.test(value)) return value;
+    const { data } = await supabase.storage.from("club-logos").createSignedUrl(value, 3600);
+    return data?.signedUrl ?? null;
+  }
+
+  async function handleLogoFile(file: File) {
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Filen är för stor (max 2 MB).");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${clubId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("club-logos")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    setUploading(false);
+    if (error) {
+      toast.error("Uppladdningen misslyckades: " + error.message);
+      return;
+    }
+    setLogoValue(path);
+    setLogoPreview(await previewFor(path));
+    toast.success("Loggan är uppladdad — kom ihåg att spara.");
+  }
 
   const { data: club, isLoading } = useQuery({
     queryKey: ["club-edit", clubId],
@@ -63,6 +95,10 @@ function EditClubPage() {
       founded_year: club.founded_year ? String(club.founded_year) : "",
       description: club.description ?? "",
     });
+    const stored = club.logo_url ?? "";
+    setLogoValue(stored);
+    void previewFor(stored).then(setLogoPreview);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [club]);
 
   function set<K extends keyof FormState>(key: K, value: string) {
@@ -87,6 +123,7 @@ function EditClubPage() {
         level: str(form.level),
         founded_year: form.founded_year.trim() === "" ? null : Number(form.founded_year),
         description: str(form.description),
+        logo_url: str(logoValue),
       })
       .eq("id", clubId);
     setSaving(false);
@@ -200,6 +237,50 @@ function EditClubPage() {
               inputMode="numeric"
               value={form.founded_year}
               onChange={(e) => set("founded_year", e.target.value)}
+            />
+          </div>
+          <div className="sm:col-span-2 rounded-lg border border-border p-4">
+            <Label>Klubblogga</Label>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <ClubLogo name={form.name || "FC"} url={logoPreview} className="size-20" />
+              <div className="flex flex-col gap-2">
+                <input
+                  id="logo-file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleLogoFile(file);
+                  }}
+                  className="text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ladda upp en bild (max 2 MB) eller klistra in en bildlänk från nätet.
+                </p>
+              </div>
+              {logoValue ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setLogoValue("");
+                    setLogoPreview(null);
+                  }}
+                >
+                  Ta bort logga
+                </Button>
+              ) : null}
+            </div>
+            <Input
+              className="mt-3"
+              placeholder="https://…/logo.png"
+              value={/^https?:\/\//.test(logoValue) ? logoValue : ""}
+              onChange={(e) => {
+                setLogoValue(e.target.value.trim());
+                setLogoPreview(e.target.value.trim() || null);
+              }}
             />
           </div>
           <div className="sm:col-span-2">

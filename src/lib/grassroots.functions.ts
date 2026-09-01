@@ -1,6 +1,32 @@
 import { createServerFn } from "@tanstack/react-start";
 import { createPublicClient } from "./public-client.server";
 
+/**
+ * logo_url holds either an external https URL or a path inside the private
+ * club-logos bucket. Bucket paths are turned into signed URLs for display.
+ */
+async function resolveLogoUrls(paths: (string | null | undefined)[]) {
+  const storagePaths = [
+    ...new Set(paths.filter((p): p is string => !!p && !/^https?:\/\//.test(p))),
+  ];
+  const map = new Map<string, string>();
+  if (storagePaths.length === 0) return map;
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage
+    .from("club-logos")
+    .createSignedUrls(storagePaths, 60 * 60 * 24 * 7);
+  for (const item of data ?? []) {
+    if (item.path && item.signedUrl) map.set(item.path, item.signedUrl);
+  }
+  return map;
+}
+
+function applyLogo(url: string | null | undefined, map: Map<string, string>) {
+  if (!url) return null;
+  if (/^https?:\/\//.test(url)) return url;
+  return map.get(url) ?? null;
+}
+
 export const listPlayers = createServerFn({ method: "GET" })
   .inputValidator((input: { q?: string } | undefined) => input ?? {})
   .handler(async ({ data }) => {
@@ -43,12 +69,13 @@ export const listClubs = createServerFn({ method: "GET" })
     const supabase = createPublicClient();
     let query = supabase
       .from("clubs")
-      .select("id, name, city, country, level, founded_year, teams(id), players(id)")
+      .select("id, name, city, country, level, founded_year, logo_url, teams(id), players(id)")
       .order("name", { ascending: true })
       .limit(60);
     if (data.q) query = query.ilike("name", `%${data.q}%`);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
+    const logoMap = await resolveLogoUrls((rows ?? []).map((club) => club.logo_url));
     return (rows ?? []).map((club) => ({
       id: club.id,
       name: club.name,
@@ -56,6 +83,7 @@ export const listClubs = createServerFn({ method: "GET" })
       country: club.country,
       level: club.level,
       founded_year: club.founded_year,
+      logo_url: applyLogo(club.logo_url, logoMap),
       team_count: club.teams?.length ?? 0,
       player_count: club.players?.length ?? 0,
     }));
@@ -78,7 +106,11 @@ export const getClub = createServerFn({ method: "GET" })
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);
-    return { club, players: players ?? [] };
+    const logoMap = await resolveLogoUrls([club.logo_url]);
+    return {
+      club: { ...club, logo_url: applyLogo(club.logo_url, logoMap) },
+      players: players ?? [],
+    };
   });
 
 export const getOverview = createServerFn({ method: "GET" }).handler(async () => {
