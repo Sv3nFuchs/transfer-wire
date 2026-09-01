@@ -39,6 +39,37 @@ function EditClubPage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [logoValue, setLogoValue] = useState("");
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function previewFor(value: string) {
+    if (!value) return null;
+    if (/^https?:\/\//.test(value)) return value;
+    const { data } = await supabase.storage.from("club-logos").createSignedUrl(value, 3600);
+    return data?.signedUrl ?? null;
+  }
+
+  async function handleLogoFile(file: File) {
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Filen är för stor (max 2 MB).");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "png";
+    const path = `${clubId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("club-logos")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    setUploading(false);
+    if (error) {
+      toast.error("Uppladdningen misslyckades: " + error.message);
+      return;
+    }
+    setLogoValue(path);
+    setLogoPreview(await previewFor(path));
+    toast.success("Loggan är uppladdad — kom ihåg att spara.");
+  }
 
   const { data: club, isLoading } = useQuery({
     queryKey: ["club-edit", clubId],
