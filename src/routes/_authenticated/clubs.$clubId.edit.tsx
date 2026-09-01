@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { ClubLogo } from "@/components/ClubLogo";
 
 export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
   component: EditClubPage,
