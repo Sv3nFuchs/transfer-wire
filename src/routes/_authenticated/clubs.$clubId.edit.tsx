@@ -238,6 +238,50 @@ function EditClubPage() {
               onChange={(e) => set("founded_year", e.target.value)}
             />
           </div>
+          <div className="sm:col-span-2 rounded-lg border border-border p-4">
+            <Label>Klubblogga</Label>
+            <div className="mt-3 flex flex-wrap items-center gap-4">
+              <ClubLogo name={form.name || "FC"} url={logoPreview} className="size-20" />
+              <div className="flex flex-col gap-2">
+                <input
+                  id="logo-file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) void handleLogoFile(file);
+                  }}
+                  className="text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Ladda upp en bild (max 2 MB) eller klistra in en bildlänk från nätet.
+                </p>
+              </div>
+              {logoValue ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setLogoValue("");
+                    setLogoPreview(null);
+                  }}
+                >
+                  Ta bort logga
+                </Button>
+              ) : null}
+            </div>
+            <Input
+              className="mt-3"
+              placeholder="https://…/logo.png"
+              value={/^https?:\/\//.test(logoValue) ? logoValue : ""}
+              onChange={(e) => {
+                setLogoValue(e.target.value.trim());
+                setLogoPreview(e.target.value.trim() || null);
+              }}
+            />
+          </div>
           <div className="sm:col-span-2">
             <Label htmlFor="description">Beskrivning</Label>
             <Textarea
