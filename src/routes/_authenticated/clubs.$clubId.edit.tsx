@@ -122,6 +122,7 @@ function EditClubPage() {
         level: str(form.level),
         founded_year: form.founded_year.trim() === "" ? null : Number(form.founded_year),
         description: str(form.description),
+        logo_url: str(logoValue),
       })
       .eq("id", clubId);
     setSaving(false);
