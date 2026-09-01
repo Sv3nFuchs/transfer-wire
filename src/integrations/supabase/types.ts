@@ -24,6 +24,7 @@ export type Database = {
           founded_year: number | null
           id: string
           level: string | null
+          logo_url: string | null
           name: string
         }
         Insert: {
@@ -35,6 +36,7 @@ export type Database = {
           founded_year?: number | null
           id?: string
           level?: string | null
+          logo_url?: string | null
           name: string
         }
         Update: {
@@ -46,6 +48,7 @@ export type Database = {
           founded_year?: number | null
           id?: string
           level?: string | null
+          logo_url?: string | null
           name?: string
         }
         Relationships: []
