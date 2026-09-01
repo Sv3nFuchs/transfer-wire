@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { clubsQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Input } from "@/components/ui/input";
+import { ClubLogo } from "@/components/ClubLogo";
 
 export const Route = createFileRoute("/clubs/")({
   head: () => ({
