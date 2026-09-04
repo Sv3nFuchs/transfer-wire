@@ -4,6 +4,7 @@ import { playersQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Input } from "@/components/ui/input";
 import { PlayerFlags } from "@/components/PlayerFlags";
+import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/players/")({
   head: () => ({
@@ -39,15 +40,16 @@ function PlayersPage() {
   const { q } = Route.useSearch();
   const navigate = useNavigate();
   const { data: players } = useSuspenseQuery(playersQuery(q ?? ""));
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-12">
-        <h1 className="text-4xl">Spelare</h1>
+        <h1 className="text-4xl">{t("players.title")}</h1>
         <Input
           value={q ?? ""}
-          placeholder="Sök på namn…"
+          placeholder={t("players.searchPlaceholder")}
           className="mt-6 max-w-sm"
           onChange={(event) =>
             navigate({ to: "/players", search: { q: event.target.value }, replace: true })
@@ -58,14 +60,14 @@ function PlayersPage() {
           <table className="w-full text-sm">
             <thead className="bg-secondary text-secondary-foreground">
               <tr>
-                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">Spelare</th>
-                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">Pos</th>
+                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">{t("players.thPlayer")}</th>
+                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">{t("players.thPos")}</th>
                 <th className="hidden px-4 py-3 text-left label-caps text-secondary-foreground sm:table-cell">
-                  Född
+                  {t("players.thBorn")}
                 </th>
-                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">Klubb</th>
+                <th className="px-4 py-3 text-left label-caps text-secondary-foreground">{t("players.thClub")}</th>
                 <th className="hidden px-4 py-3 text-left label-caps text-secondary-foreground md:table-cell">
-                  Lag
+                  {t("players.thTeam")}
                 </th>
               </tr>
             </thead>
@@ -73,7 +75,7 @@ function PlayersPage() {
               {players.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
-                    Inga spelare matchar sökningen.
+                    {t("players.noMatch")}
                   </td>
                 </tr>
               )}
@@ -104,7 +106,7 @@ function PlayersPage() {
                         {player.clubs?.name}
                       </Link>
                     ) : (
-                      <span className="text-muted-foreground">Klubblös</span>
+                      <span className="text-muted-foreground">{t("players.noClub")}</span>
                     )}
                   </td>
                   <td className="hidden px-4 py-3 text-muted-foreground md:table-cell">

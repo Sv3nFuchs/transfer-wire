@@ -5,6 +5,7 @@ import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { PlayerFlags } from "@/components/PlayerFlags";
 import { ClubLogo } from "@/components/ClubLogo";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/clubs/$clubId")({
   loader: async ({ context, params }) => {
@@ -37,13 +38,14 @@ export const Route = createFileRoute("/clubs/$clubId")({
 });
 
 function ClubNotFound() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <div className="mx-auto max-w-6xl px-4 py-20 text-center">
-        <h1 className="text-4xl">Klubben finns inte</h1>
+        <h1 className="text-4xl">{t("club.notFound")}</h1>
         <Link to="/clubs" className="mt-4 inline-block text-primary underline">
-          Tillbaka till klubbar
+          {t("club.backToClubs")}
         </Link>
       </div>
     </div>
@@ -54,6 +56,7 @@ function ClubPage() {
   const { clubId } = Route.useParams();
   const { data } = useSuspenseQuery(clubQuery(clubId));
   const { isAdmin } = useIsAdmin();
+  const { t } = useLanguage();
   if (!data) return <ClubNotFound />;
   const { club, players } = data;
   const unassigned = players.filter((player) => !player.team_id);
@@ -66,12 +69,12 @@ function ClubPage() {
           <div className="flex items-center gap-5">
             <ClubLogo name={club.name} url={club.logo_url} className="size-20 sm:size-24" />
             <div>
-              <p className="label-caps text-accent">Klubb</p>
+              <p className="label-caps text-accent">{t("club.kicker")}</p>
               <h1 className="mt-2 text-5xl sm:text-6xl">{club.name}</h1>
             </div>
           </div>
           <p className="mt-3 opacity-85">
-            {[club.city, club.country, club.level, club.founded_year && `Grundad ${club.founded_year}`]
+            {[club.city, club.country, club.level, club.founded_year && `${t("club.founded")} ${club.founded_year}`]
               .filter(Boolean)
               .join(" · ")}
           </p>
@@ -84,17 +87,17 @@ function ClubPage() {
               params={{ clubId }}
               className="mt-5 inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
             >
-              Redigera klubb
+              {t("club.edit")}
             </Link>
           ) : null}
         </div>
       </section>
 
       <main className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-3xl">Lag & trupper</h2>
+        <h2 className="text-3xl">{t("club.teamsAndSquads")}</h2>
         {club.teams.length === 0 && unassigned.length === 0 ? (
           <p className="mt-4 text-sm text-muted-foreground">
-            Inga lag är registrerade för den här klubben ännu.
+            {t("club.noTeams")}
           </p>
         ) : null}
         <div className="mt-6 space-y-8">
@@ -118,7 +121,7 @@ function ClubPage() {
           {unassigned.length > 0 && (
             <section className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
               <header className="border-b border-border bg-secondary px-5 py-3">
-                <h3 className="text-2xl leading-none">Övriga spelare i klubben</h3>
+                <h3 className="text-2xl leading-none">{t("club.otherPlayers")}</h3>
               </header>
               <Squad squad={unassigned} />
             </section>
@@ -142,8 +145,9 @@ type SquadPlayer = {
 };
 
 function Squad({ squad }: { squad: SquadPlayer[] }) {
+  const { t } = useLanguage();
   if (squad.length === 0) {
-    return <p className="px-5 py-6 text-sm text-muted-foreground">Truppen är tom.</p>;
+    return <p className="px-5 py-6 text-sm text-muted-foreground">{t("club.emptySquad")}</p>;
   }
   return (
     <ul className="divide-y divide-border">

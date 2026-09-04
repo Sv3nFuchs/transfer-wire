@@ -2,10 +2,27 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
+
+function LanguageToggle() {
+  const { lang, setLang, t } = useLanguage();
+  return (
+    <button
+      type="button"
+      onClick={() => setLang(lang === "sv" ? "en" : "sv")}
+      title={t("lang.toggleTitle")}
+      aria-label={t("lang.toggleTitle")}
+      className="rounded border border-pitch-foreground/40 px-2 py-1 font-display text-sm tracking-wide transition-colors hover:bg-pitch-foreground/10"
+    >
+      {lang === "sv" ? "EN" : "SV"}
+    </button>
+  );
+}
 
 export function SiteHeader() {
   const [session, setSession] = useState<Session | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -28,24 +45,25 @@ export function SiteHeader() {
             className="font-display text-base tracking-wide opacity-80 transition-opacity hover:opacity-100"
             activeProps={{ className: "opacity-100 underline decoration-accent decoration-2" }}
           >
-            Spelare
+            {t("nav.players")}
           </Link>
           <Link
             to="/clubs"
             className="font-display text-base tracking-wide opacity-80 transition-opacity hover:opacity-100"
             activeProps={{ className: "opacity-100 underline decoration-accent decoration-2" }}
           >
-            Klubbar
+            {t("nav.clubs")}
           </Link>
         </nav>
-        <div className="ml-auto">
+        <div className="ml-auto flex items-center gap-3">
+          <LanguageToggle />
           {session ? (
             <Button asChild variant="accent" size="sm">
-              <Link to="/dashboard">Min sida</Link>
+              <Link to="/dashboard">{t("nav.myPage")}</Link>
             </Button>
           ) : (
             <Button asChild variant="accent" size="sm">
-              <Link to="/auth">Logga in</Link>
+              <Link to="/auth">{t("nav.login")}</Link>
             </Button>
           )}
         </div>
@@ -55,11 +73,11 @@ export function SiteHeader() {
 }
 
 export function SiteFooter() {
+  const { t } = useLanguage();
   return (
     <footer className="mt-20 border-t border-border bg-card">
       <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
-        Gräsrot FC Data — spelar- och lagdatabas för gräsrotsfotboll i Sverige och USA. Byggd av och
-        för ledare, scouter och föräldrar.
+        {t("footer.text")}
       </div>
     </footer>
   );

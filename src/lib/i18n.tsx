@@ -79,6 +79,7 @@ const dict = {
   "player.nationality": { sv: "Nationalitet", en: "Nationality" },
   "player.team": { sv: "Lag", en: "Team" },
   "player.ageGroup": { sv: "Åldersgrupp", en: "Age group" },
+  "player.bornPrefix": { sv: "Född", en: "Born" },
   "player.notFound": { sv: "Spelaren finns inte", en: "Player not found" },
   "player.backToPlayers": { sv: "Tillbaka till spelare", en: "Back to players" },
 
