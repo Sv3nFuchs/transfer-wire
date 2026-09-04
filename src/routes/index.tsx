@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { overviewQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,23 +33,20 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { data } = useSuspenseQuery(overviewQuery());
+  const { t } = useLanguage();
+
 
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="label-caps text-accent">Division 5–7 · Youth soccer · Sunday League</p>
-          <h1 className="mt-3 max-w-3xl text-5xl leading-[0.95] sm:text-7xl">
-            Varje spelare på gräsrotsnivå förtjänar en profil
-          </h1>
-          <p className="mt-5 max-w-xl text-base opacity-85">
-            Gräsrot FC Data är en öppen spelar- och lagdatabas för fotboll under proffsnivån. Lägg in
-            din klubb, dina lag och dina spelare — resten av communityn kan söka och följa dem.
-          </p>
+          <p className="label-caps text-accent">{t("home.kicker")}</p>
+          <h1 className="mt-3 max-w-3xl text-5xl leading-[0.95] sm:text-7xl">{t("home.title")}</h1>
+          <p className="mt-5 max-w-xl text-base opacity-85">{t("home.lead")}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild variant="accent" size="lg">
-              <Link to="/players">Sök spelare</Link>
+              <Link to="/players">{t("home.ctaPlayers")}</Link>
             </Button>
             <Button
               asChild
