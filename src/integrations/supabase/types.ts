@@ -26,6 +26,7 @@ export type Database = {
           level: string | null
           logo_url: string | null
           name: string
+          org_type: string
         }
         Insert: {
           city?: string | null
@@ -38,6 +39,7 @@ export type Database = {
           level?: string | null
           logo_url?: string | null
           name: string
+          org_type?: string
         }
         Update: {
           city?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           level?: string | null
           logo_url?: string | null
           name?: string
+          org_type?: string
         }
         Relationships: []
       }
@@ -189,6 +192,7 @@ export type Database = {
           from_club_name: string | null
           id: string
           note: string | null
+          org_type: string
           player_id: string
           to_club_id: string | null
           to_club_name: string | null
@@ -203,6 +207,7 @@ export type Database = {
           from_club_name?: string | null
           id?: string
           note?: string | null
+          org_type?: string
           player_id: string
           to_club_id?: string | null
           to_club_name?: string | null
@@ -217,6 +222,7 @@ export type Database = {
           from_club_name?: string | null
           id?: string
           note?: string | null
+          org_type?: string
           player_id?: string
           to_club_id?: string | null
           to_club_name?: string | null
