@@ -85,7 +85,6 @@ const dict = {
 
   "club.kicker": { sv: "Klubb", en: "Club" },
   "club.founded": { sv: "Grundad", en: "Founded" },
-  "club.squadEmpty": { sv: "Truppen är tom.", en: "The squad is empty." },
   "club.edit": { sv: "Redigera klubb", en: "Edit club" },
   "club.teamsAndSquads": { sv: "Lag & trupper", en: "Teams & squads" },
   "club.noTeams": {
