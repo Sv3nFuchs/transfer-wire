@@ -54,14 +54,14 @@ function Index() {
               variant="outline"
               className="border-pitch-foreground/30 bg-transparent text-pitch-foreground hover:bg-pitch-foreground/10 hover:text-pitch-foreground"
             >
-              <Link to="/clubs">Bläddra klubbar</Link>
+              <Link to="/clubs">{t("home.ctaClubs")}</Link>
             </Button>
           </div>
           <dl className="mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-pitch-foreground/20 pt-6">
             {[
-              ["Spelare", data.playerCount],
-              ["Klubbar", data.clubCount],
-              ["Lag", data.teamCount],
+              [t("home.statPlayers"), data.playerCount],
+              [t("home.statClubs"), data.clubCount],
+              [t("home.statTeams"), data.teamCount],
             ].map(([label, value]) => (
               <div key={label as string}>
                 <dd className="font-display text-4xl text-accent">{value as number}</dd>
@@ -73,11 +73,9 @@ function Index() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
-        <h2 className="text-3xl">Senast tillagda spelare</h2>
+        <h2 className="text-3xl">{t("home.latest")}</h2>
         {data.latestPlayers.length === 0 ? (
-          <p className="mt-4 max-w-md text-sm text-muted-foreground">
-            Databasen är tom. Logga in och bli först med att registrera en klubb och dess spelare.
-          </p>
+          <p className="mt-4 max-w-md text-sm text-muted-foreground">{t("home.empty")}</p>
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.latestPlayers.map((player) => (
