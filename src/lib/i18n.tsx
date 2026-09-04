@@ -79,11 +79,13 @@ const dict = {
   "player.nationality": { sv: "Nationalitet", en: "Nationality" },
   "player.team": { sv: "Lag", en: "Team" },
   "player.ageGroup": { sv: "Åldersgrupp", en: "Age group" },
+  "player.bornPrefix": { sv: "Född", en: "Born" },
   "player.notFound": { sv: "Spelaren finns inte", en: "Player not found" },
   "player.backToPlayers": { sv: "Tillbaka till spelare", en: "Back to players" },
 
   "club.kicker": { sv: "Klubb", en: "Club" },
   "club.founded": { sv: "Grundad", en: "Founded" },
+  "club.squadEmpty": { sv: "Truppen är tom.", en: "The squad is empty." },
   "club.edit": { sv: "Redigera klubb", en: "Edit club" },
   "club.teamsAndSquads": { sv: "Lag & trupper", en: "Teams & squads" },
   "club.noTeams": {
