@@ -61,11 +61,79 @@ function Fact({ label, value }: { label: string; value: string | number | null |
   );
 }
 
+type TransferRow = {
+  id: string;
+  transfer_date: string | null;
+  transfer_type: string | null;
+  note: string | null;
+  org_type: string | null;
+  from_club_name: string | null;
+  to_club_name: string | null;
+  from_club: { id: string; name: string; logo_url: string | null } | null;
+  to_club: { id: string; name: string; logo_url: string | null } | null;
+};
+
+function TransferClub({ name, logo }: { name: string; logo: string | null }) {
+  return (
+    <span className="inline-flex items-center gap-2">
+      <ClubLogo name={name} url={logo} className="size-7" />
+      <span className="font-display text-lg">{name}</span>
+    </span>
+  );
+}
+
+function TransferSection({
+  title,
+  empty,
+  transfers,
+}: {
+  title: string;
+  empty: string;
+  transfers: TransferRow[];
+}) {
+  const { t, lang } = useLanguage();
+  return (
+    <section className="mt-10 border-t-2 border-border pt-8">
+      <h2 className="text-2xl">{title}</h2>
+      {transfers.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">{empty}</p>
+      ) : (
+        <ol className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+          {transfers.map((transfer) => (
+            <li key={transfer.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
+              <span className="label-caps w-24 text-muted-foreground">
+                {formatDateInLang(transfer.transfer_date, lang, t("player.unknownDate"))}
+              </span>
+              <TransferClub
+                name={transfer.from_club?.name ?? transfer.from_club_name ?? t("player.unknownClub")}
+                logo={transfer.from_club?.logo_url ?? null}
+              />
+              <span className="text-accent">→</span>
+              <TransferClub
+                name={transfer.to_club?.name ?? transfer.to_club_name ?? t("player.unknownClub")}
+                logo={transfer.to_club?.logo_url ?? null}
+              />
+              {transfer.transfer_type ? (
+                <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase tracking-wide">
+                  {transfer.transfer_type}
+                </span>
+              ) : null}
+              {transfer.note ? (
+                <span className="w-full text-sm text-muted-foreground">{transfer.note}</span>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
 function PlayerPage() {
   const { playerId } = Route.useParams();
   const { data: player } = useSuspenseQuery(playerQuery(playerId));
   const { isAdmin } = useIsAdmin();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   if (!player) return <PlayerNotFound />;
 
   return (
