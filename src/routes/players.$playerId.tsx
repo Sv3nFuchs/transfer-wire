@@ -118,37 +118,21 @@ function PlayerPage() {
             {player.bio || t("player.noBio")}
           </p>
 
-          <h2 className="mt-10 text-2xl">{t("player.transfers")}</h2>
-          {player.transfers.length === 0 ? (
-            <p className="mt-3 text-sm text-muted-foreground">
-              {t("player.noTransfers")}
-            </p>
-          ) : (
-            <ol className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
-              {player.transfers.map((transfer) => (
-                <li key={transfer.id} className="flex flex-wrap items-baseline gap-x-3 gap-y-1 px-5 py-4">
-                  <span className="label-caps w-24 text-muted-foreground">
-                    {formatDateInLang(transfer.transfer_date, lang, t("player.unknownDate"))}
-                  </span>
-                  <span className="font-display text-lg">
-                    {transfer.from_club?.name ?? transfer.from_club_name ?? t("player.unknownClub")}
-                  </span>
-                  <span className="text-accent">→</span>
-                  <span className="font-display text-lg">
-                    {transfer.to_club?.name ?? transfer.to_club_name ?? t("player.unknownClub")}
-                  </span>
-                  {transfer.transfer_type ? (
-                    <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase tracking-wide">
-                      {transfer.transfer_type}
-                    </span>
-                  ) : null}
-                  {transfer.note ? (
-                    <span className="w-full text-sm text-muted-foreground">{transfer.note}</span>
-                  ) : null}
-                </li>
-              ))}
-            </ol>
-          )}
+          <TransferSection
+            title={t("player.clubTransfers")}
+            empty={t("player.noClubTransfers")}
+            transfers={player.transfers.filter((transfer) => (transfer.org_type ?? "club") === "club")}
+          />
+          <TransferSection
+            title={t("player.schoolSpells")}
+            empty={t("player.noSchoolSpells")}
+            transfers={player.transfers.filter((transfer) => transfer.org_type === "school")}
+          />
+          <TransferSection
+            title={t("player.nationalSpells")}
+            empty={t("player.noNationalSpells")}
+            transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
+          />
         </div>
         <aside className="rounded-lg border border-border bg-card p-5 shadow-card">
           <h2 className="text-xl">{t("player.facts")}</h2>
