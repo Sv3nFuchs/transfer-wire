@@ -51,15 +51,30 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name), to_club:clubs!transfers_to_club_id_fkey(id, name))",
+        "*, clubs(id, name, city, level, country), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type))",
       )
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) return null;
-    const transfers = [...(row.transfers ?? [])].sort((a, b) =>
+    const rawTransfers = [...(row.transfers ?? [])].sort((a, b) =>
       (a.transfer_date ?? "").localeCompare(b.transfer_date ?? ""),
     );
+    const logoMap = await resolveLogoUrls(
+      rawTransfers.flatMap((transfer) => [
+        transfer.from_club?.logo_url,
+        transfer.to_club?.logo_url,
+      ]),
+    );
+    const transfers = rawTransfers.map((transfer) => ({
+      ...transfer,
+      from_club: transfer.from_club
+        ? { ...transfer.from_club, logo_url: applyLogo(transfer.from_club.logo_url, logoMap) }
+        : null,
+      to_club: transfer.to_club
+        ? { ...transfer.to_club, logo_url: applyLogo(transfer.to_club.logo_url, logoMap) }
+        : null,
+    }));
     return { ...row, transfers };
   });
 
