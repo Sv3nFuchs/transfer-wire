@@ -69,6 +69,21 @@ const dict = {
     sv: "Inga övergångar är registrerade för den här spelaren ännu.",
     en: "No transfers have been recorded for this player yet.",
   },
+  "player.clubTransfers": { sv: "Klubbövergångar", en: "Club transfers" },
+  "player.schoolSpells": { sv: "Skolperioder", en: "School spells" },
+  "player.nationalSpells": { sv: "Landslagsperioder", en: "National team spells" },
+  "player.noClubTransfers": {
+    sv: "Inga klubbövergångar är registrerade ännu.",
+    en: "No club transfers have been recorded yet.",
+  },
+  "player.noSchoolSpells": {
+    sv: "Inga skolperioder är registrerade ännu.",
+    en: "No school spells have been recorded yet.",
+  },
+  "player.noNationalSpells": {
+    sv: "Inga landslagsperioder är registrerade ännu.",
+    en: "No national team spells have been recorded yet.",
+  },
   "player.unknownClub": { sv: "Okänd klubb", en: "Unknown club" },
   "player.unknownDate": { sv: "Okänt datum", en: "Unknown date" },
   "player.facts": { sv: "Fakta", en: "Facts" },

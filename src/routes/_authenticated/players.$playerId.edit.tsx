@@ -327,12 +327,19 @@ function EditPlayerPage() {
 
 type ClubOption = { id: string; name: string };
 
+const ORG_TYPE_LABELS: Record<string, string> = {
+  club: "Klubb",
+  school: "Skola",
+  national: "Landslag",
+};
+
 function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOption[] }) {
   const queryClient = useQueryClient();
   const [fromClub, setFromClub] = useState("");
   const [toClub, setToClub] = useState("");
   const [date, setDate] = useState("");
   const [type, setType] = useState("");
+  const [orgType, setOrgType] = useState("club");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -342,7 +349,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
       const { data, error } = await supabase
         .from("transfers")
         .select(
-          "id, transfer_date, transfer_type, note, from_club_id, to_club_id, from_club_name, to_club_name",
+          "id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name",
         )
         .eq("player_id", playerId)
         .order("transfer_date", { ascending: true });
@@ -368,6 +375,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
       to_club_id: toClub || null,
       transfer_date: date || null,
       transfer_type: type.trim() || null,
+      org_type: orgType,
       note: note.trim() || null,
       created_by: userData.user?.id ?? null,
     });
@@ -380,6 +388,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
     setToClub("");
     setDate("");
     setType("");
+    setOrgType("club");
     setNote("");
     await queryClient.invalidateQueries();
     toast.success("Övergången är tillagd.");
@@ -415,8 +424,11 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
               <span className="font-display text-lg">
                 {clubName(transfer.to_club_id, transfer.to_club_name)}
               </span>
+              <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase">
+                {ORG_TYPE_LABELS[transfer.org_type ?? "club"] ?? transfer.org_type}
+              </span>
               {transfer.transfer_type ? (
-                <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase">
+                <span className="rounded border border-border px-2 py-0.5 text-xs uppercase">
                   {transfer.transfer_type}
                 </span>
               ) : null}
@@ -475,6 +487,19 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
             value={date}
             onChange={(e) => setDate(e.target.value)}
           />
+        </div>
+        <div>
+          <Label htmlFor="org_type">Sorts period</Label>
+          <select
+            id="org_type"
+            value={orgType}
+            onChange={(e) => setOrgType(e.target.value)}
+            className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+          >
+            <option value="club">Klubbövergång</option>
+            <option value="school">Skolperiod</option>
+            <option value="national">Landslagsperiod</option>
+          </select>
         </div>
         <div>
           <Label htmlFor="transfer_type">Typ (t.ex. Permanent, Lån)</Label>
