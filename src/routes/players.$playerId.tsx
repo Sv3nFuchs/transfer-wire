@@ -5,6 +5,7 @@ import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { PlayerFlags } from "@/components/PlayerFlags";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
+import { ClubLogo } from "@/components/ClubLogo";
 
 
 export const Route = createFileRoute("/players/$playerId")({
