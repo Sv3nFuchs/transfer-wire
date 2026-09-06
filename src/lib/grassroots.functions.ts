@@ -20,7 +20,7 @@ async function resolveLogoUrls(paths: (string | null | undefined)[]) {
       if (item.path && item.signedUrl) map.set(item.path, item.signedUrl);
     }
   } catch (error) {
-    // No service-role key configured (e.g. local dev without Lovable Cloud secrets) —
+    // No service-role key configured —
     // fall back to no logo for private-bucket paths instead of failing the whole page.
     console.warn("[resolveLogoUrls] Could not sign storage logo URLs:", error);
   }
