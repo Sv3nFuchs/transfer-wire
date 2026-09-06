@@ -6,6 +6,8 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { PlayerFlags } from "@/components/PlayerFlags";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
+import { CountryFlag } from "@/components/CountryFlag";
+import type { ReactNode } from "react";
 
 
 export const Route = createFileRoute("/players/$playerId")({
@@ -53,11 +55,11 @@ function PlayerNotFound() {
   );
 }
 
-function Fact({ label, value }: { label: string; value: string | number | null | undefined }) {
+function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="border-t border-border py-3">
       <p className="label-caps">{label}</p>
-      <p className="font-display text-2xl leading-tight">{value ?? "—"}</p>
+      <div className="font-display text-2xl leading-tight">{value ?? "—"}</div>
     </div>
   );
 }
@@ -70,15 +72,24 @@ type TransferRow = {
   org_type: string | null;
   from_club_name: string | null;
   to_club_name: string | null;
-  from_club: { id: string; name: string; logo_url: string | null } | null;
-  to_club: { id: string; name: string; logo_url: string | null } | null;
+  from_club: { id: string; name: string; logo_url: string | null; country_code: string | null } | null;
+  to_club: { id: string; name: string; logo_url: string | null; country_code: string | null } | null;
 };
 
-function TransferClub({ name, logo }: { name: string; logo: string | null }) {
+function TransferClub({
+  name,
+  logo,
+  countryCode,
+}: {
+  name: string;
+  logo: string | null;
+  countryCode: string | null;
+}) {
   return (
     <span className="inline-flex items-center gap-2">
       <ClubLogo name={name} url={logo} className="size-7" />
       <span className="font-display text-lg">{name}</span>
+      <CountryFlag code={countryCode} />
     </span>
   );
 }
@@ -108,11 +119,13 @@ function TransferSection({
               <TransferClub
                 name={transfer.from_club?.name ?? transfer.from_club_name ?? t("player.unknownClub")}
                 logo={transfer.from_club?.logo_url ?? null}
+                 countryCode={transfer.from_club?.country_code ?? null}
               />
               <span className="text-accent">→</span>
               <TransferClub
                 name={transfer.to_club?.name ?? transfer.to_club_name ?? t("player.unknownClub")}
                 logo={transfer.to_club?.logo_url ?? null}
+                 countryCode={transfer.to_club?.country_code ?? null}
               />
               {transfer.transfer_type ? (
                 <span className="rounded bg-secondary px-2 py-0.5 text-xs uppercase tracking-wide">
@@ -148,7 +161,7 @@ function PlayerPage() {
               <span className="mr-3 text-accent">{player.shirt_number}</span>
             ) : null}
             {player.full_name}
-            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle text-4xl" />
+            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle" />
           </h1>
           <p className="mt-3 opacity-85">
             {[player.position, player.nationality, player.birth_year && `${t("player.bornPrefix")} ${player.birth_year}`]
@@ -207,6 +220,17 @@ function PlayerPage() {
           <h2 className="text-xl">{t("player.facts")}</h2>
           <Fact label={t("player.position")} value={player.position} />
           <Fact label={t("player.birthYear")} value={player.birth_year} />
+           <Fact
+             label={t("player.birthplace")}
+             value={
+               player.birthplace ? (
+                 <span className="inline-flex items-center gap-2">
+                   {player.birthplace}
+                   <CountryFlag code={player.birthplace_country_code} className="h-5 w-[30px]" />
+                 </span>
+               ) : null
+             }
+           />
           <Fact label={t("player.foot")} value={player.preferred_foot} />
           <Fact label={t("player.height")} value={player.height_cm ? `${player.height_cm} cm` : null} />
           <Fact label={t("player.nationality")} value={player.nationality} />

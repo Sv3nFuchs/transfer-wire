@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { COUNTRIES, flagEmoji } from "@/lib/flags";
+import { COUNTRIES } from "@/lib/flags";
+import { CountryFlag } from "@/components/CountryFlag";
 
 export const Route = createFileRoute("/_authenticated/players/$playerId/edit")({
   component: EditPlayerPage,
@@ -19,6 +20,8 @@ type FormState = {
   full_name: string;
   position: string;
   birth_year: string;
+  birthplace: string;
+  birthplace_country_code: string;
   preferred_foot: string;
   height_cm: string;
   nationality: string;
@@ -34,6 +37,8 @@ const emptyForm: FormState = {
   full_name: "",
   position: "",
   birth_year: "",
+  birthplace: "",
+  birthplace_country_code: "",
   preferred_foot: "",
   height_cm: "",
   nationality: "",
@@ -95,6 +100,8 @@ function EditPlayerPage() {
       full_name: player.full_name ?? "",
       position: player.position ?? "",
       birth_year: player.birth_year ? String(player.birth_year) : "",
+      birthplace: player.birthplace ?? "",
+      birthplace_country_code: player.birthplace_country_code ?? "",
       preferred_foot: player.preferred_foot ?? "",
       height_cm: player.height_cm ? String(player.height_cm) : "",
       nationality: player.nationality ?? "",
@@ -127,6 +134,8 @@ function EditPlayerPage() {
         full_name: form.full_name.trim(),
         position: str(form.position),
         birth_year: num(form.birth_year),
+        birthplace: str(form.birthplace),
+        birthplace_country_code: str(form.birthplace_country_code),
         preferred_foot: str(form.preferred_foot),
         height_cm: num(form.height_cm),
         nationality: str(form.nationality),
@@ -221,6 +230,27 @@ function EditPlayerPage() {
             <Input id="birth_year" inputMode="numeric" value={form.birth_year} onChange={(e) => set("birth_year", e.target.value)} />
           </div>
           <div>
+            <Label htmlFor="birthplace">Födelseort</Label>
+            <Input id="birthplace" value={form.birthplace} onChange={(e) => set("birthplace", e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="birthplace_country_code">Födelseland</Label>
+            <div className="mt-1 flex items-center gap-3">
+              <CountryFlag code={form.birthplace_country_code} className="h-6 w-9" />
+              <select
+                id="birthplace_country_code"
+                value={form.birthplace_country_code}
+                onChange={(e) => set("birthplace_country_code", e.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Inget land</option>
+                {COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>{country.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+          <div>
             <Label htmlFor="height_cm">Längd (cm)</Label>
             <Input id="height_cm" inputMode="numeric" value={form.height_cm} onChange={(e) => set("height_cm", e.target.value)} />
           </div>
@@ -234,35 +264,23 @@ function EditPlayerPage() {
           </div>
           <div>
             <Label htmlFor="flag_1">Flagga 1</Label>
-            <select
-              id="flag_1"
-              value={form.flag_1}
-              onChange={(e) => set("flag_1", e.target.value)}
-              className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">Ingen flagga</option>
-              {COUNTRIES.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {flagEmoji(country.code)} {country.name}
-                </option>
-              ))}
-            </select>
+            <div className="mt-1 flex items-center gap-3">
+              <CountryFlag code={form.flag_1} className="h-6 w-9" />
+              <select id="flag_1" value={form.flag_1} onChange={(e) => set("flag_1", e.target.value)} className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="">Ingen flagga</option>
+                {COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}
+              </select>
+            </div>
           </div>
           <div>
             <Label htmlFor="flag_2">Flagga 2 (valfri)</Label>
-            <select
-              id="flag_2"
-              value={form.flag_2}
-              onChange={(e) => set("flag_2", e.target.value)}
-              className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            >
-              <option value="">Ingen flagga</option>
-              {COUNTRIES.map((country) => (
-                <option key={country.code} value={country.code}>
-                  {flagEmoji(country.code)} {country.name}
-                </option>
-              ))}
-            </select>
+            <div className="mt-1 flex items-center gap-3">
+              <CountryFlag code={form.flag_2} className="h-6 w-9" />
+              <select id="flag_2" value={form.flag_2} onChange={(e) => set("flag_2", e.target.value)} className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm">
+                <option value="">Ingen flagga</option>
+                {COUNTRIES.map((country) => <option key={country.code} value={country.code}>{country.name}</option>)}
+              </select>
+            </div>
           </div>
           <div>
             <Label htmlFor="club_id">Klubb</Label>

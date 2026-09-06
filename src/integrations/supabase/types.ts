@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           city: string | null
           country: string
+          country_code: string | null
           created_at: string
           created_by: string | null
           description: string | null
@@ -31,6 +32,7 @@ export type Database = {
         Insert: {
           city?: string | null
           country?: string
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -44,6 +46,7 @@ export type Database = {
         Update: {
           city?: string | null
           country?: string
+          country_code?: string | null
           created_at?: string
           created_by?: string | null
           description?: string | null
@@ -60,6 +63,8 @@ export type Database = {
         Row: {
           bio: string | null
           birth_year: number | null
+          birthplace: string | null
+          birthplace_country_code: string | null
           club_id: string | null
           created_at: string
           created_by: string | null
@@ -77,6 +82,8 @@ export type Database = {
         Insert: {
           bio?: string | null
           birth_year?: number | null
+          birthplace?: string | null
+          birthplace_country_code?: string | null
           club_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -94,6 +101,8 @@ export type Database = {
         Update: {
           bio?: string | null
           birth_year?: number | null
+          birthplace?: string | null
+          birthplace_country_code?: string | null
           club_id?: string | null
           created_at?: string
           created_by?: string | null

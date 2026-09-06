@@ -1,4 +1,4 @@
-import { countryName, flagEmoji } from "@/lib/flags";
+import { CountryFlag } from "@/components/CountryFlag";
 
 export function PlayerFlags({
   flags,
@@ -10,11 +10,9 @@ export function PlayerFlags({
   const codes = flags.filter((code): code is string => Boolean(code));
   if (codes.length === 0) return null;
   return (
-    <span className={`inline-flex items-center gap-1 ${className}`}>
+    <span className={`inline-flex items-center gap-1.5 ${className}`}>
       {codes.map((code) => (
-        <span key={code} title={countryName(code)} aria-label={countryName(code)} role="img">
-          {flagEmoji(code)}
-        </span>
+        <CountryFlag key={code} code={code} className="h-5 w-[30px]" />
       ))}
     </span>
   );

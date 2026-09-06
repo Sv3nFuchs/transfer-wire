@@ -89,6 +89,8 @@ const dict = {
   "player.facts": { sv: "Fakta", en: "Facts" },
   "player.position": { sv: "Position", en: "Position" },
   "player.birthYear": { sv: "Födelseår", en: "Birth year" },
+  "player.birthplace": { sv: "Födelseort", en: "Place of birth" },
+  "player.birthplaceCountry": { sv: "Födelseland", en: "Country of birth" },
   "player.foot": { sv: "Starkaste fot", en: "Preferred foot" },
   "player.height": { sv: "Längd", en: "Height" },
   "player.nationality": { sv: "Nationalitet", en: "Nationality" },
