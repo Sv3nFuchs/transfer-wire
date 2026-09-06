@@ -3,7 +3,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { playersQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Input } from "@/components/ui/input";
-import { PlayerFlags } from "@/components/PlayerFlags";
 import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/players/")({
@@ -90,7 +89,6 @@ function PlayersPage() {
                       {player.shirt_number ? `${player.shirt_number}. ` : ""}
                       {player.full_name}
                     </Link>
-                    <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-2 align-middle" />
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{player.position ?? "—"}</td>
                   <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">

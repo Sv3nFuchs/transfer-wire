@@ -34,7 +34,7 @@ export const listPlayers = createServerFn({ method: "GET" })
     let query = supabase
       .from("players")
       .select(
-        "id, full_name, birth_year, position, nationality, flag_1, flag_2, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
+        "id, full_name, birth_year, position, nationality, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
       )
       .order("created_at", { ascending: false })
       .limit(60);
@@ -51,7 +51,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type))",
+        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -84,7 +84,7 @@ export const listClubs = createServerFn({ method: "GET" })
     const supabase = createPublicClient();
     let query = supabase
       .from("clubs")
-      .select("id, name, city, country, level, founded_year, logo_url, teams(id), players(id)")
+      .select("id, name, city, country, country_code, level, founded_year, logo_url, teams(id), players(id)")
       .order("name", { ascending: true })
       .limit(60);
     if (data.q) query = query.ilike("name", `%${data.q}%`);
@@ -96,6 +96,7 @@ export const listClubs = createServerFn({ method: "GET" })
       name: club.name,
       city: club.city,
       country: club.country,
+      country_code: club.country_code,
       level: club.level,
       founded_year: club.founded_year,
       logo_url: applyLogo(club.logo_url, logoMap),
@@ -117,7 +118,7 @@ export const getClub = createServerFn({ method: "GET" })
     if (!club) return null;
     const { data: players, error: playersError } = await supabase
       .from("players")
-      .select("id, full_name, position, birth_year, shirt_number, nationality, flag_1, flag_2, team_id")
+      .select("id, full_name, position, birth_year, shirt_number, nationality, team_id")
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);

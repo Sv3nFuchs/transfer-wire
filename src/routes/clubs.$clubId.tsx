@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { clubQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
-import { PlayerFlags } from "@/components/PlayerFlags";
 import { ClubLogo } from "@/components/ClubLogo";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useLanguage } from "@/lib/i18n";
@@ -140,8 +139,6 @@ type SquadPlayer = {
   birth_year: number | null;
   shirt_number: number | null;
   nationality: string | null;
-  flag_1?: string | null;
-  flag_2?: string | null;
 };
 
 function Squad({ squad }: { squad: SquadPlayer[] }) {
@@ -162,7 +159,6 @@ function Squad({ squad }: { squad: SquadPlayer[] }) {
               {player.shirt_number ?? "–"}
             </span>
             <span className="font-display text-lg">{player.full_name}</span>
-            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="text-base" />
             <span className="ml-auto text-sm text-muted-foreground">
               {[player.position, player.birth_year, player.nationality].filter(Boolean).join(" · ")}
             </span>
