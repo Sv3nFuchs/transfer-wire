@@ -12,12 +12,12 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "My page — Gräsrot FC Data" },
+      { title: "My page — Grassroots Football Hub" },
       {
         name: "description",
-        content: "Add and manage your clubs, teams and player profiles on Gräsrot FC Data.",
+        content: "Add and manage your clubs, teams and player profiles on Grassroots Football Hub.",
       },
-      { property: "og:title", content: "My page — Gräsrot FC Data" },
+      { property: "og:title", content: "My page — Grassroots Football Hub" },
       {
         property: "og:description",
         content: "Manage clubs, teams and players you have registered.",

@@ -7,12 +7,12 @@ const dict = {
   "nav.login": "Log in",
 
   "footer.text":
-    "Gräsrot FC Data — player and team database for grassroots football in Sweden and the USA. Built by and for coaches, scouts and parents.",
+    "Grassroots Football Hub — player and team database for grassroots football in Sweden and the USA. Built by and for coaches, scouts and parents.",
 
   "home.kicker": "Division 5–7 · Youth soccer · Sunday League",
   "home.title": "Every grassroots player deserves a profile",
   "home.lead":
-    "Gräsrot FC Data is an open player and team database for football below the pro level. Add your club, your teams and your players — the rest of the community can search and follow them.",
+    "Grassroots Football Hub is an open player and team database for football below the pro level. Add your club, your teams and your players — the rest of the community can search and follow them.",
   "home.ctaPlayers": "Search players",
   "home.ctaClubs": "Browse clubs",
   "home.statPlayers": "Players",

@@ -8,13 +8,13 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gräsrot FC Data — grassroots football player database" },
+      { title: "Grassroots Football Hub — grassroots football player database" },
       {
         name: "description",
         content:
           "Search player profiles, clubs and teams across Swedish division 5–7, American youth soccer and Sunday League. Build the database together.",
       },
-      { property: "og:title", content: "Gräsrot FC Data — grassroots football player database" },
+      { property: "og:title", content: "Grassroots Football Hub — grassroots football player database" },
       {
         property: "og:description",
         content: "Player profiles and team rosters for grassroots football in Sweden and the USA.",

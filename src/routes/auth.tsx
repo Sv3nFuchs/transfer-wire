@@ -9,13 +9,13 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Log in — Gräsrot FC Data" },
+      { title: "Log in — Grassroots Football Hub" },
       {
         name: "description",
         content:
-          "Log in or create an account to register clubs, teams and player profiles on Gräsrot FC Data.",
+          "Log in or create an account to register clubs, teams and player profiles on Grassroots Football Hub.",
       },
-      { property: "og:title", content: "Log in — Gräsrot FC Data" },
+      { property: "og:title", content: "Log in — Grassroots Football Hub" },
       {
         property: "og:description",
         content: "Create an account and start building the grassroots football player database.",
@@ -85,7 +85,7 @@ function AuthPage() {
     <div className="flex min-h-screen items-center justify-center bg-pitch pitch-stripes px-4 py-16">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-lift">
         <Link to="/" className="label-caps">
-          ← Gräsrot FC Data
+          ← Grassroots Football Hub
         </Link>
         <h1 className="mt-3 text-3xl">{mode === "signin" ? "Log in" : "Create account"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">

@@ -19,9 +19,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
         <Link to="/" className="flex items-baseline gap-2">
-          <span className="font-display text-2xl leading-none tracking-wide">Gräsrot</span>
+          <span className="font-display text-2xl leading-none tracking-wide">Grassroots</span>
           <span className="rounded bg-accent px-1.5 py-0.5 font-display text-xs text-accent-foreground">
-            FC DATA
+            FOOTBALL HUB
           </span>
         </Link>
         <nav className="hidden gap-5 sm:flex">

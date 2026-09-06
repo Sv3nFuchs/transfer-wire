@@ -18,9 +18,9 @@ export const Route = createFileRoute("/players/$playerId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Player not found — Gräsrot FC Data" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Player not found — Grassroots Football Hub" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.name} — player profile | Gräsrot FC Data`;
+    const title = `${loaderData.name} — player profile | Grassroots Football Hub`;
     const description = `Player profile for ${loaderData.name}${loaderData.club ? ` at ${loaderData.club}` : ""}${loaderData.position ? `, position ${loaderData.position}` : ""}.`;
     return {
       meta: [
