@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { ClubLogo } from "@/components/ClubLogo";
+import { CountryFlag } from "@/components/CountryFlag";
+import { COUNTRIES, countryName } from "@/lib/flags";
 
 export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
   component: EditClubPage,
@@ -18,7 +20,7 @@ export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
 type FormState = {
   name: string;
   city: string;
-  country: string;
+  country_code: string;
   level: string;
   founded_year: string;
   description: string;
@@ -27,7 +29,7 @@ type FormState = {
 const emptyForm: FormState = {
   name: "",
   city: "",
-  country: "",
+  country_code: "SE",
   level: "",
   founded_year: "",
   description: "",
@@ -90,7 +92,7 @@ function EditClubPage() {
     setForm({
       name: club.name ?? "",
       city: club.city ?? "",
-      country: club.country ?? "",
+      country_code: club.country_code ?? "SE",
       level: club.level ?? "",
       founded_year: club.founded_year ? String(club.founded_year) : "",
       description: club.description ?? "",
@@ -119,7 +121,8 @@ function EditClubPage() {
       .update({
         name: form.name.trim(),
         city: str(form.city),
-        country: form.country.trim() || "Sweden",
+        country: countryName(form.country_code),
+        country_code: form.country_code,
         level: str(form.level),
         founded_year: form.founded_year.trim() === "" ? null : Number(form.founded_year),
         description: str(form.description),
@@ -224,7 +227,21 @@ function EditClubPage() {
           </div>
           <div>
             <Label htmlFor="country">Country</Label>
-            <Input id="country" value={form.country} onChange={(e) => set("country", e.target.value)} />
+            <div className="mt-1 flex items-center gap-3">
+              <CountryFlag code={form.country_code} className="h-6 w-9" />
+              <select
+                id="country"
+                value={form.country_code}
+                onChange={(e) => set("country_code", e.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                {COUNTRIES.map((country) => (
+                  <option key={country.code} value={country.code}>
+                    {country.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
           <div>
             <Label htmlFor="level">Level</Label>

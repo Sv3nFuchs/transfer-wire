@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { COUNTRIES, countryName } from "@/lib/flags";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -138,11 +139,13 @@ function Dashboard() {
               event.preventDefault();
               const form = event.currentTarget;
               const fd = new FormData(form);
+              const countryCode = (fd.get("country_code") as string) || "SE";
               void submit(
                 "clubs",
                 {
                   name: fd.get("name"),
-                  country: fd.get("country") || "Sweden",
+                  country: countryName(countryCode),
+                  country_code: countryCode,
                   city: fd.get("city") || null,
                   level: fd.get("level") || null,
                   founded_year: num(fd.get("founded_year")),
@@ -164,7 +167,18 @@ function Dashboard() {
               </div>
               <div>
                 <Label htmlFor="club-country">Country</Label>
-                <Input id="club-country" name="country" defaultValue="Sweden" />
+                <select
+                  id="club-country"
+                  name="country_code"
+                  defaultValue="SE"
+                  className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  {COUNTRIES.map((country) => (
+                    <option key={country.code} value={country.code}>
+                      {country.name}
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
                 <Label htmlFor="club-level">Level</Label>
