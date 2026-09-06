@@ -3,13 +3,14 @@ import { createContext, useContext, type ReactNode } from "react";
 const dict = {
   "nav.players": "Players",
   "nav.clubs": "Clubs",
+  "nav.matches": "Matches",
   "nav.myPage": "My page",
   "nav.login": "Log in",
 
   "footer.text":
     "Grassroots Football Hub — player and team database for grassroots football in Sweden and the USA. Built by and for coaches, scouts and parents.",
 
-  "home.kicker": "Division 5–7 · Youth soccer · Sunday League",
+  "home.kicker": "Semi-Pro · Amateur · Youth Football · Sunday League",
   "home.title": "Every grassroots player deserves a profile",
   "home.lead":
     "Grassroots Football Hub is an open player and team database for football below the pro level. Add your club, your teams and your players — the rest of the community can search and follow them.",
@@ -75,6 +76,35 @@ const dict = {
   "club.emptySquad": "The squad is empty.",
   "club.notFound": "Club not found",
   "club.backToClubs": "Back to clubs",
+
+  "matches.title": "Matches",
+  "matches.tabMatches": "Matches",
+  "matches.tabStats": "Statistics",
+  "matches.noMatches": "No matches have been logged yet.",
+  "matches.selectLeague": "Select a league",
+  "matches.noLeagues": "No leagues yet — add a league to a team to see statistics.",
+  "matches.standings": "Standings",
+  "matches.topScorers": "Top scorers",
+  "matches.topRatings": "Top average ratings",
+  "matches.thTeam": "Team",
+  "matches.thPlayed": "P",
+  "matches.thWon": "W",
+  "matches.thDrawn": "D",
+  "matches.thLost": "L",
+  "matches.thGF": "GF",
+  "matches.thGA": "GA",
+  "matches.thGD": "GD",
+  "matches.thPts": "Pts",
+  "matches.noStatsYet": "No results recorded for this league yet.",
+  "matches.goals": "Goals",
+  "matches.matchesPlayed": "Matches",
+  "matches.rating": "Rating",
+  "matches.notFound": "Match not found",
+  "matches.backToMatches": "Back to matches",
+  "matches.lineupRatings": "Player ratings",
+  "matches.noRatingsYet": "No player ratings have been added for this match yet.",
+  "matches.edit": "Edit match",
+  "matches.notPlayedYet": "Not played yet",
 } satisfies Record<string, string>;
 
 export type TranslationKey = keyof typeof dict;

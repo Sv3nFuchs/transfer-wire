@@ -61,18 +61,30 @@ function useMyData() {
       return data;
     },
   });
-  return { clubs, teams, players };
+  const matches = useQuery({
+    queryKey: ["my-matches"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("matches")
+        .select("id, opponent_name, match_date, team_score, opponent_score, teams(name), opponent_club:clubs!matches_opponent_club_id_fkey(name)")
+        .order("match_date", { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+  return { clubs, teams, players, matches };
 }
 
 function Dashboard() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { clubs, teams, players } = useMyData();
+  const { clubs, teams, players, matches } = useMyData();
   const [saving, setSaving] = useState(false);
 
   const myClubs = clubs.data ?? [];
   const myTeams = teams.data ?? [];
   const myPlayers = players.data ?? [];
+  const myMatches = matches.data ?? [];
 
   async function handleSignOut() {
     await queryClient.cancelQueries();
@@ -81,7 +93,7 @@ function Dashboard() {
     navigate({ to: "/auth", replace: true });
   }
 
-  async function submit(table: "clubs" | "teams" | "players", payload: Record<string, unknown>, form: HTMLFormElement) {
+  async function submit(table: "clubs" | "teams" | "players" | "matches", payload: Record<string, unknown>, form: HTMLFormElement) {
     setSaving(true);
     const { data: userData } = await supabase.auth.getUser();
     const { error } = await supabase
@@ -118,7 +130,7 @@ function Dashboard() {
           searchable to all visitors.
         </p>
 
-        <div className="mt-10 grid gap-6 lg:grid-cols-3">
+        <div className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {/* Klubb */}
           <form
             className="rounded-lg border border-border bg-card p-5 shadow-card"
@@ -328,11 +340,106 @@ function Dashboard() {
               </Button>
             </div>
           </form>
+
+          {/* Match */}
+          <form
+            className="rounded-lg border border-border bg-card p-5 shadow-card"
+            onSubmit={(event) => {
+              event.preventDefault();
+              const form = event.currentTarget;
+              const fd = new FormData(form);
+              void submit(
+                "matches",
+                {
+                  team_id: fd.get("team_id"),
+                  opponent_club_id: fd.get("opponent_club_id") || null,
+                  opponent_name: fd.get("opponent_name"),
+                  match_date: fd.get("match_date"),
+                  home_away: fd.get("home_away") || "home",
+                  team_score: num(fd.get("team_score")),
+                  opponent_score: num(fd.get("opponent_score")),
+                },
+                form,
+              );
+            }}
+          >
+            <h2 className="text-2xl">Log match</h2>
+            <div className="mt-4 space-y-3">
+              <div>
+                <Label htmlFor="m-team">Team</Label>
+                <select
+                  id="m-team"
+                  name="team_id"
+                  required
+                  className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Select team…</option>
+                  {myTeams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.clubs?.name} — {team.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <Label htmlFor="m-opponent-name">Opponent name</Label>
+                <Input id="m-opponent-name" name="opponent_name" required placeholder="FC Example" />
+              </div>
+              <div>
+                <Label htmlFor="m-opponent-club">Opponent club (if registered here)</Label>
+                <select
+                  id="m-opponent-club"
+                  name="opponent_club_id"
+                  className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">Not registered / unknown</option>
+                  {myClubs.map((club) => (
+                    <option key={club.id} value={club.id}>
+                      {club.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label htmlFor="m-date">Date</Label>
+                  <Input id="m-date" name="match_date" type="date" required />
+                </div>
+                <div>
+                  <Label htmlFor="m-home-away">Home / away</Label>
+                  <select
+                    id="m-home-away"
+                    name="home_away"
+                    defaultValue="home"
+                    className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="home">Home</option>
+                    <option value="away">Away</option>
+                    <option value="neutral">Neutral</option>
+                  </select>
+                </div>
+                <div>
+                  <Label htmlFor="m-team-score">Team score</Label>
+                  <Input id="m-team-score" name="team_score" type="number" />
+                </div>
+                <div>
+                  <Label htmlFor="m-opponent-score">Opponent score</Label>
+                  <Input id="m-opponent-score" name="opponent_score" type="number" />
+                </div>
+              </div>
+              <Button type="submit" disabled={saving || myTeams.length === 0} className="w-full">
+                Save match
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Add player ratings afterwards from the match page.
+              </p>
+            </div>
+          </form>
         </div>
 
         <section className="mt-14">
           <h2 className="text-3xl">What you've added</h2>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
+          <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             <MyList title={`Clubs (${myClubs.length})`}>
               {myClubs.map((club) => (
                 <li key={club.id}>
@@ -362,6 +469,20 @@ function Dashboard() {
                     className="hover:text-primary"
                   >
                     {player.full_name}
+                  </Link>
+                </li>
+              ))}
+            </MyList>
+            <MyList title={`Matches (${myMatches.length})`}>
+              {myMatches.map((match) => (
+                <li key={match.id}>
+                  <Link
+                    to="/matches/$matchId"
+                    params={{ matchId: match.id }}
+                    className="hover:text-primary"
+                  >
+                    {match.teams?.name} {match.team_score ?? "–"}–{match.opponent_score ?? "–"}{" "}
+                    {match.opponent_club?.name ?? match.opponent_name}
                   </Link>
                 </li>
               ))}

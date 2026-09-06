@@ -59,6 +59,171 @@ export type Database = {
         }
         Relationships: []
       }
+      match_player_ratings: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          goals_scored: number
+          id: string
+          match_id: string
+          player_id: string
+          rating: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          goals_scored?: number
+          id?: string
+          match_id: string
+          player_id: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          goals_scored?: number
+          id?: string
+          match_id?: string
+          player_id?: string
+          rating?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_player_ratings_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_player_ratings_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      matches: {
+        Row: {
+          competition: string | null
+          created_at: string
+          created_by: string | null
+          home_away: string
+          id: string
+          match_date: string
+          notes: string | null
+          opponent_club_id: string | null
+          opponent_name: string
+          opponent_score: number | null
+          team_id: string
+          team_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          competition?: string | null
+          created_at?: string
+          created_by?: string | null
+          home_away?: string
+          id?: string
+          match_date: string
+          notes?: string | null
+          opponent_club_id?: string | null
+          opponent_name: string
+          opponent_score?: number | null
+          team_id: string
+          team_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          competition?: string | null
+          created_at?: string
+          created_by?: string | null
+          home_away?: string
+          id?: string
+          match_date?: string
+          notes?: string | null
+          opponent_club_id?: string | null
+          opponent_name?: string
+          opponent_score?: number | null
+          team_id?: string
+          team_score?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_opponent_club_id_fkey"
+            columns: ["opponent_club_id"]
+            isOneToOne: false
+            referencedRelation: "clubs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_season_stats: {
+        Row: {
+          average_rating: number | null
+          goals: number
+          id: string
+          league: string | null
+          matches_played: number
+          player_id: string
+          rated_matches: number
+          season: string | null
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          average_rating?: number | null
+          goals?: number
+          id?: string
+          league?: string | null
+          matches_played?: number
+          player_id: string
+          rated_matches?: number
+          season?: string | null
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          average_rating?: number | null
+          goals?: number
+          id?: string
+          league?: string | null
+          matches_played?: number
+          player_id?: string
+          rated_matches?: number
+          season?: string | null
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_season_stats_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_season_stats_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       players: {
         Row: {
           bio: string | null

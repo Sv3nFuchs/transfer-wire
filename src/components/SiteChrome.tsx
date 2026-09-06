@@ -39,6 +39,13 @@ export function SiteHeader() {
           >
             {t("nav.clubs")}
           </Link>
+          <Link
+            to="/matches"
+            className="font-display text-base tracking-wide opacity-80 transition-opacity hover:opacity-100"
+            activeProps={{ className: "opacity-100 underline decoration-accent decoration-2" }}
+          >
+            {t("nav.matches")}
+          </Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
           {session ? (
