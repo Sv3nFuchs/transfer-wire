@@ -2,8 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 /**
- * Läser inloggad användares roller via RLS (bara egna rader syns).
- * Returnerar false för utloggade besökare.
+ * Reads the logged-in user's roles via RLS (only own rows are visible).
+ * Returns false for logged-out visitors.
  */
 export function useIsAdmin() {
   const { data, isLoading } = useQuery({

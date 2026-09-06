@@ -5,21 +5,6 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
 
-function LanguageToggle() {
-  const { lang, setLang, t } = useLanguage();
-  return (
-    <button
-      type="button"
-      onClick={() => setLang(lang === "sv" ? "en" : "sv")}
-      title={t("lang.toggleTitle")}
-      aria-label={t("lang.toggleTitle")}
-      className="rounded border border-pitch-foreground/40 px-2 py-1 font-display text-sm tracking-wide transition-colors hover:bg-pitch-foreground/10"
-    >
-      {lang === "sv" ? "EN" : "SV"}
-    </button>
-  );
-}
-
 export function SiteHeader() {
   const [session, setSession] = useState<Session | null>(null);
   const { t } = useLanguage();
@@ -56,7 +41,6 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <LanguageToggle />
           {session ? (
             <Button asChild variant="accent" size="sm">
               <Link to="/dashboard">{t("nav.myPage")}</Link>

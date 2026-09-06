@@ -8,16 +8,16 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Gräsrot FC Data — spelardatabas för gräsrotsfotboll" },
+      { title: "Gräsrot FC Data — grassroots football player database" },
       {
         name: "description",
         content:
-          "Sök spelarprofiler, klubbar och lag i svensk division 5–7, amerikansk ungdomsfotboll och Sunday League. Bygg databasen tillsammans.",
+          "Search player profiles, clubs and teams across Swedish division 5–7, American youth soccer and Sunday League. Build the database together.",
       },
-      { property: "og:title", content: "Gräsrot FC Data — spelardatabas för gräsrotsfotboll" },
+      { property: "og:title", content: "Gräsrot FC Data — grassroots football player database" },
       {
         property: "og:description",
-        content: "Spelarprofiler och laglistor för fotboll på gräsrotsnivå i Sverige och USA.",
+        content: "Player profiles and team rosters for grassroots football in Sweden and the USA.",
       },
     ],
   }),
@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
       {error.message}
     </div>
   ),
-  notFoundComponent: () => <div className="p-10 text-center">Hittades inte.</div>,
+  notFoundComponent: () => <div className="p-10 text-center">Not found.</div>,
 });
 
 function Index() {

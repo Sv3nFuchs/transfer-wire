@@ -10,16 +10,16 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Logga in — Gräsrot FC Data" },
+      { title: "Log in — Gräsrot FC Data" },
       {
         name: "description",
         content:
-          "Logga in eller skapa konto för att registrera klubbar, lag och spelarprofiler i Gräsrot FC Data.",
+          "Log in or create an account to register clubs, teams and player profiles on Gräsrot FC Data.",
       },
-      { property: "og:title", content: "Logga in — Gräsrot FC Data" },
+      { property: "og:title", content: "Log in — Gräsrot FC Data" },
       {
         property: "og:description",
-        content: "Skapa konto och börja bygga gräsrotsfotbollens spelardatabas.",
+        content: "Create an account and start building the grassroots football player database.",
       },
     ],
   }),
@@ -61,11 +61,11 @@ function AuthPage() {
         if (data.session) {
           navigate({ to: "/dashboard", replace: true });
         } else {
-          toast.success("Kolla din e-post och bekräfta kontot för att logga in.");
+          toast.success("Check your email and confirm your account to log in.");
         }
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Något gick fel");
+      toast.error(error instanceof Error ? error.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -76,7 +76,7 @@ function AuthPage() {
       redirect_uri: window.location.origin,
     });
     if (result.error) {
-      toast.error("Google-inloggning misslyckades");
+      toast.error("Google sign-in failed");
       return;
     }
     if (result.redirected) return;
@@ -89,35 +89,35 @@ function AuthPage() {
         <Link to="/" className="label-caps">
           ← Gräsrot FC Data
         </Link>
-        <h1 className="mt-3 text-3xl">{mode === "signin" ? "Logga in" : "Skapa konto"}</h1>
+        <h1 className="mt-3 text-3xl">{mode === "signin" ? "Log in" : "Create account"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Konto behövs bara för att lägga in klubbar, lag och spelare. All data är öppen att läsa.
+          An account is only needed to add clubs, teams and players. All data is open to read.
         </p>
 
         <Button onClick={handleGoogle} variant="pitch" className="mt-6 w-full">
-          Fortsätt med Google
+          Continue with Google
         </Button>
 
         <div className="my-5 flex items-center gap-3">
           <span className="h-px flex-1 bg-border" />
-          <span className="label-caps">eller</span>
+          <span className="label-caps">or</span>
           <span className="h-px flex-1 bg-border" />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
             <div>
-              <Label htmlFor="displayName">Visningsnamn</Label>
+              <Label htmlFor="displayName">Display name</Label>
               <Input
                 id="displayName"
                 value={displayName}
                 onChange={(event) => setDisplayName(event.target.value)}
-                placeholder="Ledare, scout eller förälder"
+                placeholder="Coach, scout or parent"
               />
             </div>
           )}
           <div>
-            <Label htmlFor="email">E-post</Label>
+            <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               type="email"
@@ -127,7 +127,7 @@ function AuthPage() {
             />
           </div>
           <div>
-            <Label htmlFor="password">Lösenord</Label>
+            <Label htmlFor="password">Password</Label>
             <Input
               id="password"
               type="password"
@@ -138,7 +138,7 @@ function AuthPage() {
             />
           </div>
           <Button type="submit" disabled={loading} className="w-full">
-            {mode === "signin" ? "Logga in" : "Skapa konto"}
+            {mode === "signin" ? "Log in" : "Create account"}
           </Button>
         </form>
 
@@ -147,7 +147,7 @@ function AuthPage() {
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
           className="mt-5 w-full text-sm text-primary underline"
         >
-          {mode === "signin" ? "Har du inget konto? Registrera dig" : "Har du redan konto? Logga in"}
+          {mode === "signin" ? "Don't have an account? Sign up" : "Already have an account? Log in"}
         </button>
       </div>
     </div>

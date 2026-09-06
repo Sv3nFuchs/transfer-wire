@@ -17,7 +17,7 @@ export function ClubLogo({ name, url, className = "size-12" }: ClubLogoProps) {
     return (
       <img
         src={url}
-        alt={`${name} klubbmärke`}
+        alt={`${name} club crest`}
         loading="lazy"
         className={`${className} shrink-0 rounded bg-card object-contain`}
       />

@@ -12,15 +12,15 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Min sida — Gräsrot FC Data" },
+      { title: "My page — Gräsrot FC Data" },
       {
         name: "description",
-        content: "Lägg in och hantera dina klubbar, lag och spelarprofiler i Gräsrot FC Data.",
+        content: "Add and manage your clubs, teams and player profiles on Gräsrot FC Data.",
       },
-      { property: "og:title", content: "Min sida — Gräsrot FC Data" },
+      { property: "og:title", content: "My page — Gräsrot FC Data" },
       {
         property: "og:description",
-        content: "Hantera klubbar, lag och spelare du har registrerat.",
+        content: "Manage clubs, teams and players you have registered.",
       },
     ],
   }),
@@ -93,7 +93,7 @@ function Dashboard() {
       toast.error(error.message);
       return;
     }
-    toast.success("Sparat!");
+    toast.success("Saved!");
     form.reset();
     void queryClient.invalidateQueries();
   }
@@ -108,14 +108,14 @@ function Dashboard() {
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex flex-wrap items-center gap-4">
-          <h1 className="text-4xl">Min sida</h1>
+          <h1 className="text-4xl">My page</h1>
           <Button onClick={handleSignOut} variant="outline" size="sm" className="ml-auto">
-            Logga ut
+            Log out
           </Button>
         </div>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-          Registrera klubb först, sedan lag, sedan spelare. Allt du lägger in blir direkt sökbart för
-          alla besökare.
+          Register a club first, then teams, then players. Everything you add becomes instantly
+          searchable to all visitors.
         </p>
 
         <div className="mt-10 grid gap-6 lg:grid-cols-3">
@@ -130,7 +130,7 @@ function Dashboard() {
                 "clubs",
                 {
                   name: fd.get("name"),
-                  country: fd.get("country") || "Sverige",
+                  country: fd.get("country") || "Sweden",
                   city: fd.get("city") || null,
                   level: fd.get("level") || null,
                   founded_year: num(fd.get("founded_year")),
@@ -140,34 +140,34 @@ function Dashboard() {
               );
             }}
           >
-            <h2 className="text-2xl">Ny klubb</h2>
+            <h2 className="text-2xl">New club</h2>
             <div className="mt-4 space-y-3">
               <div>
-                <Label htmlFor="club-name">Klubbnamn</Label>
+                <Label htmlFor="club-name">Club name</Label>
                 <Input id="club-name" name="name" required />
               </div>
               <div>
-                <Label htmlFor="club-city">Ort</Label>
-                <Input id="club-city" name="city" placeholder="Göteborg" />
+                <Label htmlFor="club-city">City</Label>
+                <Input id="club-city" name="city" placeholder="Gothenburg" />
               </div>
               <div>
-                <Label htmlFor="club-country">Land</Label>
-                <Input id="club-country" name="country" defaultValue="Sverige" />
+                <Label htmlFor="club-country">Country</Label>
+                <Input id="club-country" name="country" defaultValue="Sweden" />
               </div>
               <div>
-                <Label htmlFor="club-level">Nivå</Label>
+                <Label htmlFor="club-level">Level</Label>
                 <Input id="club-level" name="level" placeholder="Division 5 / Sunday League / U14" />
               </div>
               <div>
-                <Label htmlFor="club-founded">Grundad</Label>
+                <Label htmlFor="club-founded">Founded</Label>
                 <Input id="club-founded" name="founded_year" type="number" placeholder="1974" />
               </div>
               <div>
-                <Label htmlFor="club-desc">Beskrivning</Label>
+                <Label htmlFor="club-desc">Description</Label>
                 <Textarea id="club-desc" name="description" rows={3} />
               </div>
               <Button type="submit" disabled={saving} className="w-full">
-                Spara klubb
+                Save club
               </Button>
             </div>
           </form>
@@ -192,17 +192,17 @@ function Dashboard() {
               );
             }}
           >
-            <h2 className="text-2xl">Nytt lag</h2>
+            <h2 className="text-2xl">New team</h2>
             <div className="mt-4 space-y-3">
               <div>
-                <Label htmlFor="team-club">Klubb</Label>
+                <Label htmlFor="team-club">Club</Label>
                 <select
                   id="team-club"
                   name="club_id"
                   required
                   className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">Välj klubb…</option>
+                  <option value="">Select club…</option>
                   {myClubs.map((club) => (
                     <option key={club.id} value={club.id}>
                       {club.name}
@@ -211,23 +211,23 @@ function Dashboard() {
                 </select>
               </div>
               <div>
-                <Label htmlFor="team-name">Lagnamn</Label>
-                <Input id="team-name" name="name" required placeholder="A-lag / U15 Boys" />
+                <Label htmlFor="team-name">Team name</Label>
+                <Input id="team-name" name="name" required placeholder="First team / U15 Boys" />
               </div>
               <div>
-                <Label htmlFor="team-age">Åldersgrupp</Label>
+                <Label htmlFor="team-age">Age group</Label>
                 <Input id="team-age" name="age_group" placeholder="Senior, U15, U11" />
               </div>
               <div>
-                <Label htmlFor="team-league">Liga / serie</Label>
-                <Input id="team-league" name="league" placeholder="Div 6 Göteborg D" />
+                <Label htmlFor="team-league">League</Label>
+                <Input id="team-league" name="league" placeholder="Div 6 Gothenburg D" />
               </div>
               <div>
-                <Label htmlFor="team-season">Säsong</Label>
+                <Label htmlFor="team-season">Season</Label>
                 <Input id="team-season" name="season" placeholder="2026" />
               </div>
               <Button type="submit" disabled={saving || myClubs.length === 0} className="w-full">
-                Spara lag
+                Save team
               </Button>
             </div>
           </form>
@@ -257,20 +257,20 @@ function Dashboard() {
               );
             }}
           >
-            <h2 className="text-2xl">Ny spelare</h2>
+            <h2 className="text-2xl">New player</h2>
             <div className="mt-4 space-y-3">
               <div>
-                <Label htmlFor="p-name">Namn</Label>
+                <Label htmlFor="p-name">Name</Label>
                 <Input id="p-name" name="full_name" required />
               </div>
               <div>
-                <Label htmlFor="p-club">Klubb</Label>
+                <Label htmlFor="p-club">Club</Label>
                 <select
                   id="p-club"
                   name="club_id"
                   className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">Klubblös</option>
+                  <option value="">No club</option>
                   {myClubs.map((club) => (
                     <option key={club.id} value={club.id}>
                       {club.name}
@@ -279,13 +279,13 @@ function Dashboard() {
                 </select>
               </div>
               <div>
-                <Label htmlFor="p-team">Lag</Label>
+                <Label htmlFor="p-team">Team</Label>
                 <select
                   id="p-team"
                   name="team_id"
                   className="mt-1 h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  <option value="">Inget lag</option>
+                  <option value="">No team</option>
                   {myTeams.map((team) => (
                     <option key={team.id} value={team.id}>
                       {team.clubs?.name} — {team.name}
@@ -296,44 +296,44 @@ function Dashboard() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label htmlFor="p-pos">Position</Label>
-                  <Input id="p-pos" name="position" placeholder="Mittfält" />
+                  <Input id="p-pos" name="position" placeholder="Midfield" />
                 </div>
                 <div>
-                  <Label htmlFor="p-birth">Födelseår</Label>
+                  <Label htmlFor="p-birth">Birth year</Label>
                   <Input id="p-birth" name="birth_year" type="number" placeholder="2009" />
                 </div>
                 <div>
-                  <Label htmlFor="p-foot">Fot</Label>
-                  <Input id="p-foot" name="preferred_foot" placeholder="Höger" />
+                  <Label htmlFor="p-foot">Foot</Label>
+                  <Input id="p-foot" name="preferred_foot" placeholder="Right" />
                 </div>
                 <div>
-                  <Label htmlFor="p-height">Längd (cm)</Label>
+                  <Label htmlFor="p-height">Height (cm)</Label>
                   <Input id="p-height" name="height_cm" type="number" />
                 </div>
                 <div>
-                  <Label htmlFor="p-shirt">Tröjnummer</Label>
+                  <Label htmlFor="p-shirt">Shirt number</Label>
                   <Input id="p-shirt" name="shirt_number" type="number" />
                 </div>
                 <div>
-                  <Label htmlFor="p-nat">Nationalitet</Label>
-                  <Input id="p-nat" name="nationality" placeholder="Sverige" />
+                  <Label htmlFor="p-nat">Nationality</Label>
+                  <Input id="p-nat" name="nationality" placeholder="Sweden" />
                 </div>
               </div>
               <div>
-                <Label htmlFor="p-bio">Om spelaren</Label>
+                <Label htmlFor="p-bio">About the player</Label>
                 <Textarea id="p-bio" name="bio" rows={3} />
               </div>
               <Button type="submit" disabled={saving} className="w-full">
-                Spara spelare
+                Save player
               </Button>
             </div>
           </form>
         </div>
 
         <section className="mt-14">
-          <h2 className="text-3xl">Det du har lagt in</h2>
+          <h2 className="text-3xl">What you've added</h2>
           <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <MyList title={`Klubbar (${myClubs.length})`}>
+            <MyList title={`Clubs (${myClubs.length})`}>
               {myClubs.map((club) => (
                 <li key={club.id}>
                   <Link
@@ -346,14 +346,14 @@ function Dashboard() {
                 </li>
               ))}
             </MyList>
-            <MyList title={`Lag (${myTeams.length})`}>
+            <MyList title={`Teams (${myTeams.length})`}>
               {myTeams.map((team) => (
                 <li key={team.id}>
                   {team.clubs?.name} — {team.name}
                 </li>
               ))}
             </MyList>
-            <MyList title={`Spelare (${myPlayers.length})`}>
+            <MyList title={`Players (${myPlayers.length})`}>
               {myPlayers.map((player) => (
                 <li key={player.id}>
                   <Link
@@ -382,7 +382,7 @@ function MyList({ title, children }: { title: string; children: React.ReactNode 
       {hasItems ? (
         <ul className="mt-3 space-y-2 text-sm">{children}</ul>
       ) : (
-        <p className="mt-3 text-sm text-muted-foreground">Inget här ännu.</p>
+        <p className="mt-3 text-sm text-muted-foreground">Nothing here yet.</p>
       )}
     </div>
   );

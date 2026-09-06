@@ -20,16 +20,16 @@ function NotFoundComponent() {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Sidan hittades inte</h2>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Sidan du letar efter finns inte eller har flyttats.
+          The page you're looking for doesn't exist or has been moved.
         </p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Till startsidan
+            Go to homepage
           </Link>
         </div>
       </div>
@@ -48,10 +48,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          Sidan kunde inte laddas
+          The page couldn't be loaded
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Något gick fel. Prova att ladda om eller gå till startsidan.
+          Something went wrong. Try reloading or go to the homepage.
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -61,13 +61,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Försök igen
+            Try again
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Till startsidan
+            Go to homepage
           </a>
         </div>
       </div>
@@ -83,12 +83,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "Gräsrot FC Data" },
       {
         name: "description",
-        content: "Spelar- och lagdatabas för fotboll på gräsrotsnivå i Sverige och USA.",
+        content: "Player and team database for grassroots football in Sweden and the USA.",
       },
       { property: "og:title", content: "Gräsrot FC Data" },
       {
         property: "og:description",
-        content: "Spelar- och lagdatabas för fotboll på gräsrotsnivå.",
+        content: "Player and team database for grassroots football.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -112,7 +112,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="sv">
+    <html lang="en">
       <head>
         <HeadContent />
       </head>

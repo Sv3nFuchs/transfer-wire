@@ -9,16 +9,16 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
-      { title: "Klubbar — Gräsrot FC Data" },
+      { title: "Clubs — Gräsrot FC Data" },
       {
         name: "description",
         content:
-          "Alla registrerade gräsrotsklubbar med lag, nivå och ort — från svensk division 7 till Sunday League.",
+          "All registered grassroots clubs with teams, level and city — from Swedish division 7 to Sunday League.",
       },
-      { property: "og:title", content: "Klubbar — Gräsrot FC Data" },
+      { property: "og:title", content: "Clubs — Gräsrot FC Data" },
       {
         property: "og:description",
-        content: "Bläddra bland gräsrotsklubbar, deras lag och trupper.",
+        content: "Browse grassroots clubs, their teams and squads.",
       },
     ],
   }),
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/clubs/")({
       {error.message}
     </div>
   ),
-  notFoundComponent: () => <div className="p-10 text-center">Inga klubbar hittades.</div>,
+  notFoundComponent: () => <div className="p-10 text-center">No clubs found.</div>,
 });
 
 function ClubsPage() {

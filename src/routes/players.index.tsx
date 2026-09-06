@@ -8,16 +8,16 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/players/")({
   head: () => ({
     meta: [
-      { title: "Spelare — Gräsrot FC Data" },
+      { title: "Players — Gräsrot FC Data" },
       {
         name: "description",
         content:
-          "Sök bland spelarprofiler på gräsrotsnivå: position, födelseår, nationalitet, klubb och lag.",
+          "Search grassroots player profiles: position, birth year, nationality, club and team.",
       },
-      { property: "og:title", content: "Spelare — Gräsrot FC Data" },
+      { property: "og:title", content: "Players — Gräsrot FC Data" },
       {
         property: "og:description",
-        content: "Sök spelarprofiler på gräsrotsnivå efter namn, klubb och lag.",
+        content: "Search grassroots player profiles by name, club and team.",
       },
     ],
   }),
@@ -32,7 +32,7 @@ export const Route = createFileRoute("/players/")({
       {error.message}
     </div>
   ),
-  notFoundComponent: () => <div className="p-10 text-center">Inga spelare hittades.</div>,
+  notFoundComponent: () => <div className="p-10 text-center">No players found.</div>,
 });
 
 function PlayersPage() {

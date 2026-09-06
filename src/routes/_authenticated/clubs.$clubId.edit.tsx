@@ -53,7 +53,7 @@ function EditClubPage() {
 
   async function handleLogoFile(file: File) {
     if (file.size > 2 * 1024 * 1024) {
-      toast.error("Filen är för stor (max 2 MB).");
+      toast.error("The file is too large (max 2 MB).");
       return;
     }
     setUploading(true);
@@ -64,12 +64,12 @@ function EditClubPage() {
       .upload(path, file, { contentType: file.type, upsert: true });
     setUploading(false);
     if (error) {
-      toast.error("Uppladdningen misslyckades: " + error.message);
+      toast.error("Upload failed: " + error.message);
       return;
     }
     setLogoValue(path);
     setLogoPreview(await previewFor(path));
-    toast.success("Loggan är uppladdad — kom ihåg att spara.");
+    toast.success("Logo uploaded — remember to save.");
   }
 
   const { data: club, isLoading } = useQuery({
@@ -110,7 +110,7 @@ function EditClubPage() {
   async function handleSave(event: React.FormEvent) {
     event.preventDefault();
     if (!form.name.trim()) {
-      toast.error("Klubbnamn måste fyllas i.");
+      toast.error("Club name must be filled in.");
       return;
     }
     setSaving(true);
@@ -119,7 +119,7 @@ function EditClubPage() {
       .update({
         name: form.name.trim(),
         city: str(form.city),
-        country: form.country.trim() || "Sverige",
+        country: form.country.trim() || "Sweden",
         level: str(form.level),
         founded_year: form.founded_year.trim() === "" ? null : Number(form.founded_year),
         description: str(form.description),
@@ -128,45 +128,45 @@ function EditClubPage() {
       .eq("id", clubId);
     setSaving(false);
     if (error) {
-      toast.error("Kunde inte spara: " + error.message);
+      toast.error("Could not save: " + error.message);
       return;
     }
     await queryClient.invalidateQueries();
-    toast.success("Klubben är uppdaterad.");
+    toast.success("Club updated.");
     navigate({ to: "/clubs/$clubId", params: { clubId } });
   }
 
   async function handleDeleteTeam(teamId: string) {
-    if (!window.confirm("Ta bort laget? Spelare i laget blir kvar i klubben.")) return;
+    if (!window.confirm("Delete the team? Players on the team will remain in the club.")) return;
     await supabase.from("players").update({ team_id: null }).eq("team_id", teamId);
     const { error } = await supabase.from("teams").delete().eq("id", teamId);
     if (error) {
-      toast.error("Kunde inte ta bort laget: " + error.message);
+      toast.error("Could not delete the team: " + error.message);
       return;
     }
     await queryClient.invalidateQueries();
-    toast.success("Laget är borttaget.");
+    toast.success("Team deleted.");
   }
 
   async function handleDelete() {
-    if (!window.confirm("Ta bort klubben permanent? Lag och spelare i klubben tas också bort.")) return;
+    if (!window.confirm("Delete the club permanently? Teams and players in the club will also be deleted.")) return;
     const { error: playersError } = await supabase.from("players").delete().eq("club_id", clubId);
     if (playersError) {
-      toast.error("Kunde inte ta bort spelare: " + playersError.message);
+      toast.error("Could not delete players: " + playersError.message);
       return;
     }
     const { error: teamsError } = await supabase.from("teams").delete().eq("club_id", clubId);
     if (teamsError) {
-      toast.error("Kunde inte ta bort lag: " + teamsError.message);
+      toast.error("Could not delete teams: " + teamsError.message);
       return;
     }
     const { error } = await supabase.from("clubs").delete().eq("id", clubId);
     if (error) {
-      toast.error("Kunde inte ta bort klubben: " + error.message);
+      toast.error("Could not delete the club: " + error.message);
       return;
     }
     await queryClient.invalidateQueries();
-    toast.success("Klubben är borttagen.");
+    toast.success("Club deleted.");
     navigate({ to: "/clubs" });
   }
 
@@ -174,7 +174,7 @@ function EditClubPage() {
     return (
       <div className="min-h-screen">
         <SiteHeader />
-        <p className="p-10 text-center text-sm text-muted-foreground">Laddar…</p>
+        <p className="p-10 text-center text-sm text-muted-foreground">Loading…</p>
       </div>
     );
   }
@@ -184,12 +184,12 @@ function EditClubPage() {
       <div className="min-h-screen">
         <SiteHeader />
         <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-          <h1 className="text-3xl">Endast administratör</h1>
+          <h1 className="text-3xl">Admin only</h1>
           <p className="mt-3 text-sm text-muted-foreground">
-            Ditt konto har inte rätt att redigera den här klubben.
+            Your account doesn't have permission to edit this club.
           </p>
           <Link to="/clubs" className="mt-5 inline-block text-primary underline">
-            Tillbaka till klubbar
+            Back to clubs
           </Link>
         </div>
         <SiteFooter />
@@ -201,7 +201,7 @@ function EditClubPage() {
     return (
       <div className="min-h-screen">
         <SiteHeader />
-        <p className="p-10 text-center text-sm text-muted-foreground">Klubben finns inte.</p>
+        <p className="p-10 text-center text-sm text-muted-foreground">The club doesn't exist.</p>
       </div>
     );
   }
@@ -210,28 +210,28 @@ function EditClubPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-3xl px-4 py-12">
-        <p className="label-caps text-muted-foreground">Redigera klubb</p>
+        <p className="label-caps text-muted-foreground">Edit club</p>
         <h1 className="mt-1 text-4xl">{club.name}</h1>
 
         <form onSubmit={handleSave} className="mt-8 grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <Label htmlFor="name">Klubbnamn</Label>
+            <Label htmlFor="name">Club name</Label>
             <Input id="name" value={form.name} onChange={(e) => set("name", e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="city">Ort</Label>
+            <Label htmlFor="city">City</Label>
             <Input id="city" value={form.city} onChange={(e) => set("city", e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="country">Land</Label>
+            <Label htmlFor="country">Country</Label>
             <Input id="country" value={form.country} onChange={(e) => set("country", e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="level">Nivå</Label>
+            <Label htmlFor="level">Level</Label>
             <Input id="level" value={form.level} onChange={(e) => set("level", e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="founded_year">Grundad år</Label>
+            <Label htmlFor="founded_year">Founded year</Label>
             <Input
               id="founded_year"
               inputMode="numeric"
@@ -240,7 +240,7 @@ function EditClubPage() {
             />
           </div>
           <div className="sm:col-span-2 rounded-lg border border-border p-4">
-            <Label>Klubblogga</Label>
+            <Label>Club logo</Label>
             <div className="mt-3 flex flex-wrap items-center gap-4">
               <ClubLogo name={form.name || "FC"} url={logoPreview} className="size-20" />
               <div className="flex flex-col gap-2">
@@ -256,7 +256,7 @@ function EditClubPage() {
                   className="text-sm"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Ladda upp en bild (max 2 MB) eller klistra in en bildlänk från nätet.
+                  Upload an image (max 2 MB) or paste an image link from the web.
                 </p>
               </div>
               {logoValue ? (
@@ -269,7 +269,7 @@ function EditClubPage() {
                     setLogoPreview(null);
                   }}
                 >
-                  Ta bort logga
+                  Remove logo
                 </Button>
               ) : null}
             </div>
@@ -284,7 +284,7 @@ function EditClubPage() {
             />
           </div>
           <div className="sm:col-span-2">
-            <Label htmlFor="description">Beskrivning</Label>
+            <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
               rows={5}
@@ -294,22 +294,22 @@ function EditClubPage() {
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
             <Button type="submit" variant="accent" disabled={saving}>
-              {saving ? "Sparar…" : "Spara ändringar"}
+              {saving ? "Saving…" : "Save changes"}
             </Button>
             <Button asChild variant="outline" type="button">
               <Link to="/clubs/$clubId" params={{ clubId }}>
-                Avbryt
+                Cancel
               </Link>
             </Button>
             <Button type="button" variant="destructive" className="ml-auto" onClick={handleDelete}>
-              Ta bort klubb
+              Delete club
             </Button>
           </div>
         </form>
 
         {club.teams && club.teams.length > 0 ? (
           <section className="mt-12">
-            <h2 className="text-2xl">Lag i klubben</h2>
+            <h2 className="text-2xl">Teams in the club</h2>
             <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
               {club.teams.map((team) => (
                 <li key={team.id} className="flex items-center gap-4 px-4 py-3">
@@ -321,7 +321,7 @@ function EditClubPage() {
                     className="ml-auto"
                     onClick={() => handleDeleteTeam(team.id)}
                   >
-                    Ta bort lag
+                    Delete team
                   </Button>
                 </li>
               ))}

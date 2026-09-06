@@ -18,10 +18,10 @@ export const Route = createFileRoute("/players/$playerId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Spelaren hittades inte — Gräsrot FC Data" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Player not found — Gräsrot FC Data" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.name} — spelarprofil | Gräsrot FC Data`;
-    const description = `Spelarprofil för ${loaderData.name}${loaderData.club ? ` i ${loaderData.club}` : ""}${loaderData.position ? `, position ${loaderData.position}` : ""}.`;
+    const title = `${loaderData.name} — player profile | Gräsrot FC Data`;
+    const description = `Player profile for ${loaderData.name}${loaderData.club ? ` at ${loaderData.club}` : ""}${loaderData.position ? `, position ${loaderData.position}` : ""}.`;
     return {
       meta: [
         { title },
@@ -103,7 +103,7 @@ function TransferSection({
   empty: string;
   transfers: TransferRow[];
 }) {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   return (
     <section className="mt-10 border-t-2 border-border pt-8">
       <h2 className="text-2xl">{title}</h2>
@@ -114,7 +114,7 @@ function TransferSection({
           {transfers.map((transfer) => (
             <li key={transfer.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
               <span className="label-caps w-24 text-muted-foreground">
-                {formatDateInLang(transfer.transfer_date, lang, t("player.unknownDate"))}
+                {formatDateInLang(transfer.transfer_date, t("player.unknownDate"))}
               </span>
               <TransferClub
                 name={transfer.from_club?.name ?? transfer.from_club_name ?? t("player.unknownClub")}

@@ -14,10 +14,10 @@ export const Route = createFileRoute("/clubs/$clubId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Klubben hittades inte — Gräsrot FC Data" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Club not found — Gräsrot FC Data" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.name} — klubbprofil | Gräsrot FC Data`;
-    const description = `Lag, trupper och spelare i ${loaderData.name}${loaderData.city ? ` (${loaderData.city})` : ""}${loaderData.level ? `, ${loaderData.level}` : ""}.`;
+    const title = `${loaderData.name} — club profile | Gräsrot FC Data`;
+    const description = `Teams, squads and players at ${loaderData.name}${loaderData.city ? ` (${loaderData.city})` : ""}${loaderData.level ? `, ${loaderData.level}` : ""}.`;
     return {
       meta: [
         { title },
