@@ -1,6 +1,6 @@
 CREATE TABLE public.profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  display_name text NOT NULL DEFAULT 'Ny användare',
+  display_name text NOT NULL DEFAULT 'New user',
   created_at timestamptz NOT NULL DEFAULT now()
 );
 GRANT SELECT ON public.profiles TO anon;
@@ -19,7 +19,7 @@ SET search_path = public
 AS $$
 BEGIN
   INSERT INTO public.profiles (id, display_name)
-  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1), 'Ny användare'))
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'display_name', split_part(NEW.email, '@', 1), 'New user'))
   ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
@@ -32,7 +32,7 @@ FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 CREATE TABLE public.clubs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
-  country text NOT NULL DEFAULT 'Sverige',
+  country text NOT NULL DEFAULT 'Sweden',
   city text,
   level text,
   founded_year int,
