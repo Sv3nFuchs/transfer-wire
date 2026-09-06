@@ -11,12 +11,18 @@ async function resolveLogoUrls(paths: (string | null | undefined)[]) {
   ];
   const map = new Map<string, string>();
   if (storagePaths.length === 0) return map;
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage
-    .from("club-logos")
-    .createSignedUrls(storagePaths, 60 * 60 * 24 * 7);
-  for (const item of data ?? []) {
-    if (item.path && item.signedUrl) map.set(item.path, item.signedUrl);
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data } = await supabaseAdmin.storage
+      .from("club-logos")
+      .createSignedUrls(storagePaths, 60 * 60 * 24 * 7);
+    for (const item of data ?? []) {
+      if (item.path && item.signedUrl) map.set(item.path, item.signedUrl);
+    }
+  } catch (error) {
+    // No service-role key configured (e.g. local dev without Lovable Cloud secrets) —
+    // fall back to no logo for private-bucket paths instead of failing the whole page.
+    console.warn("[resolveLogoUrls] Could not sign storage logo URLs:", error);
   }
   return map;
 }
