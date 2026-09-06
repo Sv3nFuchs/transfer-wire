@@ -153,7 +153,9 @@ function LeagueStats({ league }: { league: string }) {
               <li key={row.playerId} className="flex items-center gap-3 px-4 py-3">
                 <span className="w-6 text-sm text-muted-foreground">{i + 1}</span>
                 <span className="font-display text-lg">{row.name}</span>
-                <span className="ml-auto font-display text-xl text-accent">{row.average.toFixed(1)}</span>
+                <span className={`ml-auto font-display text-xl ${row.average >= 7 ? "text-green-600" : "text-accent"}`}>
+                  {row.average.toFixed(1)}
+                </span>
                 <span className="text-xs text-muted-foreground">({row.count})</span>
               </li>
             ))}

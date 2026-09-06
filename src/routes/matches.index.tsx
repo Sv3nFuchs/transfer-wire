@@ -52,7 +52,7 @@ function MatchesPage() {
                       {formatDateInLang(match.match_date, "—")}
                     </span>
                     <ClubLogo name={match.teams?.clubs?.name ?? match.teams?.name ?? "?"} url={match.teams?.clubs?.logo_url ?? null} className="size-8" />
-                    <span className="font-display text-lg">{match.teams?.name}</span>
+                    <span className="font-display text-lg">{match.teams?.clubs?.name ?? match.teams?.name}</span>
                     <span className="font-display text-xl text-accent">
                       {match.team_score ?? "–"} : {match.opponent_score ?? "–"}
                     </span>

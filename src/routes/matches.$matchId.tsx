@@ -10,13 +10,16 @@ export const Route = createFileRoute("/matches/$matchId")({
   loader: async ({ context, params }) => {
     const match = await context.queryClient.ensureQueryData(matchQuery(params.matchId));
     if (!match) throw notFound();
-    return { teamName: match.teams?.name ?? null, opponentName: match.opponent_club?.name ?? match.opponent_name };
+    return {
+      clubName: match.teams?.clubs?.name ?? match.teams?.name ?? null,
+      opponentName: match.opponent_club?.name ?? match.opponent_name,
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return { meta: [{ title: "Match not found — Grassroots Football Hub" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.teamName ?? "Match"} vs ${loaderData.opponentName} | Grassroots Football Hub`;
+    const title = `${loaderData.clubName ?? "Match"} vs ${loaderData.opponentName} | Grassroots Football Hub`;
     return { meta: [{ title }, { property: "og:title", content: title }] };
   },
   component: MatchPage,
@@ -61,7 +64,7 @@ function MatchPage() {
           </p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-center sm:justify-between">
             <div className="flex flex-1 flex-col items-center gap-2 sm:flex-row sm:justify-end">
-              <span className="font-display text-2xl sm:order-2">{match.teams?.name}</span>
+              <span className="font-display text-2xl sm:order-2">{match.teams?.clubs?.name ?? match.teams?.name}</span>
               <ClubLogo name={match.teams?.clubs?.name ?? match.teams?.name ?? "?"} url={match.teams?.clubs?.logo_url ?? null} className="size-14 sm:order-1" />
             </div>
             <span className="font-display text-4xl text-accent">
@@ -105,7 +108,13 @@ function MatchPage() {
                     ⚽ {entry.goals_scored}
                   </span>
                 ) : null}
-                <span className="ml-auto rounded bg-accent px-2 py-1 font-display text-lg text-accent-foreground">
+                <span
+                  className={`ml-auto rounded px-2 py-1 font-display text-lg ${
+                    entry.rating != null && entry.rating >= 7
+                      ? "bg-green-600 text-white"
+                      : "bg-accent text-accent-foreground"
+                  }`}
+                >
                   {entry.rating != null ? entry.rating.toFixed(1) : "–"}
                 </span>
               </li>

@@ -67,7 +67,7 @@ function useMyData() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matches")
-        .select("id, opponent_name, match_date, team_score, opponent_score, teams(name), opponent_club:clubs!matches_opponent_club_id_fkey(name)")
+        .select("id, opponent_name, match_date, team_score, opponent_score, teams(name, clubs(name)), opponent_club:clubs!matches_opponent_club_id_fkey(name)")
         .order("match_date", { ascending: false });
       if (error) throw error;
       return data;
@@ -495,7 +495,7 @@ function Dashboard() {
                     params={{ matchId: match.id }}
                     className="hover:text-primary"
                   >
-                    {match.teams?.name} {match.team_score ?? "–"}–{match.opponent_score ?? "–"}{" "}
+                    {match.teams?.clubs?.name ?? match.teams?.name} {match.team_score ?? "–"}–{match.opponent_score ?? "–"}{" "}
                     {match.opponent_club?.name ?? match.opponent_name}
                   </Link>
                 </li>
