@@ -13,6 +13,7 @@ import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { COUNTRIES, countryName } from "@/lib/flags";
 import { syncEverysportFixtures } from "@/lib/import-everysport.functions";
+import { syncTeamRoster } from "@/lib/import-roster.functions";
 
 export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
   component: EditClubPage,
@@ -82,7 +83,7 @@ function EditClubPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clubs")
-        .select("*, teams(id, name, everysport_url)")
+        .select("*, teams(id, name, everysport_url, roster_url)")
         .eq("id", clubId)
         .maybeSingle();
       if (error) throw new Error(error.message);
@@ -362,13 +363,16 @@ function TeamRow({
   team,
   onDelete,
 }: {
-  team: { id: string; name: string; everysport_url: string | null };
+  team: { id: string; name: string; everysport_url: string | null; roster_url: string | null };
   onDelete: () => void;
 }) {
   const queryClient = useQueryClient();
   const [url, setUrl] = useState(team.everysport_url ?? "");
   const [savingUrl, setSavingUrl] = useState(false);
   const [syncing, setSyncing] = useState(false);
+  const [rosterUrl, setRosterUrl] = useState(team.roster_url ?? "");
+  const [savingRosterUrl, setSavingRosterUrl] = useState(false);
+  const [syncingRoster, setSyncingRoster] = useState(false);
 
   async function handleSaveUrl() {
     setSavingUrl(true);
@@ -409,6 +413,48 @@ function TeamRow({
     }
   }
 
+  async function handleSaveRosterUrl() {
+    setSavingRosterUrl(true);
+    const { error } = await supabase
+      .from("teams")
+      .update({ roster_url: rosterUrl.trim() || null })
+      .eq("id", team.id);
+    setSavingRosterUrl(false);
+    if (error) {
+      toast.error("Could not save URL: " + error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success("Roster URL saved.");
+  }
+
+  async function handleSyncRoster() {
+    setSyncingRoster(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) {
+      toast.error("You need to be logged in.");
+      setSyncingRoster(false);
+      return;
+    }
+    try {
+      const result = await syncTeamRoster({
+        data: { teamId: team.id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await queryClient.invalidateQueries();
+      const skippedNote =
+        result.skipped > 0
+          ? ` ${result.skipped} name${result.skipped === 1 ? "" : "s"} not found in your database: ${result.skippedNames.slice(0, 5).join(", ")}${result.skippedNames.length > 5 ? "…" : ""}`
+          : "";
+      toast.success(`Linked ${result.linked} player${result.linked === 1 ? "" : "s"}.${skippedNote}`);
+    } catch (error) {
+      toast.error("Sync failed: " + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setSyncingRoster(false);
+    }
+  }
+
   return (
     <li className="flex flex-wrap items-center gap-3 px-4 py-3">
       <span className="font-display text-lg">{team.name}</span>
@@ -419,7 +465,7 @@ function TeamRow({
         <Input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
-          placeholder="https://www.everysport.com/fotboll-herr/lag/…"
+          placeholder="Everysport fixtures URL…"
           className="min-w-0 flex-1"
         />
         <Button type="button" variant="outline" size="sm" disabled={savingUrl} onClick={handleSaveUrl}>
@@ -427,6 +473,26 @@ function TeamRow({
         </Button>
         <Button type="button" variant="accent" size="sm" disabled={syncing || !url.trim()} onClick={handleSync}>
           {syncing ? "Syncing…" : "Sync fixtures"}
+        </Button>
+      </div>
+      <div className="flex w-full flex-wrap items-center gap-2">
+        <Input
+          value={rosterUrl}
+          onChange={(e) => setRosterUrl(e.target.value)}
+          placeholder="Roster page URL (e.g. scores.cifss.org team roster)…"
+          className="min-w-0 flex-1"
+        />
+        <Button type="button" variant="outline" size="sm" disabled={savingRosterUrl} onClick={handleSaveRosterUrl}>
+          {savingRosterUrl ? "Saving…" : "Save URL"}
+        </Button>
+        <Button
+          type="button"
+          variant="accent"
+          size="sm"
+          disabled={syncingRoster || !rosterUrl.trim()}
+          onClick={handleSyncRoster}
+        >
+          {syncingRoster ? "Syncing…" : "Sync roster"}
         </Button>
       </div>
     </li>

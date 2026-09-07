@@ -439,6 +439,7 @@ export type Database = {
           id: string
           league: string | null
           name: string
+          roster_url: string | null
           season: string | null
         }
         Insert: {
@@ -450,6 +451,7 @@ export type Database = {
           id?: string
           league?: string | null
           name: string
+          roster_url?: string | null
           season?: string | null
         }
         Update: {
@@ -461,6 +463,7 @@ export type Database = {
           id?: string
           league?: string | null
           name?: string
+          roster_url?: string | null
           season?: string | null
         }
         Relationships: [
