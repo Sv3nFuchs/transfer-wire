@@ -22,6 +22,7 @@ export type Database = {
           created_at: string
           created_by: string | null
           description: string | null
+          everysport_id: string | null
           founded_year: number | null
           id: string
           level: string | null
@@ -36,6 +37,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          everysport_id?: string | null
           founded_year?: number | null
           id?: string
           level?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
+          everysport_id?: string | null
           founded_year?: number | null
           id?: string
           level?: string | null
@@ -112,6 +115,8 @@ export type Database = {
           competition: string | null
           created_at: string
           created_by: string | null
+          external_id: string | null
+          external_source: string | null
           home_away: string
           id: string
           match_date: string
@@ -127,6 +132,8 @@ export type Database = {
           competition?: string | null
           created_at?: string
           created_by?: string | null
+          external_id?: string | null
+          external_source?: string | null
           home_away?: string
           id?: string
           match_date: string
@@ -142,6 +149,8 @@ export type Database = {
           competition?: string | null
           created_at?: string
           created_by?: string | null
+          external_id?: string | null
+          external_source?: string | null
           home_away?: string
           id?: string
           match_date?: string
@@ -323,6 +332,7 @@ export type Database = {
           club_id: string
           created_at: string
           created_by: string | null
+          everysport_url: string | null
           id: string
           league: string | null
           name: string
@@ -333,6 +343,7 @@ export type Database = {
           club_id: string
           created_at?: string
           created_by?: string | null
+          everysport_url?: string | null
           id?: string
           league?: string | null
           name: string
@@ -343,6 +354,7 @@ export type Database = {
           club_id?: string
           created_at?: string
           created_by?: string | null
+          everysport_url?: string | null
           id?: string
           league?: string | null
           name?: string

@@ -12,6 +12,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { COUNTRIES, countryName } from "@/lib/flags";
+import { syncEverysportFixtures } from "@/lib/import-everysport.functions";
 
 export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
   component: EditClubPage,
@@ -24,6 +25,7 @@ type FormState = {
   level: string;
   founded_year: string;
   description: string;
+  everysport_id: string;
 };
 
 const emptyForm: FormState = {
@@ -33,6 +35,7 @@ const emptyForm: FormState = {
   level: "",
   founded_year: "",
   description: "",
+  everysport_id: "",
 };
 
 function EditClubPage() {
@@ -79,7 +82,7 @@ function EditClubPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("clubs")
-        .select("*, teams(id, name)")
+        .select("*, teams(id, name, everysport_url)")
         .eq("id", clubId)
         .maybeSingle();
       if (error) throw new Error(error.message);
@@ -96,6 +99,7 @@ function EditClubPage() {
       level: club.level ?? "",
       founded_year: club.founded_year ? String(club.founded_year) : "",
       description: club.description ?? "",
+      everysport_id: club.everysport_id ?? "",
     });
     const stored = club.logo_url ?? "";
     setLogoValue(stored);
@@ -127,6 +131,7 @@ function EditClubPage() {
         founded_year: form.founded_year.trim() === "" ? null : Number(form.founded_year),
         description: str(form.description),
         logo_url: str(logoValue),
+        everysport_id: str(form.everysport_id),
       })
       .eq("id", clubId);
     setSaving(false);
@@ -256,6 +261,19 @@ function EditClubPage() {
               onChange={(e) => set("founded_year", e.target.value)}
             />
           </div>
+          <div>
+            <Label htmlFor="everysport_id">Everysport team ID (optional)</Label>
+            <Input
+              id="everysport_id"
+              placeholder="e.g. 10587"
+              value={form.everysport_id}
+              onChange={(e) => set("everysport_id", e.target.value)}
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              The number at the end of this club's everysport.com team URL. Lets fixture imports for
+              other teams auto-link this club as their opponent.
+            </p>
+          </div>
           <div className="sm:col-span-2 rounded-lg border border-border p-4">
             <Label>Club logo</Label>
             <div className="mt-3 flex flex-wrap items-center gap-4">
@@ -329,18 +347,7 @@ function EditClubPage() {
             <h2 className="text-2xl">Teams in the club</h2>
             <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
               {club.teams.map((team) => (
-                <li key={team.id} className="flex items-center gap-4 px-4 py-3">
-                  <span className="font-display text-lg">{team.name}</span>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    className="ml-auto"
-                    onClick={() => handleDeleteTeam(team.id)}
-                  >
-                    Delete team
-                  </Button>
-                </li>
+                <TeamRow key={team.id} team={team} onDelete={() => handleDeleteTeam(team.id)} />
               ))}
             </ul>
           </section>
@@ -348,5 +355,79 @@ function EditClubPage() {
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function TeamRow({
+  team,
+  onDelete,
+}: {
+  team: { id: string; name: string; everysport_url: string | null };
+  onDelete: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [url, setUrl] = useState(team.everysport_url ?? "");
+  const [savingUrl, setSavingUrl] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  async function handleSaveUrl() {
+    setSavingUrl(true);
+    const { error } = await supabase
+      .from("teams")
+      .update({ everysport_url: url.trim() || null })
+      .eq("id", team.id);
+    setSavingUrl(false);
+    if (error) {
+      toast.error("Could not save URL: " + error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success("Everysport URL saved.");
+  }
+
+  async function handleSync() {
+    setSyncing(true);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const token = sessionData.session?.access_token;
+    if (!token) {
+      toast.error("You need to be logged in.");
+      setSyncing(false);
+      return;
+    }
+    try {
+      const result = await syncEverysportFixtures({
+        data: { teamId: team.id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      await queryClient.invalidateQueries();
+      toast.success(`Synced ${result.imported} match${result.imported === 1 ? "" : "es"}.`);
+    } catch (error) {
+      toast.error("Sync failed: " + (error instanceof Error ? error.message : String(error)));
+    } finally {
+      setSyncing(false);
+    }
+  }
+
+  return (
+    <li className="flex flex-wrap items-center gap-3 px-4 py-3">
+      <span className="font-display text-lg">{team.name}</span>
+      <Button type="button" variant="outline" size="sm" className="ml-auto" onClick={onDelete}>
+        Delete team
+      </Button>
+      <div className="flex w-full flex-wrap items-center gap-2 pt-1">
+        <Input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://www.everysport.com/fotboll-herr/lag/…"
+          className="min-w-0 flex-1"
+        />
+        <Button type="button" variant="outline" size="sm" disabled={savingUrl} onClick={handleSaveUrl}>
+          {savingUrl ? "Saving…" : "Save URL"}
+        </Button>
+        <Button type="button" variant="accent" size="sm" disabled={syncing || !url.trim()} onClick={handleSync}>
+          {syncing ? "Syncing…" : "Sync fixtures"}
+        </Button>
+      </div>
+    </li>
   );
 }
