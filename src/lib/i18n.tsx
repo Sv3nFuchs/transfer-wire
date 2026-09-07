@@ -4,7 +4,6 @@ const dict = {
   "nav.players": "Players",
   "nav.clubs": "Clubs",
   "nav.matches": "Matches",
-  "nav.statistics": "Statistics",
   "nav.myPage": "My page",
   "nav.login": "Log in",
 
@@ -79,8 +78,9 @@ const dict = {
   "club.backToClubs": "Back to clubs",
 
   "matches.title": "Matches",
+  "matches.tabMatches": "Matches",
+  "matches.tabStats": "Statistics",
   "matches.noMatches": "No matches have been logged yet.",
-  "stats.title": "Statistics",
   "matches.selectLeague": "Select a league",
   "matches.noLeagues": "No leagues yet — add a league to a team to see statistics.",
   "matches.standings": "Standings",
