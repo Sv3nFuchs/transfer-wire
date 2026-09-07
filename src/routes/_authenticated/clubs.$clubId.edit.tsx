@@ -400,7 +400,8 @@ function TeamRow({
         headers: { Authorization: `Bearer ${token}` },
       });
       await queryClient.invalidateQueries();
-      toast.success(`Synced ${result.imported} match${result.imported === 1 ? "" : "es"}.`);
+      const tableNote = result.tableRows > 0 ? ` League table updated (${result.tableRows} teams).` : "";
+      toast.success(`Synced ${result.imported} match${result.imported === 1 ? "" : "es"}.${tableNote}`);
     } catch (error) {
       toast.error("Sync failed: " + (error instanceof Error ? error.message : String(error)));
     } finally {

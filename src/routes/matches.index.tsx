@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery, useQuery } from "@tanstack/react-query";
 import { leagueStatsQuery, leaguesQuery, matchesQuery } from "@/lib/queries";
+import type { MatchListItem } from "@/lib/matches.functions";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { ClubLogo } from "@/components/ClubLogo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -72,39 +73,27 @@ function MatchesPage() {
           </TabsList>
 
           <TabsContent value="matches" className="mt-6">
-            {matches.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t("matches.noMatches")}</p>
-            ) : (
-              <ul className="space-y-3">
-                {matches.map((match) => (
-                  <li key={match.id}>
-                    <Link
-                      to="/matches/$matchId"
-                      params={{ matchId: match.id }}
-                      className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-shadow hover:shadow-lift"
-                    >
-                      <span className="w-24 shrink-0 text-xs text-muted-foreground">
-                        {formatDateInLang(match.match_date, "—")}
-                      </span>
-                      <ClubLogo name={match.teams?.clubs?.name ?? match.teams?.name ?? "?"} url={match.teams?.clubs?.logo_url ?? null} className="size-8" />
-                      <span className="font-display text-lg">{match.teams?.clubs?.name ?? match.teams?.name}</span>
-                      <span className="font-display text-xl text-accent">
-                        {match.team_score ?? "–"} : {match.opponent_score ?? "–"}
-                      </span>
-                      <span className="font-display text-lg">{match.opponent_club?.name ?? match.opponent_name}</span>
-                      {match.opponent_club ? (
-                        <ClubLogo name={match.opponent_club.name} url={match.opponent_club.logo_url} className="size-8" />
-                      ) : null}
-                      {match.teams?.league ? (
-                        <span className="ml-auto rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
-                          {match.teams.league}
-                        </span>
-                      ) : null}
-                    </Link>
-                  </li>
+            {leagues.length > 0 ? (
+              <select
+                value={league ?? ""}
+                onChange={(event) =>
+                  navigate({
+                    to: "/matches",
+                    search: buildSearch("matches", event.target.value || undefined),
+                    replace: true,
+                  })
+                }
+                className="mb-6 h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">{t("matches.allLeagues")}</option>
+                {leagues.map((l) => (
+                  <option key={l} value={l}>
+                    {l}
+                  </option>
                 ))}
-              </ul>
-            )}
+              </select>
+            ) : null}
+            <MatchesList matches={matches} league={league} />
           </TabsContent>
 
           <TabsContent value="stats" className="mt-6">
@@ -138,6 +127,80 @@ function MatchesPage() {
       </main>
       <SiteFooter />
     </div>
+  );
+}
+
+function MatchesList({ matches, league }: { matches: MatchListItem[]; league: string | undefined }) {
+  const { t } = useLanguage();
+  const filtered = league ? matches.filter((match) => match.teams?.league === league) : matches;
+  const upcoming = filtered
+    .filter((match) => match.team_score == null && match.opponent_score == null)
+    .sort((a, b) => a.match_date.localeCompare(b.match_date));
+  const past = filtered
+    .filter((match) => match.team_score != null || match.opponent_score != null)
+    .sort((a, b) => b.match_date.localeCompare(a.match_date));
+
+  if (filtered.length === 0) {
+    return <p className="text-sm text-muted-foreground">{t("matches.noMatches")}</p>;
+  }
+
+  return (
+    <div className="space-y-10">
+      <section>
+        <h2 className="text-2xl">{t("matches.upcoming")}</h2>
+        {upcoming.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("matches.noUpcoming")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {upcoming.map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          </ul>
+        )}
+      </section>
+      <section>
+        <h2 className="text-2xl">{t("matches.results")}</h2>
+        {past.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("matches.noResults")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3">
+            {past.map((match) => (
+              <MatchCard key={match.id} match={match} />
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function MatchCard({ match }: { match: MatchListItem }) {
+  return (
+    <li>
+      <Link
+        to="/matches/$matchId"
+        params={{ matchId: match.id }}
+        className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-shadow hover:shadow-lift"
+      >
+        <span className="w-24 shrink-0 text-xs text-muted-foreground">
+          {formatDateInLang(match.match_date, "—")}
+        </span>
+        <ClubLogo name={match.teams?.clubs?.name ?? match.teams?.name ?? "?"} url={match.teams?.clubs?.logo_url ?? null} className="size-8" />
+        <span className="font-display text-lg">{match.teams?.clubs?.name ?? match.teams?.name}</span>
+        <span className="font-display text-xl text-accent">
+          {match.team_score ?? "–"} : {match.opponent_score ?? "–"}
+        </span>
+        <span className="font-display text-lg">{match.opponent_club?.name ?? match.opponent_name}</span>
+        {match.opponent_club ? (
+          <ClubLogo name={match.opponent_club.name} url={match.opponent_club.logo_url} className="size-8" />
+        ) : null}
+        {match.teams?.league ? (
+          <span className="ml-auto rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+            {match.teams.league}
+          </span>
+        ) : null}
+      </Link>
+    </li>
   );
 }
 
@@ -177,8 +240,13 @@ function LeagueStats({ league }: { league: string }) {
               {data.standings.map((row) => (
                 <tr key={row.teamId} className="border-t border-border">
                   <td className="px-3 py-2">
-                    {row.clubName ? `${row.clubName} — ` : ""}
-                    {row.name}
+                    <span className="flex items-center gap-2">
+                      {row.logoUrl ? <ClubLogo name={row.name} url={row.logoUrl} className="size-6" /> : null}
+                      <span>
+                        {row.clubName ? `${row.clubName} — ` : ""}
+                        {row.name}
+                      </span>
+                    </span>
                   </td>
                   <td className="px-3 py-2 text-right">{row.played}</td>
                   <td className="px-3 py-2 text-right">{row.won}</td>

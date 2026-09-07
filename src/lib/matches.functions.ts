@@ -12,7 +12,7 @@ export const listMatches = createServerFn({ method: "GET" })
         "id, match_date, home_away, team_score, opponent_score, opponent_name, opponent_club_id, team_id, teams(id, name, league, clubs(id, name, logo_url)), opponent_club:clubs!matches_opponent_club_id_fkey(id, name, logo_url)",
       )
       .order("match_date", { ascending: false })
-      .limit(data.limit ?? 30);
+      .limit(data.limit ?? 100);
     if (data.teamId) query = query.eq("team_id", data.teamId);
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
@@ -29,6 +29,8 @@ export const listMatches = createServerFn({ method: "GET" })
         : null,
     }));
   });
+
+export type MatchListItem = Awaited<ReturnType<typeof listMatches>>[number];
 
 export const getMatch = createServerFn({ method: "GET" })
   .inputValidator((input: { id: string }) => input)
@@ -74,6 +76,7 @@ type StandingRow = {
   teamId: string;
   name: string;
   clubName: string | null;
+  logoUrl?: string | null;
   played: number;
   won: number;
   drawn: number;
@@ -87,20 +90,47 @@ export const getLeagueStats = createServerFn({ method: "GET" })
   .inputValidator((input: { league: string }) => input)
   .handler(async ({ data }) => {
     const supabase = createPublicClient();
+
+    // Prefer the official table imported from Everysport (every team in the
+    // division, not just ones registered here) over one computed from our own
+    // teams' matches.
+    const { data: officialStandings, error: officialError } = await supabase
+      .from("league_standings")
+      .select("*")
+      .eq("league", data.league)
+      .order("position", { ascending: true });
+    if (officialError) throw new Error(officialError.message);
+    const standingsFromImport: StandingRow[] | null =
+      officialStandings && officialStandings.length > 0
+        ? officialStandings.map((row) => ({
+            teamId: row.everysport_team_id,
+            name: row.team_name,
+            clubName: null,
+            logoUrl: row.team_logo_url,
+            played: row.played,
+            won: row.won,
+            drawn: row.drawn,
+            lost: row.lost,
+            goalsFor: row.goals_for,
+            goalsAgainst: row.goals_against,
+            points: row.points,
+          }))
+        : null;
+
     const { data: teams, error: teamsError } = await supabase
       .from("teams")
       .select("id, name, clubs(name)")
       .eq("league", data.league);
     if (teamsError) throw new Error(teamsError.message);
     const teamIds = (teams ?? []).map((team) => team.id);
-    if (teamIds.length === 0) {
+    if (teamIds.length === 0 && !standingsFromImport) {
       return { standings: [], topScorers: [], topRatings: [] };
     }
 
-    const { data: matches, error: matchesError } = await supabase
-      .from("matches")
-      .select("id, team_id, team_score, opponent_score")
-      .in("team_id", teamIds);
+    const { data: matches, error: matchesError } =
+      teamIds.length === 0
+        ? { data: [], error: null }
+        : await supabase.from("matches").select("id, team_id, team_score, opponent_score").in("team_id", teamIds);
     if (matchesError) throw new Error(matchesError.message);
 
     const standingsByTeam = new Map<string, StandingRow>();
@@ -135,9 +165,11 @@ export const getLeagueStats = createServerFn({ method: "GET" })
         row.lost += 1;
       }
     }
-    const standings = [...standingsByTeam.values()].sort(
-      (a, b) => b.points - a.points || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst),
-    );
+    const standings =
+      standingsFromImport ??
+      [...standingsByTeam.values()].sort(
+        (a, b) => b.points - a.points || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst),
+      );
 
     // Sourced from the precomputed player_season_stats table (kept in sync by a
     // trigger on match_player_ratings) rather than re-scanning raw ratings here.

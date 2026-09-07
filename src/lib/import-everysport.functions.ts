@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-type EverysportTeamRef = { id: string; name: string };
+type EverysportTeamRef = { id: string; name: string; logo?: string | null };
 
 type EverysportGame = {
   id: string;
@@ -11,6 +11,17 @@ type EverysportGame = {
   score: { homeTeam: number; awayTeam: number } | null;
   series: { name: string } | null;
 };
+
+type EverysportStandingRow = {
+  position: number;
+  team: EverysportTeamRef;
+  stats: { name: string; value: string }[];
+};
+
+function statValue(row: EverysportStandingRow, name: string): number {
+  const stat = row.stats.find((s) => s.name === name);
+  return stat ? Number(stat.value) || 0 : 0;
+}
 
 function parseEverysportPage(html: string) {
   const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
@@ -28,14 +39,17 @@ function parseEverysportPage(html: string) {
         team?: EverysportTeamRef;
         games?: { games?: EverysportGame[] };
         gamesResult?: { games?: EverysportGame[] };
+        standings?: { series?: { groups?: { standings?: EverysportStandingRow[] }[] }[] };
       }
     | undefined;
   if (!props?.team?.id) {
     throw new Error("Could not find team data on the Everysport page.");
   }
+  const standings = (props.standings?.series?.[0]?.groups ?? []).flatMap((group) => group.standings ?? []);
   return {
     team: props.team,
     games: [...(props.games?.games ?? []), ...(props.gamesResult?.games ?? [])],
+    standings,
   };
 }
 
@@ -55,7 +69,7 @@ export const syncEverysportFixtures = createServerFn({ method: "POST" })
 
     const { data: team, error: teamError } = await supabase
       .from("teams")
-      .select("id, everysport_url")
+      .select("id, league, everysport_url")
       .eq("id", data.teamId)
       .maybeSingle();
     if (teamError) throw new Error(teamError.message);
@@ -65,7 +79,7 @@ export const syncEverysportFixtures = createServerFn({ method: "POST" })
       headers: { "User-Agent": "Mozilla/5.0 (compatible; GrassrootsFootballHub/1.0)" },
     });
     if (!res.ok) throw new Error(`Everysport request failed: ${res.status} ${res.statusText}`);
-    const { team: everysportTeam, games } = parseEverysportPage(await res.text());
+    const { team: everysportTeam, games, standings } = parseEverysportPage(await res.text());
 
     let imported = 0;
     for (const game of games) {
@@ -111,5 +125,29 @@ export const syncEverysportFixtures = createServerFn({ method: "POST" })
       imported += 1;
     }
 
-    return { imported };
+    let tableRows = 0;
+    if (team.league && standings.length > 0) {
+      const { error: deleteError } = await supabase.from("league_standings").delete().eq("league", team.league);
+      if (deleteError) throw new Error(`Could not refresh the league table: ${deleteError.message}`);
+
+      const rows = standings.map((row) => ({
+        league: team.league!,
+        position: row.position,
+        team_name: row.team.name,
+        team_logo_url: row.team.logo ?? null,
+        everysport_team_id: row.team.id,
+        played: statValue(row, "gp"),
+        won: statValue(row, "w"),
+        drawn: statValue(row, "d"),
+        lost: statValue(row, "l"),
+        goals_for: statValue(row, "gf"),
+        goals_against: statValue(row, "ga"),
+        points: statValue(row, "pts"),
+      }));
+      const { error: insertError } = await supabase.from("league_standings").insert(rows);
+      if (insertError) throw new Error(`Could not save the league table: ${insertError.message}`);
+      tableRows = rows.length;
+    }
+
+    return { imported, tableRows };
   });

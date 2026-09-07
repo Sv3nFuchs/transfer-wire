@@ -62,6 +62,57 @@ export type Database = {
         }
         Relationships: []
       }
+      league_standings: {
+        Row: {
+          drawn: number
+          everysport_team_id: string
+          goals_against: number
+          goals_for: number
+          id: string
+          league: string
+          lost: number
+          played: number
+          points: number
+          position: number
+          team_logo_url: string | null
+          team_name: string
+          updated_at: string
+          won: number
+        }
+        Insert: {
+          drawn?: number
+          everysport_team_id: string
+          goals_against?: number
+          goals_for?: number
+          id?: string
+          league: string
+          lost?: number
+          played?: number
+          points?: number
+          position: number
+          team_logo_url?: string | null
+          team_name: string
+          updated_at?: string
+          won?: number
+        }
+        Update: {
+          drawn?: number
+          everysport_team_id?: string
+          goals_against?: number
+          goals_for?: number
+          id?: string
+          league?: string
+          lost?: number
+          played?: number
+          points?: number
+          position?: number
+          team_logo_url?: string | null
+          team_name?: string
+          updated_at?: string
+          won?: number
+        }
+        Relationships: []
+      }
       match_player_ratings: {
         Row: {
           created_at: string
