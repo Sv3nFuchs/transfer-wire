@@ -337,6 +337,7 @@ function EditPlayerPage() {
         </form>
 
         <TransfersEditor playerId={playerId} clubs={clubs ?? []} />
+        <PastTeamsEditor playerId={playerId} />
       </main>
       <SiteFooter />
     </div>
@@ -533,6 +534,125 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
           </Button>
         </div>
       </form>
+    </section>
+  );
+}
+
+type TeamOption = { id: string; name: string; season: string | null; league: string | null; clubs: { name: string } | null };
+
+function PastTeamsEditor({ playerId }: { playerId: string }) {
+  const queryClient = useQueryClient();
+  const [teamId, setTeamId] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const { data: allTeams } = useQuery({
+    queryKey: ["all-teams-options"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("teams")
+        .select("id, name, season, league, clubs(name)")
+        .order("name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as TeamOption[];
+    },
+  });
+
+  const { data: memberships } = useQuery({
+    queryKey: ["team-memberships-edit", playerId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_memberships")
+        .select("id, team_id, teams(id, name, season, league, clubs(name))")
+        .eq("player_id", playerId);
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+
+  const addableTeams = (allTeams ?? []).filter((team) => !(memberships ?? []).some((m) => m.team_id === team.id));
+
+  async function handleAdd() {
+    if (!teamId) return;
+    setBusy(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const { error } = await supabase.from("team_memberships").insert({
+      player_id: playerId,
+      team_id: teamId,
+      created_by: userData.user?.id ?? null,
+    });
+    setBusy(false);
+    if (error) {
+      toast.error("Could not add: " + error.message);
+      return;
+    }
+    setTeamId("");
+    await queryClient.invalidateQueries();
+    toast.success("Added to team.");
+  }
+
+  async function handleRemove(id: string) {
+    const { error } = await supabase.from("team_memberships").delete().eq("id", id);
+    if (error) {
+      toast.error("Could not remove: " + error.message);
+      return;
+    }
+    await queryClient.invalidateQueries();
+    toast.success("Removed.");
+  }
+
+  return (
+    <section className="mt-14">
+      <h2 className="text-3xl">Past teams</h2>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+        Shows this player was part of a team's roster without needing a logged match — useful for past seasons you
+        don't want to back-fill fixtures for.
+      </p>
+      {(memberships ?? []).length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">No past teams recorded yet.</p>
+      ) : (
+        <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
+          {(memberships ?? []).map((membership) => (
+            <li key={membership.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
+              {membership.teams?.season ? (
+                <span className="label-caps w-16 text-muted-foreground">{membership.teams.season}</span>
+              ) : null}
+              <span className="font-display text-lg">
+                {membership.teams?.clubs?.name ? `${membership.teams.clubs.name} — ` : ""}
+                {membership.teams?.name}
+              </span>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="ml-auto"
+                onClick={() => handleRemove(membership.id)}
+              >
+                Remove
+              </Button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <select
+          value={teamId}
+          onChange={(e) => setTeamId(e.target.value)}
+          className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="">Add a team…</option>
+          {addableTeams.map((team) => (
+            <option key={team.id} value={team.id}>
+              {team.clubs?.name ? `${team.clubs.name} — ` : ""}
+              {team.name}
+              {team.season ? ` (${team.season})` : ""}
+            </option>
+          ))}
+        </select>
+        <Button type="button" variant="accent" size="sm" disabled={!teamId || busy} onClick={handleAdd}>
+          {busy ? "Adding…" : "Add"}
+        </Button>
+      </div>
     </section>
   );
 }

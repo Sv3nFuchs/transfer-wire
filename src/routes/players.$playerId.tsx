@@ -198,6 +198,38 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
   );
 }
 
+type TeamMembershipRow = {
+  id: string;
+  teams: { name: string; season: string | null; league: string | null; clubs: { name: string } | null } | null;
+};
+
+function PastTeams({ memberships }: { memberships: TeamMembershipRow[] }) {
+  const { t } = useLanguage();
+  if (memberships.length === 0) {
+    return <p className="mt-3 text-sm text-muted-foreground">{t("player.noPastTeams")}</p>;
+  }
+  return (
+    <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+      {memberships.map((membership) => (
+        <li key={membership.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+          {membership.teams?.season ? (
+            <span className="label-caps w-16 text-muted-foreground">{membership.teams.season}</span>
+          ) : null}
+          <span className="font-display text-lg">
+            {membership.teams?.clubs?.name ? `${membership.teams.clubs.name} — ` : ""}
+            {membership.teams?.name ?? t("player.unknownClub")}
+          </span>
+          {membership.teams?.league ? (
+            <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+              {membership.teams.league}
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function PlayerPage() {
   const { playerId } = Route.useParams();
   const { data: player } = useSuspenseQuery(playerQuery(playerId));
@@ -258,6 +290,11 @@ function PlayerPage() {
           <section className="mt-10 border-t-2 border-border pt-8">
             <h2 className="text-2xl">{t("player.seasonStats")}</h2>
             <SeasonStats stats={player.season_stats} />
+          </section>
+
+          <section className="mt-10 border-t-2 border-border pt-8">
+            <h2 className="text-2xl">{t("player.pastTeams")}</h2>
+            <PastTeams memberships={player.team_memberships} />
           </section>
 
           <TransferSection

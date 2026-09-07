@@ -45,6 +45,8 @@ const dict = {
   "player.noBio": "No description has been added for this player yet.",
   "player.seasonStats": "Season statistics",
   "player.noSeasonStats": "No rated matches yet.",
+  "player.pastTeams": "Past teams",
+  "player.noPastTeams": "No past teams recorded.",
   "player.statSeason": "Season",
   "player.statTeam": "Team",
   "player.statApps": "Apps",
