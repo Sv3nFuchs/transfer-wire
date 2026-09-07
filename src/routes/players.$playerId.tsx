@@ -292,11 +292,6 @@ function PlayerPage() {
             <SeasonStats stats={player.season_stats} />
           </section>
 
-          <section className="mt-10 border-t-2 border-border pt-8">
-            <h2 className="text-2xl">{t("player.pastTeams")}</h2>
-            <PastTeams memberships={player.team_memberships} />
-          </section>
-
           <TransferSection
             title={t("player.clubTransfers")}
             empty={t("player.noClubTransfers")}
@@ -307,11 +302,17 @@ function PlayerPage() {
             empty={t("player.noSchoolSpells")}
             transfers={player.transfers.filter((transfer) => transfer.org_type === "school")}
           />
+
           <TransferSection
             title={t("player.nationalSpells")}
             empty={t("player.noNationalSpells")}
             transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
           />
+
+          <section className="mt-10 border-t-2 border-border pt-8">
+            <h2 className="text-2xl">{t("player.pastTeams")}</h2>
+            <PastTeams memberships={player.team_memberships} />
+          </section>
         </div>
         <aside className="rounded-lg border border-border bg-card p-5 shadow-card">
           <h2 className="text-xl">{t("player.facts")}</h2>
