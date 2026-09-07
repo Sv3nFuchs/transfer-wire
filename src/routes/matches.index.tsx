@@ -191,9 +191,11 @@ function MatchCard({ match }: { match: MatchListItem }) {
           {match.team_score ?? "–"} : {match.opponent_score ?? "–"}
         </span>
         <span className="font-display text-lg">{match.opponent_club?.name ?? match.opponent_name}</span>
-        {match.opponent_club ? (
-          <ClubLogo name={match.opponent_club.name} url={match.opponent_club.logo_url} className="size-8" />
-        ) : null}
+        <ClubLogo
+          name={match.opponent_club?.name ?? match.opponent_name}
+          url={match.opponent_club?.logo_url ?? match.opponent_logo_url}
+          className="size-8"
+        />
         {match.teams?.league ? (
           <span className="ml-auto rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
             {match.teams.league}

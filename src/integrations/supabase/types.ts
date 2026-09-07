@@ -186,6 +186,7 @@ export type Database = {
           match_date: string
           notes: string | null
           opponent_club_id: string | null
+          opponent_logo_url: string | null
           opponent_name: string
           opponent_score: number | null
           team_id: string
@@ -203,6 +204,7 @@ export type Database = {
           match_date: string
           notes?: string | null
           opponent_club_id?: string | null
+          opponent_logo_url?: string | null
           opponent_name: string
           opponent_score?: number | null
           team_id: string
@@ -220,6 +222,7 @@ export type Database = {
           match_date?: string
           notes?: string | null
           opponent_club_id?: string | null
+          opponent_logo_url?: string | null
           opponent_name?: string
           opponent_score?: number | null
           team_id?: string

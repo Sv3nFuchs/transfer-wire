@@ -110,6 +110,7 @@ export const syncEverysportFixtures = createServerFn({ method: "POST" })
           team_id: data.teamId,
           opponent_club_id: opponentClubId,
           opponent_name: opponent.name,
+          opponent_logo_url: opponent.logo ?? null,
           match_date: matchDate,
           home_away: isHome ? "home" : "away",
           team_score: game.score ? (isHome ? game.score.homeTeam : game.score.awayTeam) : null,

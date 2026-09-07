@@ -71,7 +71,11 @@ function MatchPage() {
               {match.team_score ?? "–"} : {match.opponent_score ?? "–"}
             </span>
             <div className="flex flex-1 flex-col items-center gap-2 sm:flex-row">
-              <ClubLogo name={match.opponent_club?.name ?? match.opponent_name} url={match.opponent_club?.logo_url ?? null} className="size-14" />
+              <ClubLogo
+                name={match.opponent_club?.name ?? match.opponent_name}
+                url={match.opponent_club?.logo_url ?? match.opponent_logo_url}
+                className="size-14"
+              />
               <span className="font-display text-2xl">{match.opponent_club?.name ?? match.opponent_name}</span>
             </div>
           </div>

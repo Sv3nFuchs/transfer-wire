@@ -9,7 +9,7 @@ export const listMatches = createServerFn({ method: "GET" })
     let query = supabase
       .from("matches")
       .select(
-        "id, match_date, home_away, team_score, opponent_score, opponent_name, opponent_club_id, team_id, teams(id, name, league, clubs(id, name, logo_url)), opponent_club:clubs!matches_opponent_club_id_fkey(id, name, logo_url)",
+        "id, match_date, home_away, team_score, opponent_score, opponent_name, opponent_club_id, opponent_logo_url, team_id, teams(id, name, league, clubs(id, name, logo_url)), opponent_club:clubs!matches_opponent_club_id_fkey(id, name, logo_url)",
       )
       .order("match_date", { ascending: false })
       .limit(data.limit ?? 100);
