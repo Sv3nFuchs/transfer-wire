@@ -122,6 +122,7 @@ export type Database = {
           match_id: string
           player_id: string
           rating: number | null
+          team_id: string
           updated_at: string
         }
         Insert: {
@@ -132,6 +133,7 @@ export type Database = {
           match_id: string
           player_id: string
           rating?: number | null
+          team_id: string
           updated_at?: string
         }
         Update: {
@@ -142,6 +144,7 @@ export type Database = {
           match_id?: string
           player_id?: string
           rating?: number | null
+          team_id?: string
           updated_at?: string
         }
         Relationships: [
@@ -150,6 +153,13 @@ export type Database = {
             columns: ["match_id"]
             isOneToOne: false
             referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "match_player_ratings_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
             referencedColumns: ["id"]
           },
           {

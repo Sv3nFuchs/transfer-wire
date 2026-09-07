@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code))",
+        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name)))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -50,7 +50,8 @@ export const getPlayer = createServerFn({ method: "GET" })
         ? { ...transfer.to_club, logo_url: applyLogo(transfer.to_club.logo_url, logoMap) }
         : null,
     }));
-    return { ...row, transfers };
+    const seasonStats = [...(row.season_stats ?? [])].sort((a, b) => (b.season ?? "").localeCompare(a.season ?? ""));
+    return { ...row, transfers, season_stats: seasonStats };
   });
 
 export const listClubs = createServerFn({ method: "GET" })

@@ -143,6 +143,61 @@ function TransferSection({
   );
 }
 
+type SeasonStatRow = {
+  season: string | null;
+  league: string | null;
+  matches_played: number;
+  goals: number;
+  rated_matches: number;
+  average_rating: number | null;
+  teams: { name: string; clubs: { name: string } | null } | null;
+};
+
+function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
+  const { t } = useLanguage();
+  if (stats.length === 0) {
+    return <p className="mt-3 text-sm text-muted-foreground">{t("player.noSeasonStats")}</p>;
+  }
+  return (
+    <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-card shadow-card">
+      <table className="w-full min-w-[520px] text-sm">
+        <thead className="bg-secondary text-secondary-foreground">
+          <tr>
+            <th className="px-3 py-2 text-left label-caps">{t("player.statSeason")}</th>
+            <th className="px-3 py-2 text-left label-caps">{t("player.statTeam")}</th>
+            <th className="px-3 py-2 text-right label-caps">{t("player.statApps")}</th>
+            <th className="px-3 py-2 text-right label-caps">{t("player.statGoals")}</th>
+            <th className="px-3 py-2 text-right label-caps">{t("player.statAvgRating")}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {stats.map((row, i) => (
+            <tr key={i} className="border-t border-border">
+              <td className="px-3 py-2">{row.season ?? "—"}</td>
+              <td className="px-3 py-2">
+                {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
+                {row.teams?.name ?? "—"}
+                {row.league ? <span className="ml-2 text-xs text-muted-foreground">({row.league})</span> : null}
+              </td>
+              <td className="px-3 py-2 text-right">{row.matches_played}</td>
+              <td className="px-3 py-2 text-right">{row.goals}</td>
+              <td className="px-3 py-2 text-right">
+                {row.average_rating != null ? (
+                  <span className={`font-display ${row.average_rating >= 7 ? "text-green-600" : "text-accent"}`}>
+                    {row.average_rating.toFixed(1)}
+                  </span>
+                ) : (
+                  "—"
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function PlayerPage() {
   const { playerId } = Route.useParams();
   const { data: player } = useSuspenseQuery(playerQuery(playerId));
@@ -199,6 +254,11 @@ function PlayerPage() {
           <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
             {player.bio || t("player.noBio")}
           </p>
+
+          <section className="mt-10 border-t-2 border-border pt-8">
+            <h2 className="text-2xl">{t("player.seasonStats")}</h2>
+            <SeasonStats stats={player.season_stats} />
+          </section>
 
           <TransferSection
             title={t("player.clubTransfers")}
