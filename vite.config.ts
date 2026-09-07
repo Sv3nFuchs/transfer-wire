@@ -28,7 +28,13 @@ export default defineConfig(async ({ command, mode }) => {
 
   if (command === "build") {
     const { nitro } = await import("nitro/vite");
-    plugins.push(nitro({ defaultPreset: "cloudflare-module" }));
+    plugins.push(
+      nitro({
+        defaultPreset: "cloudflare-module",
+        compatibilityDate: "2026-09-07",
+        cloudflare: { deployConfig: true, nodeCompat: true },
+      }),
+    );
   }
 
   // Expose VITE_-prefixed env vars as build-time constants.
