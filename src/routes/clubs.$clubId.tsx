@@ -57,7 +57,7 @@ function ClubPage() {
   const { isAdmin } = useIsAdmin();
   const { t } = useLanguage();
   if (!data) return <ClubNotFound />;
-  const { club, players } = data;
+  const { club, players, pastPlayersByTeam } = data;
   const unassigned = players.filter((player) => !player.team_id);
 
   return (
@@ -102,6 +102,8 @@ function ClubPage() {
         <div className="mt-6 space-y-8">
           {club.teams.map((team) => {
             const squad = players.filter((player) => player.team_id === team.id);
+            const squadIds = new Set(squad.map((player) => player.id));
+            const pastPlayers = (pastPlayersByTeam[team.id] ?? []).filter((player) => !squadIds.has(player.id));
             return (
               <section
                 key={team.id}
@@ -114,6 +116,12 @@ function ClubPage() {
                   </p>
                 </header>
                 <Squad squad={squad} />
+                {pastPlayers.length > 0 ? (
+                  <div className="border-t border-border">
+                    <p className="label-caps px-5 pt-4 text-muted-foreground">{t("club.pastPlayers")}</p>
+                    <Squad squad={pastPlayers} />
+                  </div>
+                ) : null}
               </section>
             );
           })}

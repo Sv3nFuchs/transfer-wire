@@ -101,10 +101,27 @@ export const getClub = createServerFn({ method: "GET" })
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);
+
+    const teamIds = club.teams.map((team) => team.id);
+    const { data: memberships, error: membershipsError } =
+      teamIds.length === 0
+        ? { data: [], error: null }
+        : await supabase
+            .from("team_memberships")
+            .select("team_id, players(id, full_name, position, birth_year, shirt_number, nationality)")
+            .in("team_id", teamIds);
+    if (membershipsError) throw new Error(membershipsError.message);
+
     const logoMap = await resolveLogoUrls([club.logo_url]);
+    const pastPlayersByTeam: Record<string, NonNullable<(typeof memberships)[number]["players"]>[]> = {};
+    for (const row of memberships ?? []) {
+      if (!row.players) continue;
+      (pastPlayersByTeam[row.team_id] ??= []).push(row.players);
+    }
     return {
       club: { ...club, logo_url: applyLogo(club.logo_url, logoMap) },
       players: players ?? [],
+      pastPlayersByTeam,
     };
   });
 

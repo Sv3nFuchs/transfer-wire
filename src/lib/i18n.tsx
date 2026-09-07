@@ -82,6 +82,7 @@ const dict = {
   "club.teamsAndSquads": "Teams & squads",
   "club.noTeams": "No teams have been registered for this club yet.",
   "club.otherPlayers": "Other players in the club",
+  "club.pastPlayers": "Past players",
   "club.emptySquad": "The squad is empty.",
   "club.notFound": "Club not found",
   "club.backToClubs": "Back to clubs",
