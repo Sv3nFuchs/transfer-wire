@@ -44,6 +44,8 @@ function EditMatchPage() {
   const [form, setForm] = useState<MatchForm>(emptyMatchForm);
   const [ratings, setRatings] = useState<Record<string, RatingForm>>({});
   const [initialRatedIds, setInitialRatedIds] = useState<Set<string>>(new Set());
+  const [displayedPlayers, setDisplayedPlayers] = useState<RosterRow[]>([]);
+  const [addPlayerId, setAddPlayerId] = useState("");
   const [saving, setSaving] = useState(false);
 
   const { data: match, isLoading } = useQuery({
@@ -55,6 +57,8 @@ function EditMatchPage() {
     },
   });
 
+  // Current roster of the match's own team — the common case (most players
+  // being rated are still on that team today).
   const { data: roster } = useQuery({
     queryKey: ["match-roster", match?.team_id],
     enabled: Boolean(match?.team_id),
@@ -66,6 +70,20 @@ function EditMatchPage() {
         .order("full_name");
       if (error) throw new Error(error.message);
       return (data ?? []) as RosterRow[];
+    },
+  });
+
+  // Every registered player, for adding someone who has since moved to a
+  // different team (e.g. rating a past-season match after they moved on).
+  const { data: allPlayers } = useQuery({
+    queryKey: ["all-players-for-rating"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("players")
+        .select("id, full_name, shirt_number, position, clubs(name), teams(name)")
+        .order("full_name");
+      if (error) throw new Error(error.message);
+      return data ?? [];
     },
   });
 
@@ -87,23 +105,38 @@ function EditMatchPage() {
     void (async () => {
       const { data, error } = await supabase
         .from("match_player_ratings")
-        .select("player_id, rating, goals_scored")
+        .select("player_id, rating, goals_scored, players(id, full_name, shirt_number, position)")
         .eq("match_id", matchId);
       if (error) {
         toast.error("Could not load ratings: " + error.message);
         return;
       }
-      const existing = new Map((data ?? []).map((row) => [row.player_id, row]));
+      const existing = data ?? [];
+      const existingIds = new Set(existing.map((row) => row.player_id));
+
+      // Anyone already rated on this match stays visible even if they've
+      // since moved to a different team than the one this match belongs to.
+      const extraFromRatings: RosterRow[] = existing
+        .filter((row) => row.players && !roster.some((p) => p.id === row.player_id))
+        .map((row) => ({
+          id: row.players!.id,
+          full_name: row.players!.full_name,
+          shirt_number: row.players!.shirt_number,
+          position: row.players!.position,
+        }));
+      setDisplayedPlayers([...roster, ...extraFromRatings]);
+
+      const ratingsById = new Map(existing.map((row) => [row.player_id, row]));
       const next: Record<string, RatingForm> = {};
-      for (const player of roster) {
-        const row = existing.get(player.id);
+      for (const player of [...roster, ...extraFromRatings]) {
+        const row = ratingsById.get(player.id);
         next[player.id] = {
           rating: row?.rating != null ? String(row.rating) : "",
           goals: row?.goals_scored ? String(row.goals_scored) : "",
         };
       }
       setRatings(next);
-      setInitialRatedIds(new Set(existing.keys()));
+      setInitialRatedIds(existingIds);
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roster, matchId]);
@@ -117,6 +150,22 @@ function EditMatchPage() {
       ...prev,
       [playerId]: { ...(prev[playerId] ?? { rating: "", goals: "" }), [field]: value },
     }));
+  }
+
+  function handleAddPlayer() {
+    if (!addPlayerId || !allPlayers) return;
+    if (displayedPlayers.some((p) => p.id === addPlayerId)) {
+      setAddPlayerId("");
+      return;
+    }
+    const player = allPlayers.find((p) => p.id === addPlayerId);
+    if (!player) return;
+    setDisplayedPlayers((prev) => [
+      ...prev,
+      { id: player.id, full_name: player.full_name, shirt_number: player.shirt_number, position: player.position },
+    ]);
+    setRatings((prev) => ({ ...prev, [player.id]: prev[player.id] ?? { rating: "", goals: "" } }));
+    setAddPlayerId("");
   }
 
   const num = (value: string) => (value.trim() === "" ? null : Number(value));
@@ -233,6 +282,8 @@ function EditMatchPage() {
     );
   }
 
+  const addablePlayers = (allPlayers ?? []).filter((p) => !displayedPlayers.some((d) => d.id === p.id));
+
   return (
     <div className="min-h-screen">
       <SiteHeader />
@@ -282,13 +333,14 @@ function EditMatchPage() {
           <div className="sm:col-span-2">
             <h2 className="mt-4 text-2xl">Player ratings</h2>
             <p className="text-sm text-muted-foreground">
-              Rate 1.0–10.0. Leave rating blank and goals at 0 for players who didn't feature.
+              Rate 1.0–10.0. Leave rating blank and goals at 0 for players who didn't feature. Includes this team's
+              current roster — add anyone else (e.g. a player who has since moved teams) below.
             </p>
-            {!roster || roster.length === 0 ? (
-              <p className="mt-3 text-sm text-muted-foreground">This team has no players registered yet.</p>
+            {displayedPlayers.length === 0 ? (
+              <p className="mt-3 text-sm text-muted-foreground">No players yet — add one below.</p>
             ) : (
               <ul className="mt-4 divide-y divide-border rounded-lg border border-border bg-card">
-                {roster.map((player) => (
+                {displayedPlayers.map((player) => (
                   <li key={player.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
                     <span className="w-6 text-sm text-muted-foreground">{player.shirt_number ?? "–"}</span>
                     <span className="font-display text-lg">{player.full_name}</span>
@@ -318,6 +370,26 @@ function EditMatchPage() {
                 ))}
               </ul>
             )}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <select
+                value={addPlayerId}
+                onChange={(e) => setAddPlayerId(e.target.value)}
+                className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="">Add a player…</option>
+                {addablePlayers.map((player) => (
+                  <option key={player.id} value={player.id}>
+                    {player.full_name}
+                    {player.clubs?.name || player.teams?.name
+                      ? ` (${[player.clubs?.name, player.teams?.name].filter(Boolean).join(" — ")})`
+                      : ""}
+                  </option>
+                ))}
+              </select>
+              <Button type="button" variant="outline" size="sm" disabled={!addPlayerId} onClick={handleAddPlayer}>
+                Add
+              </Button>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
