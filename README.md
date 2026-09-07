@@ -28,13 +28,22 @@ configured in `vite.config.ts`). One-time setup:
 npx wrangler login
 ```
 
-Then, from the project root, build and set the two server-side secrets (the
+If this is a brand-new Cloudflare account with no Worker deployed yet, it also
+needs a one-time `workers.dev` subdomain (e.g. `yourname.workers.dev`, chosen
+once for the whole account) — register it at
+https://dash.cloudflare.com/<account-id>/workers/onboarding before deploying,
+or the first deploy will fail asking for one.
+
+Then, from the project root, build and set the three server-side secrets (the
 `VITE_`-prefixed vars are inlined into the client bundle at build time and
-don't need to be set here):
+don't need to be set here — but `SUPABASE_PUBLISHABLE_KEY`, without the
+`VITE_` prefix, is still read server-side for SSR's public/read-only client
+and must be set too, or pages will 500 with "supabaseKey is required"):
 
 ```sh
 npm run build
 npx wrangler secret put SUPABASE_URL --config .output/server/wrangler.json
+npx wrangler secret put SUPABASE_PUBLISHABLE_KEY --config .output/server/wrangler.json
 npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY --config .output/server/wrangler.json
 ```
 
