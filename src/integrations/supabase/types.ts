@@ -122,6 +122,7 @@ export type Database = {
           match_id: string
           player_id: string
           rating: number | null
+          season: string
           team_id: string
           updated_at: string
         }
@@ -133,6 +134,7 @@ export type Database = {
           match_id: string
           player_id: string
           rating?: number | null
+          season: string
           team_id: string
           updated_at?: string
         }
@@ -144,6 +146,7 @@ export type Database = {
           match_id?: string
           player_id?: string
           rating?: number | null
+          season?: string
           team_id?: string
           updated_at?: string
         }

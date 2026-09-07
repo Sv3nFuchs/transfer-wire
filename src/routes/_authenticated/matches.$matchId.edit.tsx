@@ -146,14 +146,15 @@ function EditMatchPage() {
     }
 
     const { data: userData } = await supabase.auth.getUser();
-    const toUpsert: { match_id: string; player_id: string; team_id: string; rating: number | null; goals_scored: number; created_by: string | null }[] = [];
+    const season = form.match_date.slice(0, 4);
+    const toUpsert: { match_id: string; player_id: string; team_id: string; season: string; rating: number | null; goals_scored: number; created_by: string | null }[] = [];
     const toDelete: string[] = [];
     for (const [playerId, entry] of Object.entries(ratings)) {
       const rating = entry.rating.trim() === "" ? null : Number(entry.rating);
       const goals = entry.goals.trim() === "" ? 0 : Number(entry.goals);
       const featured = rating != null || goals > 0;
       if (featured) {
-        toUpsert.push({ match_id: matchId, player_id: playerId, team_id: match.team_id, rating, goals_scored: goals, created_by: userData.user?.id ?? null });
+        toUpsert.push({ match_id: matchId, player_id: playerId, team_id: match.team_id, season, rating, goals_scored: goals, created_by: userData.user?.id ?? null });
       } else if (initialRatedIds.has(playerId)) {
         toDelete.push(playerId);
       }
