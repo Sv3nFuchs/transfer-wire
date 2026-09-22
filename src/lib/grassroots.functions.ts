@@ -56,16 +56,51 @@ export const getPlayer = createServerFn({ method: "GET" })
     );
 
     const ratedMatches = (row.match_ratings ?? []).filter((r) => r.matches?.match_date);
-    const debutByTeam = new Map<string, (typeof ratedMatches)[number]>();
+
+    type DebutEntry = {
+      id: string;
+      teamId: string;
+      teamName: string | null;
+      clubName: string | null;
+      matchDate: string | null;
+      opponentName: string | null;
+      season: string | null;
+    };
+    const debutByTeam = new Map<string, DebutEntry>();
     for (const r of ratedMatches) {
       const existing = debutByTeam.get(r.team_id);
-      if (!existing || r.matches!.match_date < existing.matches!.match_date) {
-        debutByTeam.set(r.team_id, r);
+      if (!existing || (existing.matchDate && r.matches!.match_date < existing.matchDate)) {
+        debutByTeam.set(r.team_id, {
+          id: r.id,
+          teamId: r.team_id,
+          teamName: r.teams?.name ?? null,
+          clubName: r.teams?.clubs?.name ?? null,
+          matchDate: r.matches!.match_date,
+          opponentName: r.matches?.opponent_name ?? null,
+          season: null,
+        });
       }
     }
-    const debuts = [...debutByTeam.values()].sort((a, b) =>
-      (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""),
-    );
+    // Past teams claimed via "Past Teams" (team_memberships) but with no
+    // logged match yet still get a debut entry, just without an exact date.
+    for (const membership of teamMemberships) {
+      if (!membership.team_id || debutByTeam.has(membership.team_id)) continue;
+      debutByTeam.set(membership.team_id, {
+        id: membership.id,
+        teamId: membership.team_id,
+        teamName: membership.teams?.name ?? null,
+        clubName: membership.teams?.clubs?.name ?? null,
+        matchDate: null,
+        opponentName: null,
+        season: membership.teams?.season ?? null,
+      });
+    }
+    const debuts = [...debutByTeam.values()].sort((a, b) => {
+      if (a.matchDate && b.matchDate) return b.matchDate.localeCompare(a.matchDate);
+      if (a.matchDate) return -1;
+      if (b.matchDate) return 1;
+      return (b.season ?? "").localeCompare(a.season ?? "");
+    });
     const goals = ratedMatches
       .filter((r) => r.goals_scored > 0)
       .sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""));

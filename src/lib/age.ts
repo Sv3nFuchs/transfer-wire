@@ -9,3 +9,11 @@ export function calculateAge(birthDate: string, atDate: string): number | null {
   if (!hadBirthdayByAtDate) age -= 1;
   return age;
 }
+
+/** True if `birthDate`'s month/day matches today's, in the viewer's local time zone. */
+export function isBirthdayToday(birthDate: string): boolean {
+  const birth = new Date(birthDate);
+  if (Number.isNaN(birth.getTime())) return false;
+  const today = new Date();
+  return birth.getUTCMonth() === today.getMonth() && birth.getUTCDate() === today.getDate();
+}
