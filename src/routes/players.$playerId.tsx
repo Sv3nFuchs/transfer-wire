@@ -9,6 +9,7 @@ import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
+import { getPositionCoords } from "@/lib/pitch-position";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -70,6 +71,28 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
     <div className="border-t border-border py-3 first:border-t-0">
       <p className="label-caps">{label}</p>
       <div className="font-display text-2xl leading-tight">{value ?? "—"}</div>
+    </div>
+  );
+}
+
+function PitchPosition({ position }: { position: string | null }) {
+  const { t } = useLanguage();
+  const coords = getPositionCoords(position);
+  return (
+    <div className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
+      <svg viewBox="0 0 100 100" className="w-full rounded bg-pitch pitch-stripes">
+        <rect x="4" y="2" width="92" height="96" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <line x1="4" y1="50" x2="96" y2="50" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <circle cx="50" cy="50" r="9" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <rect x="26" y="2" width="48" height="16" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <rect x="38" y="2" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <rect x="26" y="82" width="48" height="16" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        <rect x="38" y="91" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        {coords ? (
+          <circle cx={coords.x} cy={coords.y} r="4.5" className="fill-accent" stroke="white" strokeWidth="0.8" />
+        ) : null}
+      </svg>
+      {!coords ? <p className="mt-3 text-xs text-muted-foreground">{t("player.noPositionMapped")}</p> : null}
     </div>
   );
 }
@@ -304,7 +327,11 @@ function CareerDebuts({ debuts, birthDate }: { debuts: DebutRow[]; birthDate: st
   return (
     <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
       {debuts.map((row) => {
-        const age = birthDate && row.matchDate ? calculateAge(birthDate, row.matchDate) : null;
+        const exactAge = birthDate && row.matchDate ? calculateAge(birthDate, row.matchDate) : null;
+        const approxAge =
+          exactAge == null && birthDate && row.season && /^\d{4}$/.test(row.season)
+            ? calculateAge(birthDate, `${row.season}-01-01`)
+            : null;
         return (
           <li key={row.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
             <span className="label-caps w-24 text-muted-foreground">
@@ -314,9 +341,13 @@ function CareerDebuts({ debuts, birthDate }: { debuts: DebutRow[]; birthDate: st
               {row.clubName ? `${row.clubName} — ` : ""}
               {row.teamName ?? t("player.unknownClub")}
             </span>
-            {age != null ? (
+            {exactAge != null ? (
               <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
-                {t("player.ageAtDebut")} {age}
+                {t("player.ageAtDebut")} {exactAge}
+              </span>
+            ) : approxAge != null ? (
+              <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+                {t("player.ageAtDebut")} ~{approxAge}
               </span>
             ) : null}
             {row.opponentName ? (
@@ -379,45 +410,50 @@ function PlayerPage() {
     <div className="min-h-screen">
       <SiteHeader />
       <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
-        <div className="mx-auto max-w-6xl px-4 py-14">
-          <p className="label-caps text-accent">{t("player.kicker")}</p>
-          <h1 className="mt-2 text-5xl sm:text-6xl">
-            {player.shirt_number ? (
-              <span className="mr-3 text-accent">{player.shirt_number}</span>
-            ) : null}
-            {player.full_name}
-            <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle" />
-          </h1>
-          <p className="mt-3 opacity-85">
-            {[player.position, player.nationality, player.birth_year && `${t("player.bornPrefix")} ${player.birth_year}`]
-              .filter(Boolean)
-              .join(" · ")}
-          </p>
-          <div className="mt-5 flex flex-wrap items-center gap-3">
-            {player.clubs ? (
-              <Link
-                to="/clubs/$clubId"
-                params={{ clubId: player.clubs.id }}
-                className="inline-block rounded bg-accent px-3 py-1 font-display tracking-wide text-accent-foreground"
-              >
-                {player.clubs.name}
-                {player.teams ? ` — ${player.teams.name}` : ""}
-              </Link>
-            ) : null}
+        <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-14">
+          <div>
+            <p className="label-caps text-accent">{t("player.kicker")}</p>
+            <h1 className="mt-2 text-5xl sm:text-6xl">
+              {player.shirt_number ? (
+                <span className="mr-3 text-accent">{player.shirt_number}</span>
+              ) : null}
+              {player.full_name}
+              <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle" />
+            </h1>
+            <p className="mt-3 opacity-85">
+              {[player.position, player.nationality, player.birth_year && `${t("player.bornPrefix")} ${player.birth_year}`]
+                .filter(Boolean)
+                .join(" · ")}
+            </p>
             {isAdmin ? (
-              <Link
-                to="/players/$playerId/edit"
-                params={{ playerId }}
-                className="inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
-              >
-                {t("player.edit")}
-              </Link>
+              <div className="mt-5">
+                <Link
+                  to="/players/$playerId/edit"
+                  params={{ playerId }}
+                  className="inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
+                >
+                  {t("player.edit")}
+                </Link>
+              </div>
             ) : null}
           </div>
+          {player.clubs ? (
+            <Link
+              to="/clubs/$clubId"
+              params={{ clubId: player.clubs.id }}
+              className="flex items-center gap-3 rounded-lg border border-pitch-foreground/25 bg-pitch-foreground/5 px-4 py-3 hover:bg-pitch-foreground/10"
+            >
+              <ClubLogo name={player.clubs.name} url={player.clubs.logo_url} className="size-12" />
+              <span>
+                <span className="block font-display text-lg leading-tight">{player.clubs.name}</span>
+                {player.teams ? <span className="block text-sm opacity-75">{player.teams.name}</span> : null}
+              </span>
+            </Link>
+          ) : null}
         </div>
       </section>
 
-      <main className="mx-auto max-w-4xl px-4 py-12">
+      <main className="mx-auto max-w-6xl px-4 py-12">
         <Tabs
           value={activeTab}
           onValueChange={(value) =>
@@ -436,16 +472,17 @@ function PlayerPage() {
             <TabsTrigger value="career">{t("player.tabCareer")}</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="profile" className="mt-6">
-            <h2 className="text-2xl">{t("player.about")}</h2>
-            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-              {player.bio || t("player.noBio")}
-            </p>
-            <RecentTransferSection transfers={player.transfers} playerId={playerId} />
-
-            <section className="mt-10 border-t-2 border-border pt-8">
+          <TabsContent value="profile" className="mt-6 grid gap-10 md:grid-cols-[2fr_1fr]">
+            <div>
+              <h2 className="text-2xl">{t("player.about")}</h2>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                {player.bio || t("player.noBio")}
+              </p>
+              <RecentTransferSection transfers={player.transfers} playerId={playerId} />
+            </div>
+            <div>
               <h2 className="text-2xl">{t("player.facts")}</h2>
-              <div className="mt-4 max-w-sm rounded-lg border border-border bg-card p-5 shadow-card">
+              <div className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
                 <Fact label={t("player.position")} value={player.position} />
                 <Fact
                   label={player.birth_date ? t("player.birthday") : t("player.birthYear")}
@@ -478,7 +515,9 @@ function PlayerPage() {
                 <Fact label={t("player.team")} value={player.teams?.name} />
                 <Fact label={t("player.ageGroup")} value={player.teams?.age_group} />
               </div>
-            </section>
+              <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
+              <PitchPosition position={player.position} />
+            </div>
           </TabsContent>
 
           <TabsContent value="stats" className="mt-6">

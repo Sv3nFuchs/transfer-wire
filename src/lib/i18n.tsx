@@ -78,6 +78,8 @@ const dict = {
   "player.happyBirthday": "Happy birthday!",
   "player.ageAtDebut": "age",
   "player.seasonOnly": "season only, no match logged",
+  "player.onThePitch": "On the pitch",
+  "player.noPositionMapped": "Position not recognized for the pitch diagram yet.",
   "player.recentTransfer": "Recent transfer",
   "player.viewAllTransfers": "View all transfers →",
   "player.birthplace": "Place of birth",

@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name))",
+        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -35,12 +35,10 @@ export const getPlayer = createServerFn({ method: "GET" })
     const rawTransfers = [...(row.transfers ?? [])].sort((a, b) =>
       (a.transfer_date ?? "").localeCompare(b.transfer_date ?? ""),
     );
-    const logoMap = await resolveLogoUrls(
-      rawTransfers.flatMap((transfer) => [
-        transfer.from_club?.logo_url,
-        transfer.to_club?.logo_url,
-      ]),
-    );
+    const logoMap = await resolveLogoUrls([
+      ...rawTransfers.flatMap((transfer) => [transfer.from_club?.logo_url, transfer.to_club?.logo_url]),
+      row.clubs?.logo_url,
+    ]);
     const transfers = rawTransfers.map((transfer) => ({
       ...transfer,
       from_club: transfer.from_club
@@ -50,6 +48,9 @@ export const getPlayer = createServerFn({ method: "GET" })
         ? { ...transfer.to_club, logo_url: applyLogo(transfer.to_club.logo_url, logoMap) }
         : null,
     }));
+    const currentClub = row.clubs
+      ? { ...row.clubs, logo_url: applyLogo(row.clubs.logo_url, logoMap) }
+      : null;
     const seasonStats = [...(row.season_stats ?? [])].sort((a, b) => (b.season ?? "").localeCompare(a.season ?? ""));
     const teamMemberships = [...(row.team_memberships ?? [])].sort((a, b) =>
       (b.teams?.season ?? "").localeCompare(a.teams?.season ?? ""),
@@ -106,7 +107,15 @@ export const getPlayer = createServerFn({ method: "GET" })
       .sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""));
 
     const { match_ratings: _matchRatings, ...playerRow } = row;
-    return { ...playerRow, transfers, season_stats: seasonStats, team_memberships: teamMemberships, debuts, goals };
+    return {
+      ...playerRow,
+      clubs: currentClub,
+      transfers,
+      season_stats: seasonStats,
+      team_memberships: teamMemberships,
+      debuts,
+      goals,
+    };
   });
 
 export const listClubs = createServerFn({ method: "GET" })
