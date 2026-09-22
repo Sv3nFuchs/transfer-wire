@@ -101,6 +101,7 @@ const dict = {
   "matches.standings": "Standings",
   "matches.topScorers": "Top scorers",
   "matches.topRatings": "Top average ratings",
+  "matches.thPosition": "Pos",
   "matches.thTeam": "Team",
   "matches.thPlayed": "P",
   "matches.thWon": "W",

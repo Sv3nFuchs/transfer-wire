@@ -77,6 +77,7 @@ type StandingRow = {
   name: string;
   clubName: string | null;
   logoUrl?: string | null;
+  position?: number;
   played: number;
   won: number;
   drawn: number;
@@ -107,6 +108,7 @@ export const getLeagueStats = createServerFn({ method: "GET" })
             name: row.team_name,
             clubName: null,
             logoUrl: row.team_logo_url,
+            position: row.position,
             played: row.played,
             won: row.won,
             drawn: row.drawn,
@@ -167,9 +169,9 @@ export const getLeagueStats = createServerFn({ method: "GET" })
     }
     const standings =
       standingsFromImport ??
-      [...standingsByTeam.values()].sort(
-        (a, b) => b.points - a.points || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst),
-      );
+      [...standingsByTeam.values()]
+        .sort((a, b) => b.points - a.points || b.goalsFor - b.goalsAgainst - (a.goalsFor - a.goalsAgainst))
+        .map((row, i) => ({ ...row, position: i + 1 }));
 
     // Sourced from the precomputed player_season_stats table (kept in sync by a
     // trigger on match_player_ratings) rather than re-scanning raw ratings here.

@@ -227,6 +227,7 @@ function LeagueStats({ league }: { league: string }) {
           <table className="w-full min-w-[520px] text-sm">
             <thead className="bg-secondary text-secondary-foreground">
               <tr>
+                <th className="px-3 py-2 text-left label-caps">{t("matches.thPosition")}</th>
                 <th className="px-3 py-2 text-left label-caps">{t("matches.thTeam")}</th>
                 <th className="px-3 py-2 text-right label-caps">{t("matches.thPlayed")}</th>
                 <th className="px-3 py-2 text-right label-caps">{t("matches.thWon")}</th>
@@ -241,6 +242,7 @@ function LeagueStats({ league }: { league: string }) {
             <tbody>
               {data.standings.map((row) => (
                 <tr key={row.teamId} className="border-t border-border">
+                  <td className="px-3 py-2 font-display text-muted-foreground">{row.position ?? "–"}</td>
                   <td className="px-3 py-2">
                     <span className="flex items-center gap-2">
                       {row.logoUrl ? <ClubLogo name={row.name} url={row.logoUrl} className="size-6" /> : null}
