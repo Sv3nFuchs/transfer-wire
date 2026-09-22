@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
+import { calculateAge } from "@/lib/age";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -152,6 +153,22 @@ function TransferSection({
   );
 }
 
+function TransferSummary({ transfers }: { transfers: TransferRow[] }) {
+  const { t } = useLanguage();
+  const clubTransfers = transfers.filter((transfer) => (transfer.org_type ?? "club") === "club");
+  // `transfers` arrives sorted oldest-first, so the last club transfer is the most recent one.
+  const mostRecent = clubTransfers.at(-1);
+  if (!mostRecent) return null;
+  const destination = mostRecent.to_club?.name ?? mostRecent.to_club_name ?? t("player.unknownClub");
+  const dateLabel = formatDateInLang(mostRecent.transfer_date, t("player.unknownDate"));
+  const countLabel = `${clubTransfers.length} ${clubTransfers.length === 1 ? t("player.transferWord") : t("player.transferWordPlural")}`;
+  return (
+    <p className="mt-2 text-sm text-muted-foreground">
+      {t("player.transferSummaryLabel")} {countLabel}, {t("player.transferSummaryRecentTo")} {destination} ({dateLabel}).
+    </p>
+  );
+}
+
 type SeasonStatRow = {
   season: string | null;
   league: string | null;
@@ -246,29 +263,38 @@ type MatchRatingRow = {
   matches: { id: string; match_date: string; opponent_name: string } | null;
 };
 
-function CareerDebuts({ debuts }: { debuts: MatchRatingRow[] }) {
+function CareerDebuts({ debuts, birthDate }: { debuts: MatchRatingRow[]; birthDate: string | null }) {
   const { t } = useLanguage();
   if (debuts.length === 0) {
     return <p className="mt-3 text-sm text-muted-foreground">{t("player.noDebuts")}</p>;
   }
   return (
     <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
-      {debuts.map((row) => (
-        <li key={row.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
-          <span className="label-caps w-24 text-muted-foreground">
-            {formatDateInLang(row.matches?.match_date ?? null, t("player.unknownDate"))}
-          </span>
-          <span className="font-display text-lg">
-            {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
-            {row.teams?.name ?? t("player.unknownClub")}
-          </span>
-          {row.matches?.opponent_name ? (
-            <span className="text-sm text-muted-foreground">
-              {t("player.vs")} {row.matches.opponent_name}
+      {debuts.map((row) => {
+        const age =
+          birthDate && row.matches?.match_date ? calculateAge(birthDate, row.matches.match_date) : null;
+        return (
+          <li key={row.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+            <span className="label-caps w-24 text-muted-foreground">
+              {formatDateInLang(row.matches?.match_date ?? null, t("player.unknownDate"))}
             </span>
-          ) : null}
-        </li>
-      ))}
+            <span className="font-display text-lg">
+              {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
+              {row.teams?.name ?? t("player.unknownClub")}
+            </span>
+            {age != null ? (
+              <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
+                {t("player.ageAtDebut")} {age}
+              </span>
+            ) : null}
+            {row.matches?.opponent_name ? (
+              <span className="text-sm text-muted-foreground">
+                {t("player.vs")} {row.matches.opponent_name}
+              </span>
+            ) : null}
+          </li>
+        );
+      })}
     </ul>
   );
 }
@@ -379,12 +405,16 @@ function PlayerPage() {
             <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
               {player.bio || t("player.noBio")}
             </p>
+            <TransferSummary transfers={player.transfers} />
 
             <section className="mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.facts")}</h2>
               <div className="mt-4 max-w-sm rounded-lg border border-border bg-card p-5 shadow-card">
                 <Fact label={t("player.position")} value={player.position} />
-                <Fact label={t("player.birthYear")} value={player.birth_year} />
+                <Fact
+                  label={player.birth_date ? t("player.birthday") : t("player.birthYear")}
+                  value={player.birth_date ? formatDateInLang(player.birth_date, "—") : player.birth_year}
+                />
                 <Fact
                   label={t("player.birthplace")}
                   value={
@@ -434,7 +464,7 @@ function PlayerPage() {
           <TabsContent value="career" className="mt-6">
             <section>
               <h2 className="text-2xl">{t("player.careerDebuts")}</h2>
-              <CareerDebuts debuts={player.debuts} />
+              <CareerDebuts debuts={player.debuts} birthDate={player.birth_date} />
             </section>
             <section className="mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.careerGoals")}</h2>

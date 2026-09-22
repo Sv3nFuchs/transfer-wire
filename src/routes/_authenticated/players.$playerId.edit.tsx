@@ -20,6 +20,7 @@ type FormState = {
   full_name: string;
   position: string;
   birth_year: string;
+  birth_date: string;
   birthplace: string;
   birthplace_country_code: string;
   preferred_foot: string;
@@ -37,6 +38,7 @@ const emptyForm: FormState = {
   full_name: "",
   position: "",
   birth_year: "",
+  birth_date: "",
   birthplace: "",
   birthplace_country_code: "",
   preferred_foot: "",
@@ -100,6 +102,7 @@ function EditPlayerPage() {
       full_name: player.full_name ?? "",
       position: player.position ?? "",
       birth_year: player.birth_year ? String(player.birth_year) : "",
+      birth_date: player.birth_date ?? "",
       birthplace: player.birthplace ?? "",
       birthplace_country_code: player.birthplace_country_code ?? "",
       preferred_foot: player.preferred_foot ?? "",
@@ -133,7 +136,10 @@ function EditPlayerPage() {
       .update({
         full_name: form.full_name.trim(),
         position: str(form.position),
-        birth_year: num(form.birth_year),
+        // If a full birthday is set, derive the year from it so the two
+        // fields can't drift apart; otherwise fall back to the typed year.
+        birth_year: form.birth_date ? new Date(form.birth_date).getFullYear() : num(form.birth_year),
+        birth_date: str(form.birth_date),
         birthplace: str(form.birthplace),
         birthplace_country_code: str(form.birthplace_country_code),
         preferred_foot: str(form.preferred_foot),
@@ -226,8 +232,24 @@ function EditPlayerPage() {
             <Input id="shirt_number" inputMode="numeric" value={form.shirt_number} onChange={(e) => set("shirt_number", e.target.value)} />
           </div>
           <div>
+            <Label htmlFor="birth_date">Birthday</Label>
+            <Input
+              id="birth_date"
+              type="date"
+              value={form.birth_date}
+              onChange={(e) => set("birth_date", e.target.value)}
+            />
+          </div>
+          <div>
             <Label htmlFor="birth_year">Birth year</Label>
-            <Input id="birth_year" inputMode="numeric" value={form.birth_year} onChange={(e) => set("birth_year", e.target.value)} />
+            <Input
+              id="birth_year"
+              inputMode="numeric"
+              disabled={Boolean(form.birth_date)}
+              value={form.birth_date ? String(new Date(form.birth_date).getFullYear()) : form.birth_year}
+              onChange={(e) => set("birth_year", e.target.value)}
+              placeholder="Only needed if the exact birthday is unknown"
+            />
           </div>
           <div>
             <Label htmlFor="birthplace">Place of birth</Label>

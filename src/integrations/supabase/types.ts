@@ -303,6 +303,7 @@ export type Database = {
       players: {
         Row: {
           bio: string | null
+          birth_date: string | null
           birth_year: number | null
           birthplace: string | null
           birthplace_country_code: string | null
@@ -322,6 +323,7 @@ export type Database = {
         }
         Insert: {
           bio?: string | null
+          birth_date?: string | null
           birth_year?: number | null
           birthplace?: string | null
           birthplace_country_code?: string | null
@@ -341,6 +343,7 @@ export type Database = {
         }
         Update: {
           bio?: string | null
+          birth_date?: string | null
           birth_year?: number | null
           birthplace?: string | null
           birthplace_country_code?: string | null
