@@ -76,15 +76,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Grassroots Football Hub" },
+      { title: "TransferWire" },
       {
         name: "description",
-        content: "Player and team database for grassroots football in Sweden and the USA.",
+        content: "Player and team database for football in Sweden and the USA.",
       },
-      { property: "og:title", content: "Grassroots Football Hub" },
+      { property: "og:title", content: "TransferWire" },
       {
         property: "og:description",
-        content: "Player and team database for grassroots football.",
+        content: "Player and team database for football.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

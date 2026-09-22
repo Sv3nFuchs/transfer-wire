@@ -12,15 +12,15 @@ type SearchParams = { tab?: "matches" | "stats"; league?: string };
 export const Route = createFileRoute("/matches/")({
   head: () => ({
     meta: [
-      { title: "Matches — Grassroots Football Hub" },
+      { title: "Matches — TransferWire" },
       {
         name: "description",
-        content: "Follow match results and player ratings across grassroots clubs, plus league statistics.",
+        content: "Follow match results and player ratings across clubs, plus league statistics.",
       },
-      { property: "og:title", content: "Matches — Grassroots Football Hub" },
+      { property: "og:title", content: "Matches — TransferWire" },
       {
         property: "og:description",
-        content: "Match results, player ratings, and league statistics for grassroots football.",
+        content: "Match results, player ratings, and league statistics for football.",
       },
     ],
   }),

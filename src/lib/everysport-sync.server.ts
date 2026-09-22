@@ -67,7 +67,7 @@ export async function syncTeamFixtures(
   if (!team.everysport_url) throw new Error("This team has no Everysport URL set.");
 
   const res = await fetch(team.everysport_url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; GrassrootsFootballHub/1.0)" },
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; TransferWire/1.0)" },
   });
   if (!res.ok) throw new Error(`Everysport request failed: ${res.status} ${res.statusText}`);
   const { team: everysportTeam, games, standings } = parseEverysportPage(await res.text());

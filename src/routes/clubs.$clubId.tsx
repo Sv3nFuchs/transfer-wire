@@ -14,9 +14,9 @@ export const Route = createFileRoute("/clubs/$clubId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Club not found — Grassroots Football Hub" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Club not found — TransferWire" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.name} — club profile | Grassroots Football Hub`;
+    const title = `${loaderData.name} — club profile | TransferWire`;
     const description = `Teams, squads and players at ${loaderData.name}${loaderData.city ? ` (${loaderData.city})` : ""}${loaderData.level ? `, ${loaderData.level}` : ""}.`;
     return {
       meta: [

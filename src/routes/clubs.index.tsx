@@ -9,16 +9,16 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/clubs/")({
   head: () => ({
     meta: [
-      { title: "Clubs — Grassroots Football Hub" },
+      { title: "Clubs — TransferWire" },
       {
         name: "description",
         content:
-          "All registered grassroots clubs with teams, level and city — from Swedish division 7 to Sunday League.",
+          "All registered clubs with teams, level and city — from Swedish division 7 to Sunday League.",
       },
-      { property: "og:title", content: "Clubs — Grassroots Football Hub" },
+      { property: "og:title", content: "Clubs — TransferWire" },
       {
         property: "og:description",
-        content: "Browse grassroots clubs, their teams and squads.",
+        content: "Browse clubs, their teams and squads.",
       },
     ],
   }),

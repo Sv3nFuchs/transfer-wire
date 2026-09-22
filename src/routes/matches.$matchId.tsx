@@ -17,9 +17,9 @@ export const Route = createFileRoute("/matches/$matchId")({
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
-      return { meta: [{ title: "Match not found — Grassroots Football Hub" }, { name: "robots", content: "noindex" }] };
+      return { meta: [{ title: "Match not found — TransferWire" }, { name: "robots", content: "noindex" }] };
     }
-    const title = `${loaderData.clubName ?? "Match"} vs ${loaderData.opponentName} | Grassroots Football Hub`;
+    const title = `${loaderData.clubName ?? "Match"} vs ${loaderData.opponentName} | TransferWire`;
     return { meta: [{ title }, { property: "og:title", content: title }] };
   },
   component: MatchPage,

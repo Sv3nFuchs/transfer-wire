@@ -8,16 +8,16 @@ import { useLanguage } from "@/lib/i18n";
 export const Route = createFileRoute("/players/")({
   head: () => ({
     meta: [
-      { title: "Players — Grassroots Football Hub" },
+      { title: "Players — TransferWire" },
       {
         name: "description",
         content:
-          "Search grassroots player profiles: position, birth year, nationality, club and team.",
+          "Search player profiles: position, birth year, nationality, club and team.",
       },
-      { property: "og:title", content: "Players — Grassroots Football Hub" },
+      { property: "og:title", content: "Players — TransferWire" },
       {
         property: "og:description",
-        content: "Search grassroots player profiles by name, club and team.",
+        content: "Search player profiles by name, club and team.",
       },
     ],
   }),

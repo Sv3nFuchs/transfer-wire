@@ -1,6 +1,6 @@
-# Grassroots Football Hub
+# TransferWire
 
-An open player and team database for grassroots football — clubs, teams,
+An open player and team database for football — clubs, teams,
 players, and transfer/spell history — built with TanStack Start, Vite, and
 Supabase.
 
