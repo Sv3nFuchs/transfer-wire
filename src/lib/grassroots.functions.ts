@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name)))",
+        "*, clubs(id, name, city, level, country, country_code), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -54,7 +54,24 @@ export const getPlayer = createServerFn({ method: "GET" })
     const teamMemberships = [...(row.team_memberships ?? [])].sort((a, b) =>
       (b.teams?.season ?? "").localeCompare(a.teams?.season ?? ""),
     );
-    return { ...row, transfers, season_stats: seasonStats, team_memberships: teamMemberships };
+
+    const ratedMatches = (row.match_ratings ?? []).filter((r) => r.matches?.match_date);
+    const debutByTeam = new Map<string, (typeof ratedMatches)[number]>();
+    for (const r of ratedMatches) {
+      const existing = debutByTeam.get(r.team_id);
+      if (!existing || r.matches!.match_date < existing.matches!.match_date) {
+        debutByTeam.set(r.team_id, r);
+      }
+    }
+    const debuts = [...debutByTeam.values()].sort((a, b) =>
+      (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""),
+    );
+    const goals = ratedMatches
+      .filter((r) => r.goals_scored > 0)
+      .sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""));
+
+    const { match_ratings: _matchRatings, ...playerRow } = row;
+    return { ...playerRow, transfers, season_stats: seasonStats, team_memberships: teamMemberships, debuts, goals };
   });
 
 export const listClubs = createServerFn({ method: "GET" })

@@ -1,16 +1,25 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { PlayerFlags } from "@/components/PlayerFlags";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import type { ReactNode } from "react";
 
+type SearchParams = { tab?: "stats" | "transfers" | "career" };
 
 export const Route = createFileRoute("/players/$playerId")({
+  validateSearch: (search: Record<string, unknown>): SearchParams => {
+    const result: SearchParams = {};
+    if (search["tab"] === "stats" || search["tab"] === "transfers" || search["tab"] === "career") {
+      result.tab = search["tab"];
+    }
+    return result;
+  },
   loader: async ({ context, params }) => {
     const player = await context.queryClient.ensureQueryData(playerQuery(params.playerId));
     if (!player) throw notFound();
@@ -57,7 +66,7 @@ function PlayerNotFound() {
 
 function Fact({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="border-t border-border py-3">
+    <div className="border-t border-border py-3 first:border-t-0">
       <p className="label-caps">{label}</p>
       <div className="font-display text-2xl leading-tight">{value ?? "—"}</div>
     </div>
@@ -105,7 +114,7 @@ function TransferSection({
 }) {
   const { t } = useLanguage();
   return (
-    <section className="mt-10 border-t-2 border-border pt-8">
+    <section className="border-t-2 border-border pt-8 first:border-t-0 first:pt-0 [&:not(:first-child)]:mt-10">
       <h2 className="text-2xl">{title}</h2>
       {transfers.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">{empty}</p>
@@ -159,7 +168,7 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
     return <p className="mt-3 text-sm text-muted-foreground">{t("player.noSeasonStats")}</p>;
   }
   return (
-    <div className="mt-4 overflow-x-auto rounded-lg border border-border bg-card shadow-card">
+    <div className="overflow-x-auto rounded-lg border border-border bg-card shadow-card">
       <table className="w-full min-w-[520px] text-sm">
         <thead className="bg-secondary text-secondary-foreground">
           <tr>
@@ -230,12 +239,79 @@ function PastTeams({ memberships }: { memberships: TeamMembershipRow[] }) {
   );
 }
 
+type MatchRatingRow = {
+  id: string;
+  goals_scored: number;
+  teams: { id: string; name: string; clubs: { name: string } | null } | null;
+  matches: { id: string; match_date: string; opponent_name: string } | null;
+};
+
+function CareerDebuts({ debuts }: { debuts: MatchRatingRow[] }) {
+  const { t } = useLanguage();
+  if (debuts.length === 0) {
+    return <p className="mt-3 text-sm text-muted-foreground">{t("player.noDebuts")}</p>;
+  }
+  return (
+    <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+      {debuts.map((row) => (
+        <li key={row.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+          <span className="label-caps w-24 text-muted-foreground">
+            {formatDateInLang(row.matches?.match_date ?? null, t("player.unknownDate"))}
+          </span>
+          <span className="font-display text-lg">
+            {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
+            {row.teams?.name ?? t("player.unknownClub")}
+          </span>
+          {row.matches?.opponent_name ? (
+            <span className="text-sm text-muted-foreground">
+              {t("player.vs")} {row.matches.opponent_name}
+            </span>
+          ) : null}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function CareerGoals({ goals }: { goals: MatchRatingRow[] }) {
+  const { t } = useLanguage();
+  if (goals.length === 0) {
+    return <p className="mt-3 text-sm text-muted-foreground">{t("player.noGoals")}</p>;
+  }
+  return (
+    <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+      {goals.map((row) => (
+        <li key={row.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+          <span className="label-caps w-24 text-muted-foreground">
+            {formatDateInLang(row.matches?.match_date ?? null, t("player.unknownDate"))}
+          </span>
+          <span className="font-display text-lg">
+            {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
+            {row.teams?.name ?? t("player.unknownClub")}
+          </span>
+          {row.matches?.opponent_name ? (
+            <span className="text-sm text-muted-foreground">
+              {t("player.vs")} {row.matches.opponent_name}
+            </span>
+          ) : null}
+          <span className="ml-auto font-display text-lg text-accent">
+            {row.goals_scored > 1 ? `${row.goals_scored}×` : "⚽"}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function PlayerPage() {
   const { playerId } = Route.useParams();
+  const { tab } = Route.useSearch();
+  const navigate = useNavigate();
   const { data: player } = useSuspenseQuery(playerQuery(playerId));
   const { isAdmin } = useIsAdmin();
   const { t } = useLanguage();
   if (!player) return <PlayerNotFound />;
+  const activeTab = tab ?? "profile";
 
   return (
     <div className="min-h-screen">
@@ -279,62 +355,93 @@ function PlayerPage() {
         </div>
       </section>
 
+      <main className="mx-auto max-w-4xl px-4 py-12">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) =>
+            navigate({
+              to: "/players/$playerId",
+              params: { playerId },
+              search: value === "profile" ? {} : { tab: value as "stats" | "transfers" | "career" },
+              replace: true,
+            })
+          }
+        >
+          <TabsList>
+            <TabsTrigger value="profile">{t("player.tabProfile")}</TabsTrigger>
+            <TabsTrigger value="stats">{t("player.tabStatistics")}</TabsTrigger>
+            <TabsTrigger value="transfers">{t("player.tabTransfers")}</TabsTrigger>
+            <TabsTrigger value="career">{t("player.tabCareer")}</TabsTrigger>
+          </TabsList>
 
-      <main className="mx-auto grid max-w-6xl gap-10 px-4 py-12 md:grid-cols-[2fr_1fr]">
-        <div>
-          <h2 className="text-2xl">{t("player.about")}</h2>
-          <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
-            {player.bio || t("player.noBio")}
-          </p>
+          <TabsContent value="profile" className="mt-6">
+            <h2 className="text-2xl">{t("player.about")}</h2>
+            <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+              {player.bio || t("player.noBio")}
+            </p>
 
-          <section className="mt-10 border-t-2 border-border pt-8">
-            <h2 className="text-2xl">{t("player.seasonStats")}</h2>
+            <section className="mt-10 border-t-2 border-border pt-8">
+              <h2 className="text-2xl">{t("player.facts")}</h2>
+              <div className="mt-4 max-w-sm rounded-lg border border-border bg-card p-5 shadow-card">
+                <Fact label={t("player.position")} value={player.position} />
+                <Fact label={t("player.birthYear")} value={player.birth_year} />
+                <Fact
+                  label={t("player.birthplace")}
+                  value={
+                    player.birthplace ? (
+                      <span className="inline-flex items-center gap-2">
+                        {player.birthplace}
+                        <CountryFlag code={player.birthplace_country_code} className="h-5 w-[30px]" />
+                      </span>
+                    ) : null
+                  }
+                />
+                <Fact label={t("player.foot")} value={player.preferred_foot} />
+                <Fact label={t("player.height")} value={player.height_cm ? `${player.height_cm} cm` : null} />
+                <Fact label={t("player.nationality")} value={player.nationality} />
+                <Fact label={t("player.team")} value={player.teams?.name} />
+                <Fact label={t("player.ageGroup")} value={player.teams?.age_group} />
+              </div>
+            </section>
+          </TabsContent>
+
+          <TabsContent value="stats" className="mt-6">
             <SeasonStats stats={player.season_stats} />
-          </section>
+          </TabsContent>
 
-          <TransferSection
-            title={t("player.clubTransfers")}
-            empty={t("player.noClubTransfers")}
-            transfers={player.transfers.filter((transfer) => (transfer.org_type ?? "club") === "club")}
-          />
-          <TransferSection
-            title={t("player.schoolSpells")}
-            empty={t("player.noSchoolSpells")}
-            transfers={player.transfers.filter((transfer) => transfer.org_type === "school")}
-          />
+          <TabsContent value="transfers" className="mt-6 space-y-0">
+            <TransferSection
+              title={t("player.clubTransfers")}
+              empty={t("player.noClubTransfers")}
+              transfers={player.transfers.filter((transfer) => (transfer.org_type ?? "club") === "club")}
+            />
+            <TransferSection
+              title={t("player.schoolSpells")}
+              empty={t("player.noSchoolSpells")}
+              transfers={player.transfers.filter((transfer) => transfer.org_type === "school")}
+            />
+            <TransferSection
+              title={t("player.nationalSpells")}
+              empty={t("player.noNationalSpells")}
+              transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
+            />
+            <section className="mt-10 border-t-2 border-border pt-8">
+              <h2 className="text-2xl">{t("player.pastTeams")}</h2>
+              <PastTeams memberships={player.team_memberships} />
+            </section>
+          </TabsContent>
 
-          <TransferSection
-            title={t("player.nationalSpells")}
-            empty={t("player.noNationalSpells")}
-            transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
-          />
-
-          <section className="mt-10 border-t-2 border-border pt-8">
-            <h2 className="text-2xl">{t("player.pastTeams")}</h2>
-            <PastTeams memberships={player.team_memberships} />
-          </section>
-        </div>
-        <aside className="rounded-lg border border-border bg-card p-5 shadow-card">
-          <h2 className="text-xl">{t("player.facts")}</h2>
-          <Fact label={t("player.position")} value={player.position} />
-          <Fact label={t("player.birthYear")} value={player.birth_year} />
-           <Fact
-             label={t("player.birthplace")}
-             value={
-               player.birthplace ? (
-                 <span className="inline-flex items-center gap-2">
-                   {player.birthplace}
-                   <CountryFlag code={player.birthplace_country_code} className="h-5 w-[30px]" />
-                 </span>
-               ) : null
-             }
-           />
-          <Fact label={t("player.foot")} value={player.preferred_foot} />
-          <Fact label={t("player.height")} value={player.height_cm ? `${player.height_cm} cm` : null} />
-          <Fact label={t("player.nationality")} value={player.nationality} />
-          <Fact label={t("player.team")} value={player.teams?.name} />
-          <Fact label={t("player.ageGroup")} value={player.teams?.age_group} />
-        </aside>
+          <TabsContent value="career" className="mt-6">
+            <section>
+              <h2 className="text-2xl">{t("player.careerDebuts")}</h2>
+              <CareerDebuts debuts={player.debuts} />
+            </section>
+            <section className="mt-10 border-t-2 border-border pt-8">
+              <h2 className="text-2xl">{t("player.careerGoals")}</h2>
+              <CareerGoals goals={player.goals} />
+            </section>
+          </TabsContent>
+        </Tabs>
       </main>
       <SiteFooter />
     </div>
