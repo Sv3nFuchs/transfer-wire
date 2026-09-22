@@ -33,6 +33,12 @@ export default defineConfig(async ({ command, mode }) => {
         defaultPreset: "cloudflare-module",
         compatibilityDate: "2026-09-07",
         cloudflare: { deployConfig: true, nodeCompat: true },
+        experimental: { tasks: true },
+        // Project root has no server/ dir, so nitro won't scan for tasks/
+        // (or routes/, plugins/, etc.) without this pointed at "./".
+        serverDir: "./",
+        // Keeps fixtures/results fresh from Everysport without a manual admin sync.
+        scheduledTasks: { "0 */3 * * *": "fixtures:sync" },
       }),
     );
   }
