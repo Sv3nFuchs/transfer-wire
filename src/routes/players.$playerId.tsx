@@ -126,12 +126,11 @@ type RecentFormRow = {
 function RecentForm({ form }: { form: RecentFormRow[] }) {
   const { t } = useLanguage();
   return (
-    <div className="max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
-      <p className="label-caps text-muted-foreground">{t("player.recentForm")}</p>
+    <div className="mt-4 max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
       {form.length === 0 ? (
-        <p className="mt-3 text-sm text-muted-foreground">{t("player.noRecentForm")}</p>
+        <p className="text-sm text-muted-foreground">{t("player.noRecentForm")}</p>
       ) : (
-        <ul className="mt-3 divide-y divide-border">
+        <ul className="divide-y divide-border">
           {form.map((row) => {
             const ratingClass = row.rating != null && row.rating >= 7 ? "text-green-600" : "text-accent";
             const resultLabel =
@@ -787,10 +786,13 @@ function PlayerPage() {
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
               <SchoolsPlayedFor schools={player.schools} playerId={playerId} />
               <section className="mt-10 border-t-2 border-border pt-8">
-                <h2 className="text-2xl">{t("player.onThePitch")}</h2>
                 <div className="flex flex-wrap items-start gap-8">
-                  <PitchPosition position={player.position} />
-                  <div className="mt-4">
+                  <div>
+                    <h2 className="text-2xl">{t("player.onThePitch")}</h2>
+                    <PitchPosition position={player.position} />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl">{t("player.recentForm")}</h2>
                     <RecentForm form={player.recent_form} />
                   </div>
                 </div>
