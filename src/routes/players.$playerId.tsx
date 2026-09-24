@@ -11,7 +11,8 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
 import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
-import { Cake, Goal, Shirt, Star } from "lucide-react";
+import { Cake, Shirt, Star } from "lucide-react";
+import { SoccerBall } from "@/components/icons/SoccerBall";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -260,7 +261,7 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
             </th>
             <th className="px-3 py-2 text-right label-caps">
               <span className="inline-flex items-center gap-1.5">
-                <Goal className="size-3.5" aria-hidden="true" />
+                <SoccerBall className="size-3.5" aria-hidden="true" />
                 {t("player.statGoals")}
               </span>
             </th>
@@ -305,13 +306,33 @@ type MatchLogRow = {
   rating: number | null;
   goals_scored: number;
   teams: { name: string; clubs: { name: string } | null } | null;
-  matches: { match_date: string; opponent_name: string; competition: string | null } | null;
+  matches: {
+    id: string;
+    match_date: string;
+    opponent_name: string;
+    competition: string | null;
+    team_score: number | null;
+    opponent_score: number | null;
+    opponent_logo_url: string | null;
+  } | null;
 };
 
 type MatchLogSeason = { season: string; matches: MatchLogRow[] };
 
+function MatchResult({ teamScore, opponentScore }: { teamScore: number | null; opponentScore: number | null }) {
+  if (teamScore == null || opponentScore == null) return <span className="text-muted-foreground">—</span>;
+  const colorClass =
+    teamScore > opponentScore ? "text-green-600" : teamScore < opponentScore ? "text-red-600" : "text-muted-foreground";
+  return (
+    <span className={`font-display ${colorClass}`}>
+      {teamScore}–{opponentScore}
+    </span>
+  );
+}
+
 function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   if (seasons.length === 0) {
     return <p className="mt-3 text-sm text-muted-foreground">{t("player.noMatchLog")}</p>;
   }
@@ -321,15 +342,16 @@ function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
         <div key={seasonGroup.season}>
           <h3 className="text-xl">{seasonGroup.season}</h3>
           <div className="mt-3 overflow-x-auto rounded-lg border border-border bg-card shadow-card">
-            <table className="w-full min-w-[560px] text-sm">
+            <table className="w-full min-w-[620px] text-sm">
               <thead className="bg-secondary text-secondary-foreground">
                 <tr>
                   <th className="px-3 py-2 text-left label-caps">{t("player.matchDate")}</th>
                   <th className="px-3 py-2 text-left label-caps">{t("player.statTeam")}</th>
                   <th className="px-3 py-2 text-left label-caps">{t("player.matchOpponent")}</th>
+                  <th className="px-3 py-2 text-center label-caps">{t("player.matchResult")}</th>
                   <th className="px-3 py-2 text-right label-caps">
                     <span className="inline-flex items-center gap-1.5">
-                      <Goal className="size-3.5" aria-hidden="true" />
+                      <SoccerBall className="size-3.5" aria-hidden="true" />
                       {t("player.statGoals")}
                     </span>
                   </th>
@@ -343,23 +365,33 @@ function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
               </thead>
               <tbody>
                 {seasonGroup.matches.map((row) => (
-                  <tr key={row.id} className="border-t border-border">
+                  <tr
+                    key={row.id}
+                    onClick={() => row.matches && navigate({ to: "/matches/$matchId", params: { matchId: row.matches.id } })}
+                    className="cursor-pointer border-t border-border hover:bg-muted/60"
+                  >
                     <td className="px-3 py-2">{formatDateInLang(row.matches?.match_date ?? null, "—")}</td>
                     <td className="px-3 py-2">
                       {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
                       {row.teams?.name ?? "—"}
                     </td>
                     <td className="px-3 py-2">
-                      {row.matches?.opponent_name ?? "—"}
-                      {row.matches?.competition ? (
-                        <span className="ml-2 text-xs text-muted-foreground">({row.matches.competition})</span>
-                      ) : null}
+                      <span className="flex items-center gap-2">
+                        <ClubLogo name={row.matches?.opponent_name ?? "?"} url={row.matches?.opponent_logo_url ?? null} className="size-6" />
+                        {row.matches?.opponent_name ?? "—"}
+                        {row.matches?.competition ? (
+                          <span className="text-xs text-muted-foreground">({row.matches.competition})</span>
+                        ) : null}
+                      </span>
+                    </td>
+                    <td className="px-3 py-2 text-center">
+                      <MatchResult teamScore={row.matches?.team_score ?? null} opponentScore={row.matches?.opponent_score ?? null} />
                     </td>
                     <td className="px-3 py-2 text-right">
                       {row.goals_scored > 0 ? (
                         <span className="inline-flex items-center gap-1">
                           {Array.from({ length: row.goals_scored }, (_, i) => (
-                            <Goal key={i} className="size-4 text-accent" aria-hidden="true" />
+                            <SoccerBall key={i} className="size-4 text-green-600" aria-hidden="true" />
                           ))}
                         </span>
                       ) : (
@@ -414,7 +446,7 @@ function StatsOverview({ stats, playerId }: { stats: SeasonStatRow[]; playerId: 
         <div className="p-4 text-center">
           <p className="font-display text-3xl">{totalGoals}</p>
           <p className="label-caps mt-1 flex items-center justify-center gap-1.5 text-muted-foreground">
-            <Goal className="size-3.5" aria-hidden="true" />
+            <SoccerBall className="size-3.5" aria-hidden="true" />
             {t("player.statGoals")}
           </p>
         </div>
@@ -589,7 +621,7 @@ function CareerGoals({ goals }: { goals: MatchRatingRow[] }) {
           ) : null}
           <span className="ml-auto flex items-center gap-1">
             {Array.from({ length: row.goals_scored }, (_, i) => (
-              <Goal key={i} className="size-4 text-accent" aria-hidden="true" />
+              <SoccerBall key={i} className="size-4 text-green-600" aria-hidden="true" />
             ))}
           </span>
         </li>

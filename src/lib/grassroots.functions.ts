@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, season, rating, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name, competition))",
+        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, season, rating, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name, competition, team_score, opponent_score, opponent_logo_url, opponent_club:clubs!matches_opponent_club_id_fkey(name, logo_url)))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -38,6 +38,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const logoMap = await resolveLogoUrls([
       ...rawTransfers.flatMap((transfer) => [transfer.from_club?.logo_url, transfer.to_club?.logo_url]),
       row.clubs?.logo_url,
+      ...(row.match_ratings ?? []).flatMap((r) => [r.matches?.opponent_club?.logo_url, r.matches?.opponent_logo_url]),
     ]);
     const transfers = rawTransfers.map((transfer) => ({
       ...transfer,
@@ -94,7 +95,19 @@ export const getPlayer = createServerFn({ method: "GET" })
       }))
       .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
 
-    const ratedMatches = (row.match_ratings ?? []).filter((r) => r.matches?.match_date);
+    const ratedMatches = (row.match_ratings ?? [])
+      .filter((r) => r.matches?.match_date)
+      .map((r) => ({
+        ...r,
+        matches: r.matches
+          ? {
+              ...r.matches,
+              opponent_logo_url:
+                applyLogo(r.matches.opponent_club?.logo_url, logoMap) ??
+                applyLogo(r.matches.opponent_logo_url, logoMap),
+            }
+          : null,
+      }));
 
     type DebutEntry = {
       id: string;

@@ -66,6 +66,7 @@ const dict = {
   "player.matchDate": "Date",
   "player.matchOpponent": "Opponent",
   "player.matchRating": "Rating",
+  "player.matchResult": "Result",
   "player.transfers": "Transfers",
   "player.noTransfers": "No transfers have been recorded for this player yet.",
   "player.clubTransfers": "Club transfers",
