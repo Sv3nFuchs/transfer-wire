@@ -86,6 +86,8 @@ const dict = {
   "player.seasonOnly": "season only, no match logged",
   "player.onThePitch": "On the pitch",
   "player.noPositionMapped": "Position not recognized for the pitch diagram yet.",
+  "player.recentForm": "Recent form",
+  "player.noRecentForm": "No rated matches yet.",
   "player.recentTransfer": "Recent transfer",
   "player.viewAllTransfers": "View all transfers →",
   "player.schoolsPlayedFor": "Schools played for",

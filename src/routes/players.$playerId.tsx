@@ -112,6 +112,62 @@ function PitchPosition({ position }: { position: string | null }) {
   );
 }
 
+type RecentFormRow = {
+  id: string;
+  matchId: string | null;
+  date: string | null;
+  rating: number | null;
+  opponentName: string | null;
+  teamScore: number | null;
+  opponentScore: number | null;
+};
+
+function RecentForm({ form }: { form: RecentFormRow[] }) {
+  const { t } = useLanguage();
+  if (form.length === 0) {
+    return <p className="mt-4 text-sm text-muted-foreground">{t("player.noRecentForm")}</p>;
+  }
+  return (
+    <div className="mt-4">
+      <p className="label-caps text-muted-foreground">{t("player.recentForm")}</p>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {form.map((row) => {
+          const resultClass =
+            row.teamScore == null || row.opponentScore == null
+              ? "bg-muted text-muted-foreground"
+              : row.teamScore > row.opponentScore
+                ? "bg-green-600 text-white"
+                : row.teamScore < row.opponentScore
+                  ? "bg-red-600 text-white"
+                  : "bg-muted-foreground text-white";
+          const title = [
+            row.opponentName ? `${t("player.vs")} ${row.opponentName}` : null,
+            row.teamScore != null && row.opponentScore != null ? `${row.teamScore}–${row.opponentScore}` : null,
+            row.date ? formatDateInLang(row.date, "") : null,
+          ]
+            .filter(Boolean)
+            .join(" · ");
+          const circle = (
+            <span
+              title={title}
+              className={`flex size-10 items-center justify-center rounded-full font-display text-sm ${resultClass}`}
+            >
+              {row.rating != null ? row.rating.toFixed(1) : "—"}
+            </span>
+          );
+          return row.matchId ? (
+            <Link key={row.id} to="/matches/$matchId" params={{ matchId: row.matchId }}>
+              {circle}
+            </Link>
+          ) : (
+            <span key={row.id}>{circle}</span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 type TransferRow = {
   id: string;
   transfer_date: string | null;
@@ -728,7 +784,12 @@ function PlayerPage() {
               <SchoolsPlayedFor schools={player.schools} playerId={playerId} />
               <section className="mt-10 border-t-2 border-border pt-8">
                 <h2 className="text-2xl">{t("player.onThePitch")}</h2>
-                <PitchPosition position={player.position} />
+                <div className="flex flex-wrap items-start gap-8">
+                  <PitchPosition position={player.position} />
+                  <div className="min-w-[200px] flex-1">
+                    <RecentForm form={player.recent_form} />
+                  </div>
+                </div>
               </section>
             </div>
             <div>
