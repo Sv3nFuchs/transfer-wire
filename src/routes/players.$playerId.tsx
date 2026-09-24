@@ -726,8 +726,10 @@ function PlayerPage() {
               <StatsOverview stats={player.season_stats} playerId={playerId} />
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
               <SchoolsPlayedFor schools={player.schools} playerId={playerId} />
-              <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
-              <PitchPosition position={player.position} />
+              <section className="mt-10 border-t-2 border-border pt-8">
+                <h2 className="text-2xl">{t("player.onThePitch")}</h2>
+                <PitchPosition position={player.position} />
+              </section>
             </div>
             <div>
               <h2 className="text-2xl">{t("player.facts")}</h2>
