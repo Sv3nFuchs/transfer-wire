@@ -479,6 +479,8 @@ function PlayerPage() {
                 {player.bio || t("player.noBio")}
               </p>
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
+              <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
+              <PitchPosition position={player.position} />
             </div>
             <div>
               <h2 className="text-2xl">{t("player.facts")}</h2>
@@ -515,8 +517,6 @@ function PlayerPage() {
                 <Fact label={t("player.team")} value={player.teams?.name} />
                 <Fact label={t("player.ageGroup")} value={player.teams?.age_group} />
               </div>
-              <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
-              <PitchPosition position={player.position} />
             </div>
           </TabsContent>
 
