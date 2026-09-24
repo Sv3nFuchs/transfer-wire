@@ -511,10 +511,10 @@ type SchoolRow = {
   date: string | null;
 };
 
-function SchoolsPlayedFor({ schools }: { schools: SchoolRow[] }) {
+function SchoolsPlayedFor({ schools, playerId }: { schools: SchoolRow[]; playerId: string }) {
   const { t } = useLanguage();
   return (
-    <section className="mt-10 border-t-4 border-border pt-8">
+    <div className="mt-6">
       <h2 className="text-2xl">{t("player.schoolsPlayedFor")}</h2>
       {schools.length === 0 ? (
         <p className="mt-3 text-sm text-muted-foreground">{t("player.noSchools")}</p>
@@ -533,7 +533,15 @@ function SchoolsPlayedFor({ schools }: { schools: SchoolRow[] }) {
           ))}
         </ul>
       )}
-    </section>
+      <Link
+        to="/players/$playerId"
+        params={{ playerId }}
+        search={{ tab: "transfers" }}
+        className="mt-3 inline-block text-sm text-primary underline"
+      >
+        {t("player.viewSchoolSpells")}
+      </Link>
+    </div>
   );
 }
 
@@ -717,7 +725,7 @@ function PlayerPage() {
               </p>
               <StatsOverview stats={player.season_stats} playerId={playerId} />
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
-              <SchoolsPlayedFor schools={player.schools} />
+              <SchoolsPlayedFor schools={player.schools} playerId={playerId} />
               <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
               <PitchPosition position={player.position} />
             </div>

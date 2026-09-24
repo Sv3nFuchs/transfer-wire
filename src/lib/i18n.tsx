@@ -90,6 +90,7 @@ const dict = {
   "player.viewAllTransfers": "View all transfers →",
   "player.schoolsPlayedFor": "Schools played for",
   "player.noSchools": "No high school or college teams recorded yet.",
+  "player.viewSchoolSpells": "School spells →",
   "player.statsOverview": "Stats overview",
   "player.viewFullStats": "View full statistics →",
   "player.birthplace": "Place of birth",
