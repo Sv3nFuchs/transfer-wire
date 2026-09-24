@@ -79,7 +79,7 @@ function PitchPosition({ position }: { position: string | null }) {
   const { t } = useLanguage();
   const coords = getPositionCoords(position);
   return (
-    <div className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
+    <div className="mt-4 max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
       <svg viewBox="0 0 100 100" className="w-full rounded bg-pitch pitch-stripes">
         <rect x="4" y="2" width="92" height="96" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
         <line x1="4" y1="50" x2="96" y2="50" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
