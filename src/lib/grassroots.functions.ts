@@ -183,6 +183,7 @@ export const getPlayer = createServerFn({ method: "GET" })
         rating: r.rating,
         opponentName: r.matches?.opponent_name ?? null,
         opponentLogoUrl: r.matches?.opponent_logo_url ?? null,
+        competition: r.matches?.competition ?? null,
         teamScore: r.matches?.team_score ?? null,
         opponentScore: r.matches?.opponent_score ?? null,
       }));

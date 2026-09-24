@@ -119,53 +119,87 @@ type RecentFormRow = {
   rating: number | null;
   opponentName: string | null;
   opponentLogoUrl: string | null;
+  competition: string | null;
   teamScore: number | null;
   opponentScore: number | null;
 };
 
 function RecentForm({ form }: { form: RecentFormRow[] }) {
   const { t } = useLanguage();
+
+  let wins = 0;
+  let draws = 0;
+  let losses = 0;
+  let ratingTotal = 0;
+  let ratingCount = 0;
+  for (const row of form) {
+    if (row.teamScore != null && row.opponentScore != null) {
+      if (row.teamScore > row.opponentScore) wins += 1;
+      else if (row.teamScore < row.opponentScore) losses += 1;
+      else draws += 1;
+    }
+    if (row.rating != null) {
+      ratingTotal += row.rating;
+      ratingCount += 1;
+    }
+  }
+  const avgRating = ratingCount > 0 ? ratingTotal / ratingCount : null;
+
   return (
     <div className="mt-4 max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
       {form.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t("player.noRecentForm")}</p>
       ) : (
-        <ul className="divide-y divide-border">
-          {form.map((row) => {
-            const ratingClass = row.rating != null && row.rating >= 7 ? "text-green-600" : "text-accent";
-            const resultLabel =
-              row.teamScore != null && row.opponentScore != null ? `${row.teamScore}–${row.opponentScore}` : "—";
-            const content = (
-              <div className="flex items-center gap-3 py-2.5">
-                <ClubLogo name={row.opponentName ?? "?"} url={row.opponentLogoUrl} className="size-8" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-display text-sm">{row.opponentName ?? t("player.unknownClub")}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {row.date ? formatDateInLang(row.date, "—") : "—"} · {resultLabel}
-                  </p>
+        <>
+          <ul className="divide-y divide-border">
+            {form.map((row) => {
+              const ratingClass = row.rating != null && row.rating >= 7 ? "text-green-600" : "text-accent";
+              const resultLabel =
+                row.teamScore != null && row.opponentScore != null ? `${row.teamScore}–${row.opponentScore}` : "—";
+              const content = (
+                <div className="flex items-center gap-3 py-2.5">
+                  <ClubLogo name={row.opponentName ?? "?"} url={row.opponentLogoUrl} className="size-8" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display text-sm">{row.opponentName ?? t("player.unknownClub")}</p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {row.date ? formatDateInLang(row.date, "—") : "—"} · {resultLabel}
+                      {row.competition ? ` · ${row.competition}` : ""}
+                    </p>
+                  </div>
+                  <span className={`font-display text-lg ${ratingClass}`}>
+                    {row.rating != null ? row.rating.toFixed(1) : "—"}
+                  </span>
                 </div>
-                <span className={`font-display text-lg ${ratingClass}`}>
-                  {row.rating != null ? row.rating.toFixed(1) : "—"}
-                </span>
-              </div>
-            );
-            return (
-              <li key={row.id}>
-                {row.matchId ? (
-                  <Link
-                    to="/matches/$matchId"
-                    params={{ matchId: row.matchId }}
-                    className="-mx-1 block rounded px-1 hover:bg-muted/60"
-                  >
-                    {content}
-                  </Link>
-                ) : (
-                  content
-                )}
-              </li>
-            );
-          })}
-        </ul>
+              );
+              return (
+                <li key={row.id}>
+                  {row.matchId ? (
+                    <Link
+                      to="/matches/$matchId"
+                      params={{ matchId: row.matchId }}
+                      className="-mx-1 block rounded px-1 hover:bg-muted/60"
+                    >
+                      {content}
+                    </Link>
+                  ) : (
+                    content
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+          <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
+            <span className="label-caps text-muted-foreground">
+              {wins}{t("player.formWinShort")} · {draws}{t("player.formDrawShort")} · {losses}{t("player.formLossShort")}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              {t("player.statAvgRating")}{" "}
+              <span className={`font-display ${avgRating != null && avgRating >= 7 ? "text-green-600" : "text-accent"}`}>
+                {avgRating != null ? avgRating.toFixed(1) : "—"}
+              </span>
+            </span>
+          </div>
+        </>
       )}
     </div>
   );
