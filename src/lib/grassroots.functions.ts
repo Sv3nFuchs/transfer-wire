@@ -33,7 +33,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!row) return null;
     const rawTransfers = [...(row.transfers ?? [])].sort((a, b) =>
-      (a.transfer_date ?? "").localeCompare(b.transfer_date ?? ""),
+      (b.transfer_date ?? "").localeCompare(a.transfer_date ?? ""),
     );
     const logoMap = await resolveLogoUrls([
       ...rawTransfers.flatMap((transfer) => [transfer.from_club?.logo_url, transfer.to_club?.logo_url]),

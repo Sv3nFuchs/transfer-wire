@@ -179,8 +179,8 @@ function TransferSection({
 function RecentTransferSection({ transfers, playerId }: { transfers: TransferRow[]; playerId: string }) {
   const { t } = useLanguage();
   const clubTransfers = transfers.filter((transfer) => (transfer.org_type ?? "club") === "club");
-  // `transfers` arrives sorted oldest-first, so the last club transfer is the most recent one.
-  const mostRecent = clubTransfers.at(-1);
+  // `transfers` arrives sorted most-recent-first.
+  const mostRecent = clubTransfers.at(0);
   return (
     <section className="mt-10 border-t-2 border-border pt-8">
       <h2 className="text-2xl">{t("player.recentTransfer")}</h2>
