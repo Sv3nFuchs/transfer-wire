@@ -524,8 +524,8 @@ function PlayerPage() {
               <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
                 {player.bio || t("player.noBio")}
               </p>
-              <RecentTransferSection transfers={player.transfers} playerId={playerId} />
               <StatsOverview stats={player.season_stats} playerId={playerId} />
+              <RecentTransferSection transfers={player.transfers} playerId={playerId} />
               <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
               <PitchPosition position={player.position} />
             </div>
