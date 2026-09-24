@@ -9,7 +9,7 @@ import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
-import { getPositionCoords, parsePosition } from "@/lib/pitch-position";
+import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -78,6 +78,7 @@ function Fact({ label, value }: { label: string; value: ReactNode }) {
 function PitchPosition({ position }: { position: string | null }) {
   const { t } = useLanguage();
   const coords = getPositionCoords(position);
+  const secondaryCoords = getSecondaryPositionCoords(position);
   return (
     <div className="mt-4 max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
       <svg viewBox="0 0 100 100" className="w-full rounded bg-pitch pitch-stripes">
@@ -88,6 +89,17 @@ function PitchPosition({ position }: { position: string | null }) {
         <rect x="38" y="2" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
         <rect x="26" y="82" width="48" height="16" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
         <rect x="38" y="91" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
+        {secondaryCoords ? (
+          <circle
+            cx={secondaryCoords.x}
+            cy={secondaryCoords.y}
+            r="2.8"
+            className="fill-pitch-foreground"
+            fillOpacity="0.75"
+            stroke="white"
+            strokeWidth="0.5"
+          />
+        ) : null}
         {coords ? (
           <circle cx={coords.x} cy={coords.y} r="4.5" className="fill-accent" stroke="white" strokeWidth="0.8" />
         ) : null}

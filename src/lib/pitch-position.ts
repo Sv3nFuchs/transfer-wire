@@ -25,10 +25,18 @@ export function parsePosition(position: string | null | undefined): { primary: s
   return { primary: position.trim(), secondary: null };
 }
 
-export function getPositionCoords(position: string | null | undefined): { x: number; y: number } | null {
-  const primary = parsePosition(position)?.primary ?? "";
+function matchCoords(label: string): { x: number; y: number } | null {
   for (const entry of POSITION_COORDS) {
-    if (entry.test.test(primary)) return { x: entry.x, y: entry.y };
+    if (entry.test.test(label)) return { x: entry.x, y: entry.y };
   }
   return null;
+}
+
+export function getPositionCoords(position: string | null | undefined): { x: number; y: number } | null {
+  return matchCoords(parsePosition(position)?.primary ?? "");
+}
+
+export function getSecondaryPositionCoords(position: string | null | undefined): { x: number; y: number } | null {
+  const secondary = parsePosition(position)?.secondary;
+  return secondary ? matchCoords(secondary) : null;
 }
