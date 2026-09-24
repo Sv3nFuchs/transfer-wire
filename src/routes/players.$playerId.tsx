@@ -118,52 +118,56 @@ type RecentFormRow = {
   date: string | null;
   rating: number | null;
   opponentName: string | null;
+  opponentLogoUrl: string | null;
   teamScore: number | null;
   opponentScore: number | null;
 };
 
 function RecentForm({ form }: { form: RecentFormRow[] }) {
   const { t } = useLanguage();
-  if (form.length === 0) {
-    return <p className="mt-4 text-sm text-muted-foreground">{t("player.noRecentForm")}</p>;
-  }
   return (
-    <div className="mt-4">
+    <div className="max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
       <p className="label-caps text-muted-foreground">{t("player.recentForm")}</p>
-      <div className="mt-3 flex flex-wrap gap-2">
-        {form.map((row) => {
-          const resultClass =
-            row.teamScore == null || row.opponentScore == null
-              ? "bg-muted text-muted-foreground"
-              : row.teamScore > row.opponentScore
-                ? "bg-green-600 text-white"
-                : row.teamScore < row.opponentScore
-                  ? "bg-red-600 text-white"
-                  : "bg-muted-foreground text-white";
-          const title = [
-            row.opponentName ? `${t("player.vs")} ${row.opponentName}` : null,
-            row.teamScore != null && row.opponentScore != null ? `${row.teamScore}–${row.opponentScore}` : null,
-            row.date ? formatDateInLang(row.date, "") : null,
-          ]
-            .filter(Boolean)
-            .join(" · ");
-          const circle = (
-            <span
-              title={title}
-              className={`flex size-10 items-center justify-center rounded-full font-display text-sm ${resultClass}`}
-            >
-              {row.rating != null ? row.rating.toFixed(1) : "—"}
-            </span>
-          );
-          return row.matchId ? (
-            <Link key={row.id} to="/matches/$matchId" params={{ matchId: row.matchId }}>
-              {circle}
-            </Link>
-          ) : (
-            <span key={row.id}>{circle}</span>
-          );
-        })}
-      </div>
+      {form.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">{t("player.noRecentForm")}</p>
+      ) : (
+        <ul className="mt-3 divide-y divide-border">
+          {form.map((row) => {
+            const ratingClass = row.rating != null && row.rating >= 7 ? "text-green-600" : "text-accent";
+            const resultLabel =
+              row.teamScore != null && row.opponentScore != null ? `${row.teamScore}–${row.opponentScore}` : "—";
+            const content = (
+              <div className="flex items-center gap-3 py-2.5">
+                <ClubLogo name={row.opponentName ?? "?"} url={row.opponentLogoUrl} className="size-8" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-display text-sm">{row.opponentName ?? t("player.unknownClub")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {row.date ? formatDateInLang(row.date, "—") : "—"} · {resultLabel}
+                  </p>
+                </div>
+                <span className={`font-display text-lg ${ratingClass}`}>
+                  {row.rating != null ? row.rating.toFixed(1) : "—"}
+                </span>
+              </div>
+            );
+            return (
+              <li key={row.id}>
+                {row.matchId ? (
+                  <Link
+                    to="/matches/$matchId"
+                    params={{ matchId: row.matchId }}
+                    className="-mx-1 block rounded px-1 hover:bg-muted/60"
+                  >
+                    {content}
+                  </Link>
+                ) : (
+                  content
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
@@ -786,7 +790,7 @@ function PlayerPage() {
                 <h2 className="text-2xl">{t("player.onThePitch")}</h2>
                 <div className="flex flex-wrap items-start gap-8">
                   <PitchPosition position={player.position} />
-                  <div className="min-w-[200px] flex-1">
+                  <div className="mt-4">
                     <RecentForm form={player.recent_form} />
                   </div>
                 </div>

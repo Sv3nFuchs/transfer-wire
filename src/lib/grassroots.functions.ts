@@ -172,17 +172,17 @@ export const getPlayer = createServerFn({ method: "GET" })
       }))
       .sort((a, b) => b.season.localeCompare(a.season));
 
-    // Last 5 rated matches, oldest first, for a Recent Form strip.
+    // Last 5 rated matches, most recent first, for a Recent Form panel.
     const recentForm = [...ratedMatches]
       .sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""))
       .slice(0, 5)
-      .reverse()
       .map((r) => ({
         id: r.id,
         matchId: r.matches?.id ?? null,
         date: r.matches?.match_date ?? null,
         rating: r.rating,
         opponentName: r.matches?.opponent_name ?? null,
+        opponentLogoUrl: r.matches?.opponent_logo_url ?? null,
         teamScore: r.matches?.team_score ?? null,
         opponentScore: r.matches?.opponent_score ?? null,
       }));
