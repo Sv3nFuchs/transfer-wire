@@ -283,6 +283,72 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
   );
 }
 
+type MatchLogRow = {
+  id: string;
+  rating: number | null;
+  goals_scored: number;
+  teams: { name: string; clubs: { name: string } | null } | null;
+  matches: { match_date: string; opponent_name: string; competition: string | null } | null;
+};
+
+type MatchLogSeason = { season: string; matches: MatchLogRow[] };
+
+function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
+  const { t } = useLanguage();
+  if (seasons.length === 0) {
+    return <p className="mt-3 text-sm text-muted-foreground">{t("player.noMatchLog")}</p>;
+  }
+  return (
+    <div className="space-y-8">
+      {seasons.map((seasonGroup) => (
+        <div key={seasonGroup.season}>
+          <h3 className="text-xl">{seasonGroup.season}</h3>
+          <div className="mt-3 overflow-x-auto rounded-lg border border-border bg-card shadow-card">
+            <table className="w-full min-w-[560px] text-sm">
+              <thead className="bg-secondary text-secondary-foreground">
+                <tr>
+                  <th className="px-3 py-2 text-left label-caps">{t("player.matchDate")}</th>
+                  <th className="px-3 py-2 text-left label-caps">{t("player.statTeam")}</th>
+                  <th className="px-3 py-2 text-left label-caps">{t("player.matchOpponent")}</th>
+                  <th className="px-3 py-2 text-right label-caps">{t("player.statGoals")}</th>
+                  <th className="px-3 py-2 text-right label-caps">{t("player.matchRating")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {seasonGroup.matches.map((row) => (
+                  <tr key={row.id} className="border-t border-border">
+                    <td className="px-3 py-2">{formatDateInLang(row.matches?.match_date ?? null, "—")}</td>
+                    <td className="px-3 py-2">
+                      {row.teams?.clubs?.name ? `${row.teams.clubs.name} — ` : ""}
+                      {row.teams?.name ?? "—"}
+                    </td>
+                    <td className="px-3 py-2">
+                      {row.matches?.opponent_name ?? "—"}
+                      {row.matches?.competition ? (
+                        <span className="ml-2 text-xs text-muted-foreground">({row.matches.competition})</span>
+                      ) : null}
+                    </td>
+                    <td className="px-3 py-2 text-right">{row.goals_scored}</td>
+                    <td className="px-3 py-2 text-right">
+                      {row.rating != null ? (
+                        <span className={`font-display ${row.rating >= 7 ? "text-green-600" : "text-accent"}`}>
+                          {row.rating.toFixed(1)}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function StatsOverview({ stats, playerId }: { stats: SeasonStatRow[]; playerId: string }) {
   const { t } = useLanguage();
   const totalApps = stats.reduce((sum, row) => sum + row.matches_played, 0);
@@ -595,6 +661,12 @@ function PlayerPage() {
 
           <TabsContent value="stats" className="mt-6">
             <SeasonStats stats={player.season_stats} />
+            <section className="mt-10 border-t-2 border-border pt-8">
+              <h2 className="text-2xl">{t("player.matchLog")}</h2>
+              <div className="mt-4">
+                <MatchLog seasons={player.match_log} />
+              </div>
+            </section>
           </TabsContent>
 
           <TabsContent value="transfers" className="mt-6 space-y-0">

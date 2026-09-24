@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name))",
+        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, season, rating, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name, competition))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -106,6 +106,21 @@ export const getPlayer = createServerFn({ method: "GET" })
       .filter((r) => r.goals_scored > 0)
       .sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? ""));
 
+    // In-depth per-match log for the Statistics tab, grouped by season.
+    const matchLogBySeason = new Map<string, typeof ratedMatches>();
+    for (const r of ratedMatches) {
+      const season = r.season || "—";
+      const bucket = matchLogBySeason.get(season);
+      if (bucket) bucket.push(r);
+      else matchLogBySeason.set(season, [r]);
+    }
+    const matchLog = [...matchLogBySeason.entries()]
+      .map(([season, matches]) => ({
+        season,
+        matches: [...matches].sort((a, b) => (b.matches?.match_date ?? "").localeCompare(a.matches?.match_date ?? "")),
+      }))
+      .sort((a, b) => b.season.localeCompare(a.season));
+
     const { match_ratings: _matchRatings, ...playerRow } = row;
     return {
       ...playerRow,
@@ -115,6 +130,7 @@ export const getPlayer = createServerFn({ method: "GET" })
       team_memberships: teamMemberships,
       debuts,
       goals,
+      match_log: matchLog,
     };
   });
 
