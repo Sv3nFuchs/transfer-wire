@@ -10,6 +10,7 @@ import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
 import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
+import { Cake } from "lucide-react";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -632,7 +633,9 @@ function PlayerPage() {
                       <span className="inline-flex items-center gap-2">
                         {formatDateInLang(player.birth_date, "—")}
                         {currentAge != null ? <span className="text-lg text-muted-foreground">({currentAge})</span> : null}
-                        {birthdayToday ? <span aria-label={t("player.happyBirthday")}>🎂</span> : null}
+                        {birthdayToday ? (
+                          <Cake className="size-5 text-accent" aria-label={t("player.happyBirthday")} />
+                        ) : null}
                       </span>
                     ) : (
                       player.birth_year
