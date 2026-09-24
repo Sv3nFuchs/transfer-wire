@@ -56,6 +56,44 @@ export const getPlayer = createServerFn({ method: "GET" })
       (b.teams?.season ?? "").localeCompare(a.teams?.season ?? ""),
     );
 
+    // High school / college teams — clubs aren't tagged school vs. non-school,
+    // and a "School Spell" transfer's two legs (entry/exit) put the school on
+    // opposite sides, so neither club alone is a reliable signal. Instead: a
+    // club counts as a school only if EVERY transfer mentioning it is a
+    // school-spell transfer — the player's regular club on the other end of
+    // that spell will also show up in ordinary club-type transfers, so it
+    // gets excluded.
+    type SchoolEntry = { id: string; name: string; logoUrl: string | null; date: string | null };
+    const clubOrgTypes = new Map<string, Set<string>>();
+    const clubInfo = new Map<string, { name: string; logoUrl: string | null }>();
+    const lastSchoolDate = new Map<string, string | null>();
+    for (const transfer of transfers) {
+      const orgType = transfer.org_type ?? "club";
+      const sides = [
+        { key: transfer.to_club?.id ?? transfer.to_club_name, name: transfer.to_club?.name ?? transfer.to_club_name, logoUrl: transfer.to_club?.logo_url ?? null },
+        { key: transfer.from_club?.id ?? transfer.from_club_name, name: transfer.from_club?.name ?? transfer.from_club_name, logoUrl: transfer.from_club?.logo_url ?? null },
+      ];
+      for (const side of sides) {
+        if (!side.key) continue;
+        if (!clubOrgTypes.has(side.key)) clubOrgTypes.set(side.key, new Set());
+        clubOrgTypes.get(side.key)!.add(orgType);
+        if (!clubInfo.has(side.key)) clubInfo.set(side.key, { name: side.name ?? "", logoUrl: side.logoUrl });
+        if (orgType === "school") {
+          const existing = lastSchoolDate.get(side.key);
+          if (!existing || (transfer.transfer_date ?? "") > existing) lastSchoolDate.set(side.key, transfer.transfer_date);
+        }
+      }
+    }
+    const schools: SchoolEntry[] = [...clubOrgTypes.entries()]
+      .filter(([, types]) => types.size === 1 && types.has("school"))
+      .map(([key]) => ({
+        id: key,
+        name: clubInfo.get(key)?.name ?? "",
+        logoUrl: clubInfo.get(key)?.logoUrl ?? null,
+        date: lastSchoolDate.get(key) ?? null,
+      }))
+      .sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+
     const ratedMatches = (row.match_ratings ?? []).filter((r) => r.matches?.match_date);
 
     type DebutEntry = {
@@ -131,6 +169,7 @@ export const getPlayer = createServerFn({ method: "GET" })
       debuts,
       goals,
       match_log: matchLog,
+      schools,
     };
   });
 

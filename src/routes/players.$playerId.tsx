@@ -11,7 +11,7 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
 import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
-import { Cake } from "lucide-react";
+import { Cake, Goal, Shirt, Star } from "lucide-react";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -252,9 +252,24 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
           <tr>
             <th className="px-3 py-2 text-left label-caps">{t("player.statSeason")}</th>
             <th className="px-3 py-2 text-left label-caps">{t("player.statTeam")}</th>
-            <th className="px-3 py-2 text-right label-caps">{t("player.statApps")}</th>
-            <th className="px-3 py-2 text-right label-caps">{t("player.statGoals")}</th>
-            <th className="px-3 py-2 text-right label-caps">{t("player.statAvgRating")}</th>
+            <th className="px-3 py-2 text-right label-caps">
+              <span className="inline-flex items-center gap-1.5">
+                <Shirt className="size-3.5" aria-hidden="true" />
+                {t("player.statApps")}
+              </span>
+            </th>
+            <th className="px-3 py-2 text-right label-caps">
+              <span className="inline-flex items-center gap-1.5">
+                <Goal className="size-3.5" aria-hidden="true" />
+                {t("player.statGoals")}
+              </span>
+            </th>
+            <th className="px-3 py-2 text-right label-caps">
+              <span className="inline-flex items-center gap-1.5">
+                <Star className="size-3.5" aria-hidden="true" />
+                {t("player.statAvgRating")}
+              </span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -312,8 +327,18 @@ function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
                   <th className="px-3 py-2 text-left label-caps">{t("player.matchDate")}</th>
                   <th className="px-3 py-2 text-left label-caps">{t("player.statTeam")}</th>
                   <th className="px-3 py-2 text-left label-caps">{t("player.matchOpponent")}</th>
-                  <th className="px-3 py-2 text-right label-caps">{t("player.statGoals")}</th>
-                  <th className="px-3 py-2 text-right label-caps">{t("player.matchRating")}</th>
+                  <th className="px-3 py-2 text-right label-caps">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Goal className="size-3.5" aria-hidden="true" />
+                      {t("player.statGoals")}
+                    </span>
+                  </th>
+                  <th className="px-3 py-2 text-right label-caps">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Star className="size-3.5" aria-hidden="true" />
+                      {t("player.matchRating")}
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -330,7 +355,17 @@ function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
                         <span className="ml-2 text-xs text-muted-foreground">({row.matches.competition})</span>
                       ) : null}
                     </td>
-                    <td className="px-3 py-2 text-right">{row.goals_scored}</td>
+                    <td className="px-3 py-2 text-right">
+                      {row.goals_scored > 0 ? (
+                        <span className="inline-flex items-center gap-1">
+                          {Array.from({ length: row.goals_scored }, (_, i) => (
+                            <Goal key={i} className="size-4 text-accent" aria-hidden="true" />
+                          ))}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
                     <td className="px-3 py-2 text-right">
                       {row.rating != null ? (
                         <span className={`font-display ${row.rating >= 7 ? "text-green-600" : "text-accent"}`}>
@@ -371,17 +406,26 @@ function StatsOverview({ stats, playerId }: { stats: SeasonStatRow[]; playerId: 
       <div className="mt-4 grid grid-cols-3 divide-x divide-border rounded-lg border border-border bg-card shadow-card">
         <div className="p-4 text-center">
           <p className="font-display text-3xl">{totalApps}</p>
-          <p className="label-caps mt-1 text-muted-foreground">{t("player.statApps")}</p>
+          <p className="label-caps mt-1 flex items-center justify-center gap-1.5 text-muted-foreground">
+            <Shirt className="size-3.5" aria-hidden="true" />
+            {t("player.statApps")}
+          </p>
         </div>
         <div className="p-4 text-center">
           <p className="font-display text-3xl">{totalGoals}</p>
-          <p className="label-caps mt-1 text-muted-foreground">{t("player.statGoals")}</p>
+          <p className="label-caps mt-1 flex items-center justify-center gap-1.5 text-muted-foreground">
+            <Goal className="size-3.5" aria-hidden="true" />
+            {t("player.statGoals")}
+          </p>
         </div>
         <div className="p-4 text-center">
           <p className={`font-display text-3xl ${avgRating != null && avgRating >= 7 ? "text-green-600" : "text-accent"}`}>
             {avgRating != null ? avgRating.toFixed(1) : "—"}
           </p>
-          <p className="label-caps mt-1 text-muted-foreground">{t("player.statAvgRating")}</p>
+          <p className="label-caps mt-1 flex items-center justify-center gap-1.5 text-muted-foreground">
+            <Star className="size-3.5" aria-hidden="true" />
+            {t("player.statAvgRating")}
+          </p>
         </div>
       </div>
       <Link
@@ -425,6 +469,39 @@ function PastTeams({ memberships }: { memberships: TeamMembershipRow[] }) {
         </li>
       ))}
     </ul>
+  );
+}
+
+type SchoolRow = {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  date: string | null;
+};
+
+function SchoolsPlayedFor({ schools }: { schools: SchoolRow[] }) {
+  const { t } = useLanguage();
+  return (
+    <section className="mt-10 border-t-4 border-border pt-8">
+      <h2 className="text-2xl">{t("player.schoolsPlayedFor")}</h2>
+      {schools.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">{t("player.noSchools")}</p>
+      ) : (
+        <ul className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+          {schools.map((school) => (
+            <li key={school.id} className="flex flex-wrap items-center gap-3 px-5 py-4">
+              <ClubLogo name={school.name} url={school.logoUrl} className="size-8" />
+              <span className="font-display text-lg">{school.name || t("player.unknownClub")}</span>
+              {school.date ? (
+                <span className="ml-auto text-sm text-muted-foreground">
+                  {formatDateInLang(school.date, t("player.unknownDate"))}
+                </span>
+              ) : null}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }
 
@@ -510,8 +587,10 @@ function CareerGoals({ goals }: { goals: MatchRatingRow[] }) {
               {t("player.vs")} {row.matches.opponent_name}
             </span>
           ) : null}
-          <span className="ml-auto font-display text-lg text-accent">
-            {row.goals_scored > 1 ? `${row.goals_scored}×` : "⚽"}
+          <span className="ml-auto flex items-center gap-1">
+            {Array.from({ length: row.goals_scored }, (_, i) => (
+              <Goal key={i} className="size-4 text-accent" aria-hidden="true" />
+            ))}
           </span>
         </li>
       ))}
@@ -606,6 +685,7 @@ function PlayerPage() {
               </p>
               <StatsOverview stats={player.season_stats} playerId={playerId} />
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
+              <SchoolsPlayedFor schools={player.schools} />
               <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
               <PitchPosition position={player.position} />
             </div>
