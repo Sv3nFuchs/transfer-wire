@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { COUNTRIES } from "@/lib/flags";
 import { CountryFlag } from "@/components/CountryFlag";
+import { US_STATES } from "@/lib/us-states";
+import { UsStateFlag } from "@/components/UsStateFlag";
 
 export const Route = createFileRoute("/_authenticated/players/$playerId/edit")({
   component: EditPlayerPage,
@@ -23,6 +25,7 @@ type FormState = {
   birth_date: string;
   birthplace: string;
   birthplace_country_code: string;
+  birthplace_state: string;
   preferred_foot: string;
   height_cm: string;
   nationality: string;
@@ -41,6 +44,7 @@ const emptyForm: FormState = {
   birth_date: "",
   birthplace: "",
   birthplace_country_code: "",
+  birthplace_state: "",
   preferred_foot: "",
   height_cm: "",
   nationality: "",
@@ -105,6 +109,7 @@ function EditPlayerPage() {
       birth_date: player.birth_date ?? "",
       birthplace: player.birthplace ?? "",
       birthplace_country_code: player.birthplace_country_code ?? "",
+      birthplace_state: player.birthplace_state ?? "",
       preferred_foot: player.preferred_foot ?? "",
       height_cm: player.height_cm ? String(player.height_cm) : "",
       nationality: player.nationality ?? "",
@@ -142,6 +147,8 @@ function EditPlayerPage() {
         birth_date: str(form.birth_date),
         birthplace: str(form.birthplace),
         birthplace_country_code: str(form.birthplace_country_code),
+        // Only meaningful for US births — drop it if the country was changed away from US.
+        birthplace_state: form.birthplace_country_code === "US" ? str(form.birthplace_state) : null,
         preferred_foot: str(form.preferred_foot),
         height_cm: num(form.height_cm),
         nationality: str(form.nationality),
@@ -272,6 +279,25 @@ function EditPlayerPage() {
               </select>
             </div>
           </div>
+          {form.birthplace_country_code === "US" ? (
+            <div>
+              <Label htmlFor="birthplace_state">State (US birthplace)</Label>
+              <div className="mt-1 flex items-center gap-3">
+                <UsStateFlag code={form.birthplace_state} className="h-6 w-9" />
+                <select
+                  id="birthplace_state"
+                  value={form.birthplace_state}
+                  onChange={(e) => set("birthplace_state", e.target.value)}
+                  className="h-10 min-w-0 flex-1 rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="">No state</option>
+                  {US_STATES.map((state) => (
+                    <option key={state.code} value={state.code}>{state.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          ) : null}
           <div>
             <Label htmlFor="height_cm">Height (cm)</Label>
             <Input id="height_cm" inputMode="numeric" value={form.height_cm} onChange={(e) => set("height_cm", e.target.value)} />

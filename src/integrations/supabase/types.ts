@@ -307,6 +307,7 @@ export type Database = {
           birth_year: number | null
           birthplace: string | null
           birthplace_country_code: string | null
+          birthplace_state: string | null
           club_id: string | null
           created_at: string
           created_by: string | null
@@ -327,6 +328,7 @@ export type Database = {
           birth_year?: number | null
           birthplace?: string | null
           birthplace_country_code?: string | null
+          birthplace_state?: string | null
           club_id?: string | null
           created_at?: string
           created_by?: string | null
@@ -347,6 +349,7 @@ export type Database = {
           birth_year?: number | null
           birthplace?: string | null
           birthplace_country_code?: string | null
+          birthplace_state?: string | null
           club_id?: string | null
           created_at?: string
           created_by?: string | null

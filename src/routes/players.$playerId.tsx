@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
+import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
 import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
 import { Cake } from "lucide-react";
@@ -648,7 +649,11 @@ function PlayerPage() {
                     player.birthplace ? (
                       <span className="inline-flex items-center gap-2">
                         {player.birthplace}
-                        <CountryFlag code={player.birthplace_country_code} className="h-5 w-[30px]" />
+                        {player.birthplace_country_code === "US" && player.birthplace_state ? (
+                          <UsStateFlag code={player.birthplace_state} className="h-5 w-[30px]" />
+                        ) : (
+                          <CountryFlag code={player.birthplace_country_code} className="h-5 w-[30px]" />
+                        )}
                       </span>
                     ) : null
                   }
