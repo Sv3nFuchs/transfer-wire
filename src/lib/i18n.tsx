@@ -82,6 +82,8 @@ const dict = {
   "player.noPositionMapped": "Position not recognized for the pitch diagram yet.",
   "player.recentTransfer": "Recent transfer",
   "player.viewAllTransfers": "View all transfers →",
+  "player.statsOverview": "Stats overview",
+  "player.viewFullStats": "View full statistics →",
   "player.birthplace": "Place of birth",
   "player.birthplaceCountry": "Country of birth",
   "player.foot": "Preferred foot",

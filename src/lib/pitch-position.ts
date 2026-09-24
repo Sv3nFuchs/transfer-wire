@@ -17,9 +17,16 @@ const POSITION_COORDS: { test: RegExp; x: number; y: number }[] = [
   { test: /striker|forward|\bst\b|\bcf\b/i, x: 50, y: 12 },
 ];
 
-export function getPositionCoords(position: string | null | undefined): { x: number; y: number } | null {
+/** Splits "Center Back (Left Back)" into a primary position and an optional secondary one. */
+export function parsePosition(position: string | null | undefined): { primary: string; secondary: string | null } | null {
   if (!position) return null;
-  const primary = position.split("(")[0]?.trim() ?? "";
+  const match = position.match(/^(.*?)\s*\(([^)]+)\)\s*$/);
+  if (match) return { primary: match[1]!.trim(), secondary: match[2]!.trim() };
+  return { primary: position.trim(), secondary: null };
+}
+
+export function getPositionCoords(position: string | null | undefined): { x: number; y: number } | null {
+  const primary = parsePosition(position)?.primary ?? "";
   for (const entry of POSITION_COORDS) {
     if (entry.test.test(primary)) return { x: entry.x, y: entry.y };
   }

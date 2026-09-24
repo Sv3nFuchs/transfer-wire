@@ -9,7 +9,7 @@ import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CountryFlag } from "@/components/CountryFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
-import { getPositionCoords } from "@/lib/pitch-position";
+import { getPositionCoords, parsePosition } from "@/lib/pitch-position";
 import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
@@ -271,6 +271,51 @@ function SeasonStats({ stats }: { stats: SeasonStatRow[] }) {
   );
 }
 
+function StatsOverview({ stats, playerId }: { stats: SeasonStatRow[]; playerId: string }) {
+  const { t } = useLanguage();
+  const totalApps = stats.reduce((sum, row) => sum + row.matches_played, 0);
+  const totalGoals = stats.reduce((sum, row) => sum + row.goals, 0);
+  let weightedTotal = 0;
+  let ratedCount = 0;
+  for (const row of stats) {
+    if (row.average_rating != null && row.rated_matches > 0) {
+      weightedTotal += row.average_rating * row.rated_matches;
+      ratedCount += row.rated_matches;
+    }
+  }
+  const avgRating = ratedCount > 0 ? weightedTotal / ratedCount : null;
+
+  return (
+    <section className="mt-10 border-t-2 border-border pt-8">
+      <h2 className="text-2xl">{t("player.statsOverview")}</h2>
+      <div className="mt-4 grid grid-cols-3 divide-x divide-border rounded-lg border border-border bg-card shadow-card">
+        <div className="p-4 text-center">
+          <p className="font-display text-3xl">{totalApps}</p>
+          <p className="label-caps mt-1 text-muted-foreground">{t("player.statApps")}</p>
+        </div>
+        <div className="p-4 text-center">
+          <p className="font-display text-3xl">{totalGoals}</p>
+          <p className="label-caps mt-1 text-muted-foreground">{t("player.statGoals")}</p>
+        </div>
+        <div className="p-4 text-center">
+          <p className={`font-display text-3xl ${avgRating != null && avgRating >= 7 ? "text-green-600" : "text-accent"}`}>
+            {avgRating != null ? avgRating.toFixed(1) : "—"}
+          </p>
+          <p className="label-caps mt-1 text-muted-foreground">{t("player.statAvgRating")}</p>
+        </div>
+      </div>
+      <Link
+        to="/players/$playerId"
+        params={{ playerId }}
+        search={{ tab: "stats" }}
+        className="mt-3 inline-block text-sm text-primary underline"
+      >
+        {t("player.viewFullStats")}
+      </Link>
+    </section>
+  );
+}
+
 type TeamMembershipRow = {
   id: string;
   teams: { name: string; season: string | null; league: string | null; clubs: { name: string } | null } | null;
@@ -405,6 +450,7 @@ function PlayerPage() {
   const activeTab = tab ?? "profile";
   const currentAge = player.birth_date ? calculateAge(player.birth_date, new Date().toISOString().slice(0, 10)) : null;
   const birthdayToday = player.birth_date ? isBirthdayToday(player.birth_date) : false;
+  const parsedPosition = parsePosition(player.position);
 
   return (
     <div className="min-h-screen">
@@ -479,13 +525,28 @@ function PlayerPage() {
                 {player.bio || t("player.noBio")}
               </p>
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
+              <StatsOverview stats={player.season_stats} playerId={playerId} />
               <h2 className="mt-10 text-2xl">{t("player.onThePitch")}</h2>
               <PitchPosition position={player.position} />
             </div>
             <div>
               <h2 className="text-2xl">{t("player.facts")}</h2>
               <div className="mt-4 rounded-lg border border-border bg-card p-5 shadow-card">
-                <Fact label={t("player.position")} value={player.position} />
+                <Fact
+                  label={t("player.position")}
+                  value={
+                    parsedPosition ? (
+                      <span>
+                        {parsedPosition.primary}
+                        {parsedPosition.secondary ? (
+                          <span className="ml-2 text-sm font-normal text-muted-foreground">
+                            ({parsedPosition.secondary})
+                          </span>
+                        ) : null}
+                      </span>
+                    ) : null
+                  }
+                />
                 <Fact
                   label={player.birth_date ? t("player.birthday") : t("player.birthYear")}
                   value={
