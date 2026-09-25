@@ -96,6 +96,7 @@ const dict = {
   "player.recentTransfer": "Recent transfer",
   "player.viewAllTransfers": "View all transfers →",
   "player.schoolsPlayedFor": "Schools played for",
+  "player.previousClubs": "Previous clubs",
   "player.noSchools": "No high school or college teams recorded yet.",
   "player.viewSchoolSpells": "School spells →",
   "player.statsOverview": "Stats overview",

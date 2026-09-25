@@ -58,6 +58,27 @@ function PassportPage() {
   const avgRating = ratedCount > 0 ? weightedTotal / ratedCount : null;
   const age = player.birth_date ? calculateAge(player.birth_date, new Date().toISOString().slice(0, 10)) : null;
 
+  // Every distinct club from club-type transfers, excluding the current one
+  // (already shown in the header) — mirrors how Schools Played For is built.
+  const previousClubsByKey = new Map<string, { id: string; name: string; logoUrl: string | null }>();
+  for (const transfer of player.transfers) {
+    if ((transfer.org_type ?? "club") !== "club") continue;
+    const to = transfer.to_club
+      ? { id: transfer.to_club.id, name: transfer.to_club.name, logoUrl: transfer.to_club.logo_url }
+      : transfer.to_club_name
+        ? { id: transfer.to_club_name, name: transfer.to_club_name, logoUrl: null }
+        : null;
+    if (to && !previousClubsByKey.has(to.id)) previousClubsByKey.set(to.id, to);
+    const from = transfer.from_club
+      ? { id: transfer.from_club.id, name: transfer.from_club.name, logoUrl: transfer.from_club.logo_url }
+      : transfer.from_club_name
+        ? { id: transfer.from_club_name, name: transfer.from_club_name, logoUrl: null }
+        : null;
+    if (from && !previousClubsByKey.has(from.id)) previousClubsByKey.set(from.id, from);
+  }
+  if (player.clubs) previousClubsByKey.delete(player.clubs.id);
+  const previousClubs = [...previousClubsByKey.values()];
+
   return (
     <div className="min-h-screen bg-background">
       <div className="print:hidden">
@@ -148,6 +169,20 @@ function PassportPage() {
                   ))}
                 </tbody>
               </table>
+            </section>
+          ) : null}
+
+          {previousClubs.length > 0 ? (
+            <section className="mt-6 border-b-2 border-border pb-6">
+              <h2 className="label-caps text-muted-foreground">{t("player.previousClubs")}</h2>
+              <ul className="mt-2 space-y-1 text-sm">
+                {previousClubs.map((club) => (
+                  <li key={club.id} className="flex items-center gap-2">
+                    <ClubLogo name={club.name} url={club.logoUrl} className="size-5" />
+                    {club.name}
+                  </li>
+                ))}
+              </ul>
             </section>
           ) : null}
 
