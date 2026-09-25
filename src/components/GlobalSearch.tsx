@@ -73,14 +73,14 @@ export function GlobalSearch() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={t("nav.search")}
-        className="rounded p-1.5 opacity-80 transition-opacity hover:opacity-100"
+        className="flex items-center gap-2 rounded border border-pitch-foreground/25 bg-pitch-foreground/5 px-2.5 py-1.5 opacity-90 transition-opacity hover:bg-pitch-foreground/10 hover:opacity-100"
       >
-        <Search className="size-5" aria-hidden="true" />
+        <Search className="size-4" aria-hidden="true" />
       </button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-2 w-72 rounded-lg border border-border bg-card text-foreground shadow-lift sm:w-80">
-          <div className="flex items-center gap-2 border-b border-border px-3 py-2">
+        <div className="absolute right-0 z-50 mt-2 w-72 overflow-hidden rounded-lg border border-border bg-card text-foreground shadow-card sm:w-80">
+          <div className="flex items-center gap-2 border-b border-border px-4 py-3">
             <Search className="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
             <input
               ref={inputRef}
@@ -98,27 +98,27 @@ export function GlobalSearch() {
           </div>
 
           {hasQuery ? (
-            <div className="max-h-80 overflow-y-auto py-1">
+            <div className="max-h-80 overflow-y-auto">
               {isLoading && !hasResults ? (
-                <p className="px-4 py-3 text-sm text-muted-foreground">{t("nav.searching")}</p>
+                <p className="px-4 py-4 text-sm text-muted-foreground">{t("nav.searching")}</p>
               ) : !hasResults ? (
-                <p className="px-4 py-3 text-sm text-muted-foreground">{t("nav.noSearchResults")}</p>
+                <p className="px-4 py-4 text-sm text-muted-foreground">{t("nav.noSearchResults")}</p>
               ) : (
                 <>
                   {playerResults.length > 0 ? (
                     <div>
-                      <p className="label-caps px-4 pt-2 text-muted-foreground">{t("nav.players")}</p>
-                      <ul>
+                      <p className="label-caps bg-secondary px-4 py-2 text-secondary-foreground">{t("nav.players")}</p>
+                      <ul className="divide-y divide-border">
                         {playerResults.map((player) => (
                           <li key={player.id}>
                             <Link
                               to="/players/$playerId"
                               params={{ playerId: player.id }}
                               onClick={close}
-                              className="flex items-center justify-between gap-2 px-4 py-2 text-sm hover:bg-muted/60"
+                              className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/60"
                             >
-                              <span className="font-display">{player.full_name}</span>
-                              <span className="truncate text-xs text-muted-foreground">
+                              <span className="truncate font-display text-base">{player.full_name}</span>
+                              <span className="shrink-0 truncate text-xs text-muted-foreground">
                                 {[player.clubs?.name, player.position].filter(Boolean).join(" · ")}
                               </span>
                             </Link>
@@ -129,18 +129,18 @@ export function GlobalSearch() {
                   ) : null}
                   {clubResults.length > 0 ? (
                     <div>
-                      <p className="label-caps px-4 pt-2 text-muted-foreground">{t("nav.clubs")}</p>
-                      <ul>
+                      <p className="label-caps bg-secondary px-4 py-2 text-secondary-foreground">{t("nav.clubs")}</p>
+                      <ul className="divide-y divide-border">
                         {clubResults.map((club) => (
                           <li key={club.id}>
                             <Link
                               to="/clubs/$clubId"
                               params={{ clubId: club.id }}
                               onClick={close}
-                              className="flex items-center gap-2 px-4 py-2 text-sm hover:bg-muted/60"
+                              className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/60"
                             >
-                              <ClubLogo name={club.name} url={club.logo_url} className="size-5" />
-                              {club.name}
+                              <ClubLogo name={club.name} url={club.logo_url} className="size-7" />
+                              <span className="font-display text-base">{club.name}</span>
                             </Link>
                           </li>
                         ))}
