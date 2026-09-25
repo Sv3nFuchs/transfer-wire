@@ -315,6 +315,7 @@ export type Database = {
           flag_2: string | null
           full_name: string
           height_cm: number | null
+          highlight_video_url: string | null
           id: string
           nationality: string | null
           position: string | null
@@ -336,6 +337,7 @@ export type Database = {
           flag_2?: string | null
           full_name: string
           height_cm?: number | null
+          highlight_video_url?: string | null
           id?: string
           nationality?: string | null
           position?: string | null
@@ -357,6 +359,7 @@ export type Database = {
           flag_2?: string | null
           full_name?: string
           height_cm?: number | null
+          highlight_video_url?: string | null
           id?: string
           nationality?: string | null
           position?: string | null

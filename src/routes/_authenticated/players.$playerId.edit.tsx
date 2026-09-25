@@ -35,6 +35,7 @@ type FormState = {
   club_id: string;
   team_id: string;
   bio: string;
+  highlight_video_url: string;
 };
 
 const emptyForm: FormState = {
@@ -54,6 +55,7 @@ const emptyForm: FormState = {
   club_id: "",
   team_id: "",
   bio: "",
+  highlight_video_url: "",
 };
 
 function EditPlayerPage() {
@@ -119,6 +121,7 @@ function EditPlayerPage() {
       club_id: player.club_id ?? "",
       team_id: player.team_id ?? "",
       bio: player.bio ?? "",
+      highlight_video_url: player.highlight_video_url ?? "",
     });
   }, [player]);
 
@@ -158,6 +161,7 @@ function EditPlayerPage() {
         club_id: str(form.club_id),
         team_id: str(form.team_id),
         bio: str(form.bio),
+        highlight_video_url: str(form.highlight_video_url),
       })
       .eq("id", playerId);
     setSaving(false);
@@ -368,6 +372,16 @@ function EditPlayerPage() {
           <div className="sm:col-span-2">
             <Label htmlFor="bio">Description</Label>
             <Textarea id="bio" rows={6} value={form.bio} onChange={(e) => set("bio", e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="highlight_video_url">Highlight video (YouTube, Hudl, etc.)</Label>
+            <Input
+              id="highlight_video_url"
+              type="url"
+              placeholder="https://youtube.com/..."
+              value={form.highlight_video_url}
+              onChange={(e) => set("highlight_video_url", e.target.value)}
+            />
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
             <Button type="submit" variant="accent" disabled={saving}>

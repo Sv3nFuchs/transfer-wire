@@ -11,7 +11,7 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
 import { getPositionCoords, getSecondaryPositionCoords, parsePosition } from "@/lib/pitch-position";
-import { Cake, Shirt, Star } from "lucide-react";
+import { Cake, IdCard, Play, Shirt, Star } from "lucide-react";
 import { SoccerBall } from "@/components/icons/SoccerBall";
 import type { ReactNode } from "react";
 
@@ -763,8 +763,27 @@ function PlayerPage() {
                 .filter(Boolean)
                 .join(" · ")}
             </p>
-            {isAdmin ? (
-              <div className="mt-5">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <Link
+                to="/players/$playerId/passport"
+                params={{ playerId }}
+                className="inline-flex items-center gap-2 rounded bg-accent px-3 py-1 font-display tracking-wide text-accent-foreground hover:opacity-90"
+              >
+                <IdCard className="size-4" aria-hidden="true" />
+                {t("player.viewPassport")}
+              </Link>
+              {player.highlight_video_url ? (
+                <a
+                  href={player.highlight_video_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded bg-accent px-3 py-1 font-display tracking-wide text-accent-foreground hover:opacity-90"
+                >
+                  <Play className="size-4" aria-hidden="true" />
+                  {t("player.watchHighlights")}
+                </a>
+              ) : null}
+              {isAdmin ? (
                 <Link
                   to="/players/$playerId/edit"
                   params={{ playerId }}
@@ -772,8 +791,8 @@ function PlayerPage() {
                 >
                   {t("player.edit")}
                 </Link>
-              </div>
-            ) : null}
+              ) : null}
+            </div>
           </div>
           {player.clubs ? (
             <Link

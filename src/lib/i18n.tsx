@@ -41,6 +41,8 @@ const dict = {
 
   "player.kicker": "Player profile",
   "player.edit": "Edit",
+  "player.viewPassport": "Player Passport",
+  "player.watchHighlights": "Watch highlights",
   "player.tabProfile": "Profile",
   "player.tabStatistics": "Statistics",
   "player.tabTransfers": "Transfers",
@@ -106,6 +108,10 @@ const dict = {
   "player.team": "Team",
   "player.ageGroup": "Age group",
   "player.bornPrefix": "Born",
+  "player.yearsOld": "years old",
+  "player.backToProfile": "Back to profile",
+  "player.printPassport": "Print / Save PDF",
+  "player.passportFooter": "Player Passport generated via TransferWire on",
   "player.notFound": "Player not found",
   "player.backToPlayers": "Back to players",
 
