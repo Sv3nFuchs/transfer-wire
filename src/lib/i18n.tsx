@@ -6,6 +6,11 @@ const dict = {
   "nav.matches": "Matches",
   "nav.myPage": "My page",
   "nav.login": "Log in",
+  "nav.search": "Search",
+  "nav.searchPlaceholder": "Search players, clubs…",
+  "nav.searching": "Searching…",
+  "nav.noSearchResults": "No results found.",
+  "nav.searchClear": "Clear search",
 
   "footer.text":
     "TransferWire — player and team database for football in Sweden and the USA. Built by and for coaches, scouts and parents.",
