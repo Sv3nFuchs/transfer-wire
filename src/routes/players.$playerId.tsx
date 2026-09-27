@@ -208,6 +208,7 @@ function RecentForm({ form }: { form: RecentFormRow[] }) {
 type TransferRow = {
   id: string;
   transfer_date: string | null;
+  end_date: string | null;
   transfer_type: string | null;
   note: string | null;
   org_type: string | null;
@@ -278,6 +279,37 @@ function TransferSection({
               ) : null}
             </li>
           ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function TrialsSection({ trials }: { trials: TransferRow[] }) {
+  const { t } = useLanguage();
+  return (
+    <section className="border-t-2 border-border pt-8 first:border-t-0 first:pt-0 [&:not(:first-child)]:mt-10">
+      <h2 className="text-2xl">{t("player.trials")}</h2>
+      {trials.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-foreground">{t("player.noTrials")}</p>
+      ) : (
+        <ol className="mt-4 divide-y divide-border overflow-hidden rounded-lg border border-border bg-card shadow-card">
+          {trials.map((trial) => {
+            const period = trial.end_date
+              ? `${formatDateInLang(trial.transfer_date, t("player.unknownDate"))} – ${formatDateInLang(trial.end_date, t("player.unknownDate"))}`
+              : formatDateInLang(trial.transfer_date, t("player.unknownDate"));
+            return (
+              <li key={trial.id} className="flex flex-wrap items-center gap-x-3 gap-y-2 px-5 py-4">
+                <span className="label-caps w-40 shrink-0 text-muted-foreground">{period}</span>
+                <TransferClub
+                  name={trial.to_club?.name ?? trial.to_club_name ?? t("player.unknownClub")}
+                  logo={trial.to_club?.logo_url ?? null}
+                  countryCode={trial.to_club?.country_code ?? null}
+                />
+                {trial.note ? <span className="w-full text-sm text-muted-foreground">{trial.note}</span> : null}
+              </li>
+            );
+          })}
         </ol>
       )}
     </section>
@@ -935,6 +967,7 @@ function PlayerPage() {
               empty={t("player.noNationalSpells")}
               transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
             />
+            <TrialsSection trials={player.transfers.filter((transfer) => transfer.org_type === "trial")} />
             <section className="mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.pastTeams")}</h2>
               <PastTeams memberships={player.team_memberships} />

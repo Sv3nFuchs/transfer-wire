@@ -82,6 +82,8 @@ const dict = {
   "player.noClubTransfers": "No club transfers have been recorded yet.",
   "player.noSchoolSpells": "No school spells have been recorded yet.",
   "player.noNationalSpells": "No national team spells have been recorded yet.",
+  "player.trials": "Trials",
+  "player.noTrials": "No trials have been recorded yet.",
   "player.unknownClub": "Unknown club",
   "player.unknownDate": "Unknown date",
   "player.facts": "Facts",

@@ -412,6 +412,7 @@ const ORG_TYPE_LABELS: Record<string, string> = {
   club: "Club",
   school: "School",
   national: "National team",
+  trial: "Trial",
 };
 
 function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOption[] }) {
@@ -419,6 +420,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
   const [fromClub, setFromClub] = useState("");
   const [toClub, setToClub] = useState("");
   const [date, setDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [type, setType] = useState("");
   const [orgType, setOrgType] = useState("club");
   const [note, setNote] = useState("");
@@ -430,7 +432,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
       const { data, error } = await supabase
         .from("transfers")
         .select(
-          "id, transfer_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name",
+          "id, transfer_date, end_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name",
         )
         .eq("player_id", playerId)
         .order("transfer_date", { ascending: true });
@@ -455,6 +457,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
       from_club_id: fromClub || null,
       to_club_id: toClub || null,
       transfer_date: date || null,
+      end_date: endDate || null,
       transfer_type: type.trim() || null,
       org_type: orgType,
       note: note.trim() || null,
@@ -468,6 +471,7 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
     setFromClub("");
     setToClub("");
     setDate("");
+    setEndDate("");
     setType("");
     setOrgType("club");
     setNote("");
@@ -495,8 +499,9 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
         <ul className="mt-4 divide-y divide-border rounded-lg border border-border">
           {(transfers ?? []).map((transfer) => (
             <li key={transfer.id} className="flex flex-wrap items-center gap-3 px-4 py-3">
-              <span className="label-caps w-28 text-muted-foreground">
+              <span className="label-caps w-40 shrink-0 text-muted-foreground">
                 {transfer.transfer_date ?? "Unknown date"}
+                {transfer.end_date ? ` – ${transfer.end_date}` : ""}
               </span>
               <span className="font-display text-lg">
                 {clubName(transfer.from_club_id, transfer.from_club_name)}
@@ -580,7 +585,17 @@ function TransfersEditor({ playerId, clubs }: { playerId: string; clubs: ClubOpt
             <option value="club">Club transfer</option>
             <option value="school">School spell</option>
             <option value="national">National team spell</option>
+            <option value="trial">Trial</option>
           </select>
+        </div>
+        <div>
+          <Label htmlFor="end_date">End date (trials only)</Label>
+          <Input
+            id="end_date"
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
         </div>
         <div>
           <Label htmlFor="transfer_type">Type (e.g. Permanent, Loan)</Label>

@@ -492,6 +492,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          end_date: string | null
           from_club_id: string | null
           from_club_name: string | null
           id: string
@@ -507,6 +508,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          end_date?: string | null
           from_club_id?: string | null
           from_club_name?: string | null
           id?: string
@@ -522,6 +524,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          end_date?: string | null
           from_club_id?: string | null
           from_club_name?: string | null
           id?: string
