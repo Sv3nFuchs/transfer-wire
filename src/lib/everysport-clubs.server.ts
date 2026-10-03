@@ -66,8 +66,9 @@ export async function importClubsFromEverysport(
   options: { url: string; level?: string | null | undefined; userId: string },
 ) {
   let parsed: URL;
+  const raw = options.url.trim();
   try {
-    parsed = new URL(options.url);
+    parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
   } catch {
     throw new Error("That doesn't look like a valid URL.");
   }
