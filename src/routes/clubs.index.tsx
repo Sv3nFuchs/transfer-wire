@@ -4,6 +4,8 @@ import { clubsQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Input } from "@/components/ui/input";
 import { ClubLogo } from "@/components/ClubLogo";
+import { ImportClubsPanel } from "@/components/ImportClubsPanel";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/clubs/")({
@@ -41,12 +43,14 @@ function ClubsPage() {
   const navigate = useNavigate();
   const { data: clubs } = useSuspenseQuery(clubsQuery(q ?? ""));
   const { t } = useLanguage();
+  const { isAdmin } = useIsAdmin();
 
   return (
     <div className="min-h-screen">
       <SiteHeader />
       <main className="mx-auto max-w-6xl px-4 py-12">
         <h1 className="text-4xl">{t("clubs.title")}</h1>
+        {isAdmin ? <ImportClubsPanel /> : null}
         <Input
           value={q ?? ""}
           placeholder={t("clubs.searchPlaceholder")}

@@ -1,6 +1,24 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { syncTeamFixtures } from "./everysport-sync.server";
+import { importClubsFromEverysport } from "./everysport-clubs.server";
+
+export const importEverysportClubs = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { url: string; level?: string | undefined }) => input)
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: adminRole } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+    if (!adminRole) throw new Error("Only an admin can import clubs.");
+
+    return importClubsFromEverysport(supabase, { url: data.url, level: data.level, userId });
+  });
 
 export const syncEverysportFixtures = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
