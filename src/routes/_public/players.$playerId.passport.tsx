@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerQuery } from "@/lib/queries";
 import { ClubLogo } from "@/components/ClubLogo";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { CountryFlag } from "@/components/CountryFlag";
 import { PlayerFlags } from "@/components/PlayerFlags";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
@@ -100,18 +101,21 @@ function PassportPage() {
       <main className="mx-auto max-w-2xl px-4 pb-16">
         <div className="rounded-lg border border-border bg-card p-8 shadow-card print:border-0 print:shadow-none">
           <header className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-border pb-6">
-            <div>
-              <p className="label-caps text-accent">{t("player.kicker")}</p>
-              <h1 className="mt-1 text-4xl">
-                {player.shirt_number ? <span className="mr-2 text-accent">{player.shirt_number}</span> : null}
-                {player.full_name}
-                <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-2 align-middle" />
-              </h1>
-              <p className="mt-2 text-sm text-muted-foreground">
-                {[player.position, player.nationality, age != null ? `${age} ${t("player.yearsOld")}` : null]
-                  .filter(Boolean)
-                  .join(" · ")}
-              </p>
+            <div className="flex items-start gap-4">
+              <PlayerPhoto name={player.full_name} url={player.photo_url} className="h-28 w-[5.5rem]" />
+              <div>
+                <p className="label-caps text-accent">{t("player.kicker")}</p>
+                <h1 className="mt-1 text-4xl">
+                  {player.shirt_number ? <span className="mr-2 text-accent">{player.shirt_number}</span> : null}
+                  {player.full_name}
+                  <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-2 align-middle" />
+                </h1>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  {[player.position, player.nationality, age != null ? `${age} ${t("player.yearsOld")}` : null]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              </div>
             </div>
             {player.clubs ? (
               <div className="flex items-center gap-3">

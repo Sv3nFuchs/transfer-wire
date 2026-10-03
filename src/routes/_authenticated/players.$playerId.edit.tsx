@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { COUNTRIES } from "@/lib/flags";
 import { CountryFlag } from "@/components/CountryFlag";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { US_STATES } from "@/lib/us-states";
 import { UsStateFlag } from "@/components/UsStateFlag";
 
@@ -36,6 +37,7 @@ type FormState = {
   team_id: string;
   bio: string;
   highlight_video_url: string;
+  photo_url: string;
 };
 
 const emptyForm: FormState = {
@@ -56,6 +58,7 @@ const emptyForm: FormState = {
   team_id: "",
   bio: "",
   highlight_video_url: "",
+  photo_url: "",
 };
 
 function EditPlayerPage() {
@@ -65,6 +68,31 @@ function EditPlayerPage() {
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  async function handlePhotoFile(file: File) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Use a JPG, PNG or WebP image.");
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("The file is too large (max 2 MB).");
+      return;
+    }
+    setUploading(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+    const path = `${playerId}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("player-photos")
+      .upload(path, file, { contentType: file.type, upsert: true });
+    setUploading(false);
+    if (error) {
+      toast.error("Upload failed: " + error.message);
+      return;
+    }
+    set("photo_url", supabase.storage.from("player-photos").getPublicUrl(path).data.publicUrl);
+    toast.success("Photo uploaded — remember to save.");
+  }
 
   const { data: player, isLoading } = useQuery({
     queryKey: ["player-edit", playerId],
@@ -122,6 +150,7 @@ function EditPlayerPage() {
       team_id: player.team_id ?? "",
       bio: player.bio ?? "",
       highlight_video_url: player.highlight_video_url ?? "",
+      photo_url: player.photo_url ?? "",
     });
   }, [player]);
 
@@ -162,6 +191,7 @@ function EditPlayerPage() {
         team_id: str(form.team_id),
         bio: str(form.bio),
         highlight_video_url: str(form.highlight_video_url),
+        photo_url: str(form.photo_url),
       })
       .eq("id", playerId);
     setSaving(false);
@@ -230,6 +260,35 @@ function EditPlayerPage() {
         <h1 className="mt-1 text-4xl">{player.full_name}</h1>
 
         <form onSubmit={handleSave} className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="flex items-center gap-4 sm:col-span-2">
+            <PlayerPhoto name={form.full_name || player.full_name} url={form.photo_url} className="h-32 w-24" />
+            <div>
+              <Label htmlFor="photo">Photo</Label>
+              <Input
+                id="photo"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={uploading}
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void handlePhotoFile(file);
+                  e.target.value = "";
+                }}
+              />
+              <p className="mt-1 text-xs text-muted-foreground">
+                {uploading ? "Uploading…" : "Portrait works best. JPG, PNG or WebP, max 2 MB."}
+              </p>
+              {form.photo_url ? (
+                <button
+                  type="button"
+                  onClick={() => set("photo_url", "")}
+                  className="mt-1 text-xs text-primary underline"
+                >
+                  Remove photo
+                </button>
+              ) : null}
+            </div>
+          </div>
           <div className="sm:col-span-2">
             <Label htmlFor="full_name">Name</Label>
             <Input id="full_name" value={form.full_name} onChange={(e) => set("full_name", e.target.value)} />

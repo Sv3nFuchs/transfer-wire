@@ -7,6 +7,7 @@ import { PlayerFlags } from "@/components/PlayerFlags";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
+import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { CountryFlag } from "@/components/CountryFlag";
 import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
@@ -781,7 +782,13 @@ function PlayerPage() {
       <SiteHeader />
       <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
         <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-14">
-          <div>
+          <div className="flex items-start gap-6">
+            <PlayerPhoto
+              name={player.full_name}
+              url={player.photo_url}
+              className="h-36 w-28 border border-pitch-foreground/25 sm:h-48 sm:w-36"
+            />
+            <div>
             <p className="label-caps text-accent">{t("player.kicker")}</p>
             <h1 className="mt-2 text-5xl sm:text-6xl">
               {player.shirt_number ? (
@@ -824,6 +831,7 @@ function PlayerPage() {
                   {t("player.edit")}
                 </Link>
               ) : null}
+            </div>
             </div>
           </div>
           {player.clubs ? (

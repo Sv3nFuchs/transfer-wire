@@ -318,6 +318,7 @@ export type Database = {
           highlight_video_url: string | null
           id: string
           nationality: string | null
+          photo_url: string | null
           position: string | null
           preferred_foot: string | null
           shirt_number: number | null
@@ -340,6 +341,7 @@ export type Database = {
           highlight_video_url?: string | null
           id?: string
           nationality?: string | null
+          photo_url?: string | null
           position?: string | null
           preferred_foot?: string | null
           shirt_number?: number | null
@@ -362,6 +364,7 @@ export type Database = {
           highlight_video_url?: string | null
           id?: string
           nationality?: string | null
+          photo_url?: string | null
           position?: string | null
           preferred_foot?: string | null
           shirt_number?: number | null
