@@ -9,8 +9,8 @@ Supabase.
 You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-git clone https://github.com/Sv3nFuchs/grassroot-player-hub
-cd grassroot-player-hub
+git clone https://github.com/Sv3nFuchs/transfer-wire
+cd transfer-wire
 npm i
 npm run dev
 ```

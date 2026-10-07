@@ -32,7 +32,8 @@ export default defineConfig(async ({ command, mode }) => {
       nitro({
         defaultPreset: "cloudflare-module",
         compatibilityDate: "2026-09-07",
-        cloudflare: { deployConfig: true, nodeCompat: true },
+        // Pinned: Nitro otherwise derives the name from the git remote, so renaming the repo would deploy a new Worker.
+        cloudflare: { deployConfig: true, nodeCompat: true, wrangler: { name: "sv3nfuchs-grassroot-player-hub" } },
         experimental: { tasks: true },
         // Project root has no server/ dir, so nitro won't scan for tasks/
         // (or routes/, plugins/, etc.) without this pointed at "./".
