@@ -22,6 +22,8 @@ dist-ssr
 
 # Local secrets — see .env.example for the shape
 .env
+.env.*
+!.env.example
 
 # Editor directories and files
 .vscode/*
