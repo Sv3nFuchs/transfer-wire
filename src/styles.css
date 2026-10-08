@@ -387,3 +387,12 @@
 .marquee:hover .marquee-track {
   animation-play-state: paused;
 }
+
+/* Logo: the transfer arrows swing around the ball on hover. */
+.logo-arrows {
+  transform-origin: 32px 32px;
+  transition: transform 0.7s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.logo:hover .logo-arrows {
+  transform: rotate(180deg);
+}

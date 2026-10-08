@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { Logo } from "@/components/Logo";
 import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
 
@@ -20,12 +21,7 @@ export function SiteHeader() {
   return (
     <header className="vt-header sticky top-0 z-40 border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
-        <Link to="/" className="flex items-baseline gap-2">
-          <span className="font-display text-2xl leading-none tracking-wide">Transfer</span>
-          <span className="rounded bg-accent px-1.5 py-0.5 font-display text-xs text-accent-foreground">
-            WIRE
-          </span>
-        </Link>
+        <Logo />
         <nav className="hidden gap-5 sm:flex">
           <Link
             to="/players"
@@ -71,8 +67,9 @@ export function SiteFooter() {
   const { t } = useLanguage();
   return (
     <footer className="mt-20 border-t border-border bg-card">
-      <div className="mx-auto max-w-6xl px-4 py-10 text-sm text-muted-foreground">
-        {t("footer.text")}
+      <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 text-sm text-muted-foreground">
+        <Logo boxed className="w-fit text-foreground" />
+        <p>{t("footer.text")}</p>
       </div>
     </footer>
   );

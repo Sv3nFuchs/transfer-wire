@@ -1,3 +1,4 @@
+import { Logo } from "@/components/Logo";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -84,9 +85,7 @@ function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-pitch pitch-stripes px-4 py-16">
       <div className="w-full max-w-md rounded-xl border border-border bg-card p-8 shadow-lift">
-        <Link to="/" className="label-caps">
-          ← TransferWire
-        </Link>
+        <Logo boxed />
         <h1 className="mt-3 text-3xl">{mode === "signin" ? "Log in" : "Create account"}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           An account is only needed to add clubs, teams and players. All data is open to read.
