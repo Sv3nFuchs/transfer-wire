@@ -203,16 +203,28 @@ export const getPlayer = createServerFn({ method: "GET" })
     };
   });
 
+export const CLUB_LIST_LIMIT = 120;
+
 export const listClubs = createServerFn({ method: "GET" })
-  .inputValidator((input: { q?: string } | undefined) => input ?? {})
+  .inputValidator((input: { q?: string; country?: string; league?: string } | undefined) => input ?? {})
   .handler(async ({ data }) => {
     const supabase = createPublicClient();
     let query = supabase
       .from("clubs")
       .select("id, name, city, country, country_code, level, founded_year, logo_url, teams(id), players(id)")
       .order("name", { ascending: true })
-      .limit(60);
+      .limit(CLUB_LIST_LIMIT);
     if (data.q) query = query.ilike("name", `%${data.q}%`);
+    if (data.country) query = query.eq("country", data.country);
+    if (data.league) {
+      // A club belongs to a league through its teams.
+      const { data: leagueTeams, error: leagueError } = await supabase
+        .from("teams")
+        .select("club_id")
+        .eq("league", data.league);
+      if (leagueError) throw new Error(leagueError.message);
+      query = query.in("id", [...new Set((leagueTeams ?? []).map((team) => team.club_id))]);
+    }
     const { data: rows, error } = await query;
     if (error) throw new Error(error.message);
     const logoMap = await resolveLogoUrls((rows ?? []).map((club) => club.logo_url));
@@ -410,3 +422,31 @@ export const getOverview = createServerFn({ method: "GET" }).handler(async () =>
     crests,
   };
 });
+
+/** Options for the clubs page filters: countries with club counts, and leagues (within the chosen country). */
+export const getClubFilters = createServerFn({ method: "GET" })
+  .inputValidator((input: { country?: string } | undefined) => input ?? {})
+  .handler(async ({ data }) => {
+    const supabase = createPublicClient();
+    const [countryRows, leagueRows] = await Promise.all([
+      supabase.from("clubs").select("country").limit(5000),
+      data.country
+        ? supabase.from("teams").select("league, clubs!inner(country)").not("league", "is", null).eq("clubs.country", data.country).limit(5000)
+        : supabase.from("teams").select("league, clubs(country)").not("league", "is", null).limit(5000),
+    ]);
+    if (countryRows.error) throw new Error(countryRows.error.message);
+    if (leagueRows.error) throw new Error(leagueRows.error.message);
+
+    const countryCounts = new Map<string, number>();
+    for (const row of countryRows.data ?? []) {
+      if (row.country) countryCounts.set(row.country, (countryCounts.get(row.country) ?? 0) + 1);
+    }
+    const countries = [...countryCounts.entries()]
+      .map(([country, count]) => ({ country, count }))
+      .sort((a, b) => b.count - a.count || a.country.localeCompare(b.country));
+
+    const leagues = [...new Set((leagueRows.data ?? []).map((row) => row.league).filter((l): l is string => !!l?.trim()))].sort(
+      (a, b) => a.localeCompare(b),
+    );
+    return { countries, leagues };
+  });
