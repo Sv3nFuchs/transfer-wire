@@ -16,12 +16,12 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Search player profiles, clubs and teams across Swedish division 5–7, American youth soccer and Sunday League. Build the database together.",
+          "Search player profiles, clubs and teams from leagues, academies, schools and Sunday League teams around the world. Build the database together.",
       },
       { property: "og:title", content: "TransferWire — player and team database" },
       {
         property: "og:description",
-        content: "Player profiles and team rosters for football in Sweden and the USA.",
+        content: "Player profiles and team rosters for football all around the world.",
       },
     ],
   }),

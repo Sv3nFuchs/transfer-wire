@@ -15,7 +15,7 @@ export const Route = createFileRoute("/clubs/")({
       {
         name: "description",
         content:
-          "All registered clubs with teams, level and city — from Swedish division 7 to Sunday League.",
+          "All registered clubs with teams, level and city — from academies and school teams to Sunday League, anywhere in the world.",
       },
       { property: "og:title", content: "Clubs — TransferWire" },
       {

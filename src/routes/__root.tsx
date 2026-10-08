@@ -81,7 +81,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "TransferWire" },
       {
         name: "description",
-        content: "Player and team database for football in Sweden and the USA.",
+        content: "Player and team database for football around the world.",
       },
       { property: "og:title", content: "TransferWire" },
       {
