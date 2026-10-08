@@ -6,7 +6,7 @@ export function ClickRipple() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as Element | null;
-      if (!target?.closest(".lift, button:not(:disabled), [role='tab']")) return;
+      if (!target?.closest(".lift, .nav-link, button:not(:disabled), [role='tab']")) return;
       const ring = document.createElement("span");
       ring.className = "click-ripple";
       ring.style.left = `${event.clientX}px`;

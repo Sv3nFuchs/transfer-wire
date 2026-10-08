@@ -61,9 +61,16 @@ export function Logo({ className = "", boxed = false }: { className?: string; bo
   return (
     <Link to="/" aria-label="TransferWire — home" className={`logo group flex items-center gap-2.5 ${className}`}>
       <LogoMark boxed={boxed} />
-      <span className="flex items-baseline gap-2">
-        <span className="font-display text-2xl leading-none tracking-wide">Transfer</span>
-        <span className="rounded bg-accent px-1.5 py-0.5 font-display text-xs text-accent-foreground">WIRE</span>
+      <span className="flex flex-col gap-[3px]">
+        <span className="font-display text-2xl uppercase leading-none tracking-wide">
+          Transfer<span className={boxed ? "text-primary" : "text-accent"}>Wire</span>
+        </span>
+        <span className={`logo-cable ${boxed ? "text-primary" : "text-accent"}`} aria-hidden="true">
+          <i />
+          <b />
+          <i />
+          <em className="logo-spark" />
+        </span>
       </span>
     </Link>
   );
