@@ -388,11 +388,71 @@
   animation-play-state: paused;
 }
 
-/* Logo: the transfer arrows swing around the ball on hover. */
-.logo-arrows {
-  transform-origin: 32px 32px;
-  transition: transform 0.7s cubic-bezier(0.3, 1.4, 0.5, 1);
+/* Logo: crest shield. */
+@keyframes logo-drift {
+  to {
+    transform: translateX(18px);
+  }
 }
-.logo:hover .logo-arrows {
-  transform: rotate(180deg);
+@keyframes logo-sweep {
+  from {
+    transform: translateX(-30px) skewX(-18deg);
+    opacity: 0.55;
+  }
+  to {
+    transform: translateX(90px) skewX(-18deg);
+    opacity: 0.55;
+  }
+}
+@keyframes logo-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes logo-slide {
+  from {
+    transform: translateX(-14px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+@keyframes logo-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+.logo-mark {
+  transition: transform 0.45s cubic-bezier(0.3, 1.5, 0.5, 1);
+}
+.logo:hover .logo-mark {
+  transform: translateY(-2px) rotate(-4deg) scale(1.06);
+}
+.logo-stripes {
+  animation: logo-drift 3s linear infinite;
+}
+.logo-shine {
+  opacity: 0;
+  transform: translateX(-70px) skewX(-18deg);
+}
+.logo:hover .logo-shine {
+  animation: logo-sweep 0.7s ease-out;
+}
+html[data-intro="play"] .logo-outline {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: logo-draw 0.9s ease-out forwards;
+}
+html[data-intro="play"] .logo-bar {
+  animation: logo-slide 0.45s 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+html[data-intro="play"] .logo-stem {
+  transform-box: fill-box;
+  transform-origin: top;
+  animation: logo-grow 0.4s 1.15s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }

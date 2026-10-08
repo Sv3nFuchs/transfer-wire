@@ -1,36 +1,63 @@
 import { Link } from "@tanstack/react-router";
+import { useEffect, useId } from "react";
 
-/** A football circled by two "transfer" arrows. Colours follow the theme tokens. */
+const SHIELD = "M32 5 55 12.5V32C55 45.5 45 55 32 59 19 55 9 45.5 9 32V12.5Z";
+
+/**
+ * Crest shield with pitch stripes and a T. The outline draws in once per
+ * session (html[data-intro="play"], set before paint by the root head script),
+ * the stripes drift constantly, and the whole mark shines and tilts on hover.
+ */
 export function LogoMark({ className = "size-9", boxed = false }: { className?: string; boxed?: boolean }) {
+  const clipId = useId();
   return (
     <svg viewBox="0 0 64 64" aria-hidden="true" className={`logo-mark ${className}`} fill="none">
-      {boxed ? <rect width="64" height="64" rx="14" fill="var(--pitch)" /> : null}
-      <g className="logo-arrows" stroke="var(--chalk)" strokeWidth="3.2" strokeLinecap="round">
-        <path d="M10.75 26.3A22 22 0 0 1 37.7 10.75" />
-        <path d="M53.25 37.7A22 22 0 0 1 26.3 53.25" />
-        <path d="M42.5 12 38.6 7.4 36.8 14.1Z" fill="var(--chalk)" strokeWidth="1.2" strokeLinejoin="round" />
-        <path d="M21.5 52 25.4 56.6 27.2 49.9Z" fill="var(--chalk)" strokeWidth="1.2" strokeLinejoin="round" />
-      </g>
-      <circle cx="32" cy="32" r="13" fill="var(--accent)" />
+      <defs>
+        <clipPath id={clipId}>
+          <path d={SHIELD} />
+        </clipPath>
+      </defs>
       <path
-        d="M32 26.2 37.5 30.2 35.4 36.7H28.6L26.5 30.2Z"
-        fill="var(--pitch)"
-        stroke="var(--pitch)"
-        strokeWidth="0.8"
+        d={SHIELD}
+        style={{ fill: boxed ? "var(--pitch)" : "color-mix(in oklch, var(--pitch) 88%, white)" }}
+      />
+      <g clipPath={`url(#${clipId})`}>
+        <g className="logo-stripes" fill="var(--chalk)" opacity="0.12">
+          {[-27, -9, 9, 27, 45].map((x) => (
+            <rect key={x} x={x} y="0" width="9" height="64" />
+          ))}
+        </g>
+        <rect className="logo-shine" x="0" y="0" width="12" height="70" fill="var(--chalk)" />
+      </g>
+      <path
+        className="logo-outline"
+        pathLength={1}
+        d={SHIELD}
+        stroke="var(--accent)"
+        strokeWidth="2.8"
         strokeLinejoin="round"
       />
-      <path
-        d="M32 26.2V19.4M37.5 30.2 43.9 28M35.4 36.7 39.4 42.3M28.6 36.7 24.6 42.3M26.5 30.2 20.1 28"
-        stroke="var(--pitch)"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <rect className="logo-bar" x="20" y="20" width="24" height="7" rx="1.5" fill="var(--accent)" />
+      <rect className="logo-stem" x="28.5" y="27" width="7" height="20" rx="1.5" fill="var(--accent)" />
     </svg>
   );
 }
 
 /** Mark + wordmark, linking home. */
 export function Logo({ className = "", boxed = false }: { className?: string; boxed?: boolean }) {
+  useEffect(() => {
+    // Let the intro finish, then stop it replaying on later page changes.
+    const timer = window.setTimeout(() => {
+      document.documentElement.dataset["intro"] = "done";
+      try {
+        sessionStorage.setItem("intro", "1");
+      } catch {
+        /* storage unavailable: the intro may replay next visit */
+      }
+    }, 2400);
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <Link to="/" aria-label="TransferWire — home" className={`logo group flex items-center gap-2.5 ${className}`}>
       <LogoMark boxed={boxed} />
