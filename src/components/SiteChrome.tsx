@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { GlobalSearch } from "@/components/GlobalSearch";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
 
@@ -50,6 +51,7 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <GlobalSearch />
+          <ThemeToggle />
           {session ? (
             <Button asChild variant="accent" size="sm">
               <Link to="/dashboard">{t("nav.myPage")}</Link>

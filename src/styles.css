@@ -332,3 +332,58 @@
     box-shadow 0.2s ease,
     opacity 0.2s ease;
 }
+
+/* Hero pitch drawing. */
+@keyframes draw-line {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes march {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes pass-move {
+  0% {
+    transform: translate(60px, 140px);
+  }
+  30% {
+    transform: translate(120px, 70px);
+  }
+  60% {
+    transform: translate(190px, 125px);
+  }
+  90%,
+  100% {
+    transform: translate(250px, 92px);
+  }
+}
+.pitch-line {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-line 2.2s ease-out 0.3s forwards;
+}
+.pass-line {
+  stroke-dasharray: 6 6;
+  opacity: 0.8;
+  animation: march 1.2s linear infinite;
+}
+.pitch-ball {
+  animation: pass-move 4.5s ease-in-out infinite alternate;
+}
+
+/* Crest strip. */
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 60s linear infinite;
+}
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}

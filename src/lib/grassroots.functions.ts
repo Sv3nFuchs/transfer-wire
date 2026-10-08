@@ -271,22 +271,142 @@ export const getClub = createServerFn({ method: "GET" })
     };
   });
 
+export type FormResult = "W" | "D" | "L";
+
 export const getOverview = createServerFn({ method: "GET" }).handler(async () => {
   const supabase = createPublicClient();
-  const [players, clubs, teams, latest] = await Promise.all([
+  const [players, clubs, teams, latest, matchRows, crestRows, standingRows, statRows] = await Promise.all([
     supabase.from("players").select("id", { count: "exact", head: true }),
     supabase.from("clubs").select("id", { count: "exact", head: true }),
     supabase.from("teams").select("id", { count: "exact", head: true }),
     supabase
       .from("players")
-      .select("id, full_name, position, birth_year, clubs(name)")
+      .select("id, full_name, position, birth_year, shirt_number, photo_url, clubs(name, logo_url)")
       .order("created_at", { ascending: false })
       .limit(6),
+    supabase
+      .from("matches")
+      .select(
+        "id, match_date, team_score, opponent_score, opponent_name, opponent_logo_url, team_id, teams(id, name, clubs(name, logo_url)), opponent_club:clubs!matches_opponent_club_id_fkey(name, logo_url)",
+      )
+      .order("match_date", { ascending: false })
+      .limit(150),
+    supabase.from("clubs").select("id, name, logo_url").not("logo_url", "is", null).limit(60),
+    supabase
+      .from("league_standings")
+      .select("league, position, team_name, team_logo_url, played, goals_for, goals_against, points")
+      .order("position", { ascending: true }),
+    supabase
+      .from("player_season_stats")
+      .select("player_id, goals, rated_matches, average_rating, players(full_name, photo_url), teams(name, clubs(name))"),
   ]);
+
+  const logoMap = await resolveLogoUrls([
+    ...(latest.data ?? []).map((row) => row.clubs?.logo_url),
+    ...(matchRows.data ?? []).flatMap((row) => [row.teams?.clubs?.logo_url, row.opponent_club?.logo_url]),
+    ...(crestRows.data ?? []).map((row) => row.logo_url),
+  ]);
+
+  const today = new Date().toISOString().slice(0, 10);
+  const matches = (matchRows.data ?? []).map((row) => ({
+    id: row.id,
+    date: row.match_date,
+    teamId: row.team_id,
+    teamName: row.teams?.clubs?.name ?? row.teams?.name ?? "—",
+    teamLogo: applyLogo(row.teams?.clubs?.logo_url, logoMap),
+    opponentName: row.opponent_club?.name ?? row.opponent_name,
+    opponentLogo: applyLogo(row.opponent_club?.logo_url, logoMap) ?? row.opponent_logo_url ?? null,
+    teamScore: row.team_score,
+    opponentScore: row.opponent_score,
+  }));
+  const played = matches.filter((m) => m.teamScore != null && m.opponentScore != null);
+  const results = played.slice(0, 4);
+  const fixtures = matches
+    .filter((m) => m.teamScore == null && m.opponentScore == null && m.date >= today)
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .slice(0, 4);
+
+  // Last five results per registered team (matches are already newest-first).
+  const formByTeam = new Map<string, { name: string; logo: string | null; form: FormResult[] }>();
+  for (const m of played) {
+    const entry = formByTeam.get(m.teamId) ?? { name: m.teamName, logo: m.teamLogo, form: [] };
+    if (entry.form.length < 5) {
+      entry.form.push(m.teamScore! > m.opponentScore! ? "W" : m.teamScore === m.opponentScore ? "D" : "L");
+    }
+    formByTeam.set(m.teamId, entry);
+  }
+  const form = [...formByTeam.entries()].slice(0, 4).map(([teamId, entry]) => ({ teamId, ...entry }));
+
+  const tables = new Map<string, NonNullable<typeof standingRows.data>>();
+  for (const row of standingRows.data ?? []) {
+    tables.set(row.league, [...(tables.get(row.league) ?? []), row]);
+  }
+  const standings = [...tables.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .slice(0, 2)
+    .map(([league, rows]) => ({
+      league,
+      rows: rows.slice(0, 5).map((row) => ({
+        position: row.position,
+        name: row.team_name,
+        logo: row.team_logo_url,
+        played: row.played,
+        goalDiff: row.goals_for - row.goals_against,
+        points: row.points,
+      })),
+    }));
+
+  const perPlayer = new Map<
+    string,
+    { id: string; name: string; photo: string | null; team: string; goals: number; ratingTotal: number; rated: number }
+  >();
+  for (const row of statRows.data ?? []) {
+    const entry = perPlayer.get(row.player_id) ?? {
+      id: row.player_id,
+      name: row.players?.full_name ?? "Unknown player",
+      photo: row.players?.photo_url ?? null,
+      team: row.teams?.clubs?.name ?? row.teams?.name ?? "",
+      goals: 0,
+      ratingTotal: 0,
+      rated: 0,
+    };
+    entry.goals += row.goals;
+    if (row.average_rating != null && row.rated_matches > 0) {
+      entry.ratingTotal += row.average_rating * row.rated_matches;
+      entry.rated += row.rated_matches;
+    }
+    perPlayer.set(row.player_id, entry);
+  }
+  const everyone = [...perPlayer.values()];
+  const topScorers = everyone
+    .filter((p) => p.goals > 0)
+    .sort((a, b) => b.goals - a.goals)
+    .slice(0, 5)
+    .map((p) => ({ id: p.id, name: p.name, photo: p.photo, team: p.team, value: p.goals }));
+  const bestRated = everyone
+    .filter((p) => p.rated > 0)
+    .map((p) => ({ id: p.id, name: p.name, photo: p.photo, team: p.team, value: p.ratingTotal / p.rated }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 5);
+
+  const crests = (crestRows.data ?? [])
+    .map((club) => ({ id: club.id, name: club.name, logo: applyLogo(club.logo_url, logoMap) }))
+    .filter((club): club is { id: string; name: string; logo: string } => !!club.logo);
+
   return {
     playerCount: players.count ?? 0,
     clubCount: clubs.count ?? 0,
     teamCount: teams.count ?? 0,
-    latestPlayers: latest.data ?? [],
+    latestPlayers: (latest.data ?? []).map((p) => ({
+      ...p,
+      clubs: p.clubs ? { name: p.clubs.name, logo_url: applyLogo(p.clubs.logo_url, logoMap) } : null,
+    })),
+    fixtures,
+    results,
+    form,
+    standings,
+    topScorers,
+    bestRated,
+    crests,
   };
 });
