@@ -14,6 +14,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/lib/i18n";
 import { ClickRipple } from "@/components/ClickRipple";
+import { CardSpotlight } from "@/components/CardSpotlight";
 
 function NotFoundComponent() {
   return (
@@ -142,6 +143,7 @@ function RootComponent() {
         <Outlet />
         <Toaster />
         <ClickRipple />
+        <CardSpotlight />
       </LanguageProvider>
     </QueryClientProvider>
   );

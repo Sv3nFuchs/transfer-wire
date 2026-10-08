@@ -307,3 +307,28 @@
 .hover-row:hover td:first-child a {
   transform: translateX(5px);
 }
+
+/* Cursor spotlight on hovered cards (position fed by CardSpotlight). */
+@media (hover: hover) {
+  .lift:hover {
+    background-image: radial-gradient(
+      220px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in oklch, var(--accent) 24%, transparent),
+      transparent 70%
+    );
+  }
+
+  /* Players table: the hovered row stays sharp, the rest fade back. */
+  .row-focus:hover .hover-row {
+    opacity: 0.4;
+  }
+  .row-focus:hover .hover-row:hover {
+    opacity: 1;
+  }
+}
+.hover-row {
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
