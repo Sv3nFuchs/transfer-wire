@@ -13,7 +13,7 @@ const dict = {
   "nav.searchClear": "Clear search",
 
   "footer.text":
-    "TransferWire — player and team database for football around the world. Built by and for coaches, scouts and parents.",
+    "TransferWire — player and team database for football around the world. Built by a player, for players, coaches, scouts and parents.",
 
   "home.kicker": "Semi-Pro · Amateur · Youth Football · Sunday League",
   "home.title": "Every player deserves a profile",
