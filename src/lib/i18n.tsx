@@ -38,6 +38,8 @@ const dict = {
   "home.bestRated": "Best rated",
   "home.goals": "goals",
   "nav.theme": "Toggle dark mode",
+  "footer.install": "Install the app",
+  "footer.installIos": "Install the app: tap Share, then Add to Home Screen.",
   "home.empty": "The database is empty. Log in and be the first to register a club and its players.",
 
   "players.title": "Players",

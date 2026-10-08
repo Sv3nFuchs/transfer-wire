@@ -7,6 +7,7 @@ import { CountryFlag } from "@/components/CountryFlag";
 import { PlayerFlags } from "@/components/PlayerFlags";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { calculateAge } from "@/lib/age";
+import { isIndexablePlayer } from "@/lib/seo";
 import { Play, Printer } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -14,14 +15,14 @@ export const Route = createFileRoute("/_public/players/$playerId/passport")({
   loader: async ({ context, params }) => {
     const player = await context.queryClient.ensureQueryData(playerQuery(params.playerId));
     if (!player) throw notFound();
-    return { name: player.full_name };
+    return { name: player.full_name, indexable: isIndexablePlayer(player.birth_year) };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
       return { meta: [{ title: "Player not found — TransferWire" }, { name: "robots", content: "noindex" }] };
     }
     const title = `${loaderData.name} — Player Passport | TransferWire`;
-    return { meta: [{ title }] };
+    return { meta: [{ title }, ...(loaderData.indexable ? [] : [{ name: "robots", content: "noindex" }])] };
   },
   component: PassportPage,
   notFoundComponent: () => (

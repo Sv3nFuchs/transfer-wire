@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { clubQuery } from "@/lib/queries";
@@ -10,7 +11,14 @@ export const Route = createFileRoute("/clubs/$clubId")({
   loader: async ({ context, params }) => {
     const result = await context.queryClient.ensureQueryData(clubQuery(params.clubId));
     if (!result) throw notFound();
-    return { name: result.club.name, city: result.club.city, level: result.club.level };
+    return {
+      name: result.club.name,
+      city: result.club.city,
+      level: result.club.level,
+      country: result.club.country,
+      logo: result.club.logo_url,
+      founded: result.club.founded_year,
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -24,6 +32,28 @@ export const Route = createFileRoute("/clubs/$clubId")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        ...(loaderData.logo ? [{ property: "og:image", content: loaderData.logo }] : []),
+      ],
+      scripts: [
+        jsonLd({
+          "@type": "SportsTeam",
+          name: loaderData.name,
+          sport: "Soccer",
+          ...(loaderData.logo ? { logo: loaderData.logo } : {}),
+          ...(loaderData.founded ? { foundingDate: String(loaderData.founded) } : {}),
+          ...(loaderData.city || loaderData.country
+            ? {
+                location: {
+                  "@type": "Place",
+                  address: {
+                    "@type": "PostalAddress",
+                    ...(loaderData.city ? { addressLocality: loaderData.city } : {}),
+                    ...(loaderData.country ? { addressCountry: loaderData.country } : {}),
+                  },
+                },
+              }
+            : {}),
+        }),
       ],
     };
   },

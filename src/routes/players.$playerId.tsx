@@ -1,3 +1,4 @@
+import { isIndexablePlayer, jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { playerQuery } from "@/lib/queries";
@@ -29,7 +30,14 @@ export const Route = createFileRoute("/players/$playerId")({
   loader: async ({ context, params }) => {
     const player = await context.queryClient.ensureQueryData(playerQuery(params.playerId));
     if (!player) throw notFound();
-    return { name: player.full_name, position: player.position, club: player.clubs?.name };
+    return {
+      id: player.id,
+      name: player.full_name,
+      position: player.position,
+      club: player.clubs?.name,
+      photo: player.photo_url,
+      indexable: isIndexablePlayer(player.birth_year),
+    };
   },
   head: ({ loaderData }) => {
     if (!loaderData) {
@@ -43,7 +51,21 @@ export const Route = createFileRoute("/players/$playerId")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        ...(loaderData.photo ? [{ property: "og:image", content: loaderData.photo }] : []),
+        // Players under 18, or with no birth year, stay out of search results.
+        ...(loaderData.indexable ? [] : [{ name: "robots", content: "noindex" }]),
       ],
+      scripts: loaderData.indexable
+        ? [
+            jsonLd({
+              "@type": "Person",
+              name: loaderData.name,
+              jobTitle: "Football player",
+              ...(loaderData.photo ? { image: loaderData.photo } : {}),
+              ...(loaderData.club ? { affiliation: { "@type": "SportsTeam", name: loaderData.club, sport: "Soccer" } } : {}),
+            }),
+          ]
+        : [],
     };
   },
   component: PlayerPage,

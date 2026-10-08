@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { GlobalSearch } from "@/components/GlobalSearch";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/Logo";
+import { InstallApp } from "@/components/InstallApp";
 import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
 
@@ -70,6 +71,7 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 text-sm text-muted-foreground">
         <Logo boxed className="w-fit text-foreground" />
         <p>{t("footer.text")}</p>
+        <InstallApp />
       </div>
     </footer>
   );

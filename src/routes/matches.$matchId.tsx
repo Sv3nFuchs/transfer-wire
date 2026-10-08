@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { matchQuery } from "@/lib/queries";
@@ -13,6 +14,8 @@ export const Route = createFileRoute("/matches/$matchId")({
     return {
       clubName: match.teams?.clubs?.name ?? match.teams?.name ?? null,
       opponentName: match.opponent_club?.name ?? match.opponent_name,
+      date: match.match_date,
+      league: match.teams?.league ?? null,
     };
   },
   head: ({ loaderData }) => {
@@ -20,7 +23,23 @@ export const Route = createFileRoute("/matches/$matchId")({
       return { meta: [{ title: "Match not found — TransferWire" }, { name: "robots", content: "noindex" }] };
     }
     const title = `${loaderData.clubName ?? "Match"} vs ${loaderData.opponentName} | TransferWire`;
-    return { meta: [{ title }, { property: "og:title", content: title }] };
+    const description = `${loaderData.clubName ?? "Match"} against ${loaderData.opponentName}${loaderData.league ? ` in ${loaderData.league}` : ""}: result, line-ups and player ratings.`;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+      ],
+      scripts: [
+        jsonLd({
+          "@type": "SportsEvent",
+          name: `${loaderData.clubName ?? "Match"} vs ${loaderData.opponentName}`,
+          startDate: loaderData.date,
+          sport: "Soccer",
+        }),
+      ],
+    };
   },
   component: MatchPage,
   errorComponent: ({ error }) => (
