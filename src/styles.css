@@ -267,15 +267,6 @@
   animation: click-ripple 0.55s ease-out forwards;
 }
 
-.click-ripple.hover {
-  width: 44px;
-  height: 44px;
-  border-width: 1px;
-  background: transparent;
-  animation-duration: 0.45s;
-  opacity: 0.6;
-}
-
 /* Hover polish for player/club cards: accent bar slides in, crest pops. */
 .lift {
   position: relative;

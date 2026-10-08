@@ -79,7 +79,7 @@ function PlayersPage() {
                 </tr>
               )}
               {players.map((player) => (
-                <tr key={player.id} data-hover-ripple className="hover-row border-t border-border hover:bg-muted/60">
+                <tr key={player.id} className="hover-row border-t border-border hover:bg-muted/60">
                   <td className="px-4 py-3">
                     <Link
                       to="/players/$playerId"
