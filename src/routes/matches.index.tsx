@@ -180,7 +180,7 @@ function MatchCard({ match }: { match: MatchListItem }) {
       <Link
         to="/matches/$matchId"
         params={{ matchId: match.id }}
-        className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card transition-shadow hover:shadow-lift"
+        className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-card lift reveal"
       >
         <span className="w-24 shrink-0 text-xs text-muted-foreground">
           {formatDateInLang(match.match_date, "—")}

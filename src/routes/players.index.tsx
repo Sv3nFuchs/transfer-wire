@@ -87,7 +87,9 @@ function PlayersPage() {
                       className="font-display text-lg hover:text-primary"
                     >
                       {player.shirt_number ? `${player.shirt_number}. ` : ""}
-                      {player.full_name}
+                      <span className="inline-block" style={{ viewTransitionName: `player-${player.id}` }}>
+                        {player.full_name}
+                      </span>
                     </Link>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{player.position ?? "—"}</td>

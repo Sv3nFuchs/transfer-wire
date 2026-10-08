@@ -133,3 +133,136 @@
   font-size: 0.8125rem;
   color: var(--color-muted-foreground);
 }
+
+/*
+ * Motion. Everything here is CSS-only (SSR-safe: content is never hidden
+ * waiting on JS) and switched off under prefers-reduced-motion.
+ */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes stripes-drift {
+  to {
+    background-position: 88px 0;
+  }
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* Staggered load-in: set --i (0,1,2…) on each element. */
+@utility enter {
+  animation: fade-up 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+/* Cards that rise and gain a deeper shadow on hover. */
+@utility lift {
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    box-shadow 0.25s ease;
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lift);
+  }
+  &:active {
+    transform: translateY(-1px);
+  }
+}
+
+/* The mown-grass stripes slowly sweep across a hero. */
+@utility stripes-drift {
+  animation: stripes-drift 16s linear infinite;
+}
+
+/* Fade/slide in as the element scrolls into view (browsers without
+   scroll-driven animations just show it normally). */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 45%;
+  }
+}
+
+/* Keep the header steady while the page cross-fades between routes. */
+.vt-header {
+  view-transition-name: site-header;
+}
+::view-transition-old(root) {
+  animation: 160ms ease-out both page-out;
+}
+::view-transition-new(root) {
+  animation: 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both page-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    animation: none !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+@keyframes click-ripple {
+  from {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0.7;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+.click-ripple {
+  position: fixed;
+  z-index: 60;
+  width: 64px;
+  height: 64px;
+  border-radius: 9999px;
+  border: 2px solid var(--accent);
+  background: color-mix(in oklch, var(--accent) 25%, transparent);
+  pointer-events: none;
+  animation: click-ripple 0.55s ease-out forwards;
+}

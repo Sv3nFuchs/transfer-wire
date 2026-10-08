@@ -64,15 +64,17 @@ function ClubsPage() {
         ) : (
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {clubs.map((club) => (
-              <li key={club.id}>
+              <li key={club.id} className="reveal">
                 <Link
                   to="/clubs/$clubId"
                   params={{ clubId: club.id }}
-                  className="flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-lift"
+                  className="flex h-full flex-col rounded-lg border border-border bg-card p-5 shadow-card lift"
                 >
                   <span className="flex items-center gap-3">
                     <ClubLogo name={club.name} url={club.logo_url} className="size-12" />
-                    <span className="font-display text-2xl leading-tight">{club.name}</span>
+                    <span className="font-display text-2xl leading-tight" style={{ viewTransitionName: `club-${club.id}` }}>
+                      {club.name}
+                    </span>
                   </span>
                   <span className="mt-2 text-sm text-muted-foreground">
                     {[club.city, club.country].filter(Boolean).join(", ")}

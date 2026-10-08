@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { overviewQuery } from "@/lib/queries";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Button } from "@/components/ui/button";
+import { CountUp } from "@/components/CountUp";
 import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -39,12 +40,12 @@ function Index() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
+      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto max-w-6xl px-4 py-20">
-          <p className="label-caps text-accent">{t("home.kicker")}</p>
-          <h1 className="mt-3 max-w-3xl text-5xl leading-[0.95] sm:text-7xl">{t("home.title")}</h1>
-          <p className="mt-5 max-w-xl text-base opacity-85">{t("home.lead")}</p>
-          <div className="mt-8 flex flex-wrap gap-3">
+          <p className="enter label-caps text-accent">{t("home.kicker")}</p>
+          <h1 style={{ "--i": 1 } as React.CSSProperties} className="enter mt-3 max-w-3xl text-5xl leading-[0.95] sm:text-7xl">{t("home.title")}</h1>
+          <p style={{ "--i": 2 } as React.CSSProperties} className="enter mt-5 max-w-xl text-base opacity-85">{t("home.lead")}</p>
+          <div style={{ "--i": 3 } as React.CSSProperties} className="enter mt-8 flex flex-wrap gap-3">
             <Button asChild variant="accent" size="lg">
               <Link to="/players">{t("home.ctaPlayers")}</Link>
             </Button>
@@ -57,14 +58,16 @@ function Index() {
               <Link to="/clubs">{t("home.ctaClubs")}</Link>
             </Button>
           </div>
-          <dl className="mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-pitch-foreground/20 pt-6">
+          <dl style={{ "--i": 4 } as React.CSSProperties} className="enter mt-14 grid max-w-2xl grid-cols-3 gap-6 border-t border-pitch-foreground/20 pt-6">
             {[
               [t("home.statPlayers"), data.playerCount],
               [t("home.statClubs"), data.clubCount],
               [t("home.statTeams"), data.teamCount],
             ].map(([label, value]) => (
               <div key={label as string}>
-                <dd className="font-display text-4xl text-accent">{value as number}</dd>
+                <dd className="font-display text-4xl tabular-nums text-accent">
+                  <CountUp value={value as number} />
+                </dd>
                 <dt className="label-caps text-pitch-foreground/70">{label as string}</dt>
               </div>
             ))}
@@ -79,13 +82,17 @@ function Index() {
         ) : (
           <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {data.latestPlayers.map((player) => (
-              <li key={player.id}>
+              <li key={player.id} className="reveal">
                 <Link
                   to="/players/$playerId"
                   params={{ playerId: player.id }}
-                  className="block rounded-lg border border-border bg-card p-4 shadow-card transition-shadow hover:shadow-lift"
+                  className="block rounded-lg border border-border bg-card p-4 shadow-card lift"
                 >
-                  <p className="font-display text-2xl leading-tight">{player.full_name}</p>
+                  <p className="font-display text-2xl leading-tight">
+                    <span className="inline-block" style={{ viewTransitionName: `player-${player.id}` }}>
+                      {player.full_name}
+                    </span>
+                  </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {[player.position, player.birth_year, player.clubs?.name]
                       .filter(Boolean)

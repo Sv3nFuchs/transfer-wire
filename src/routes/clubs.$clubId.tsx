@@ -63,13 +63,17 @@ function ClubPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
+      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="flex items-center gap-5">
             <ClubLogo name={club.name} url={club.logo_url} className="size-20 sm:size-24" />
             <div>
               <p className="label-caps text-accent">{t("club.kicker")}</p>
-              <h1 className="mt-2 text-5xl sm:text-6xl">{club.name}</h1>
+              <h1 className="mt-2 text-5xl sm:text-6xl">
+                <span className="inline-block" style={{ viewTransitionName: `club-${club.id}` }}>
+                  {club.name}
+                </span>
+              </h1>
             </div>
           </div>
           <p className="mt-3 opacity-85">

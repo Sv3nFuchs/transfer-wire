@@ -323,7 +323,7 @@ function RecentTransferSection({ transfers, playerId }: { transfers: TransferRow
   // `transfers` arrives sorted most-recent-first.
   const mostRecent = clubTransfers.at(0);
   return (
-    <section className="mt-10 border-t-2 border-border pt-8">
+    <section className="reveal mt-10 border-t-2 border-border pt-8">
       <h2 className="text-2xl">{t("player.recentTransfer")}</h2>
       {mostRecent ? (
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card p-5 shadow-card">
@@ -559,7 +559,7 @@ function StatsOverview({ stats, playerId }: { stats: SeasonStatRow[]; playerId: 
   const avgRating = ratedCount > 0 ? weightedTotal / ratedCount : null;
 
   return (
-    <section className="mt-10 border-t-2 border-border pt-8">
+    <section className="reveal mt-10 border-t-2 border-border pt-8">
       <h2 className="text-2xl">{t("player.statsOverview")}</h2>
       <div className="mt-4 grid grid-cols-3 divide-x divide-border rounded-lg border border-border bg-card shadow-card">
         <div className="p-4 text-center">
@@ -780,7 +780,7 @@ function PlayerPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
+      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-14">
           <div className="flex items-start gap-6">
             <PlayerPhoto
@@ -794,7 +794,9 @@ function PlayerPage() {
               {player.shirt_number ? (
                 <span className="mr-3 text-accent">{player.shirt_number}</span>
               ) : null}
-              {player.full_name}
+              <span className="inline-block" style={{ viewTransitionName: `player-${player.id}` }}>
+                {player.full_name}
+              </span>
               <PlayerFlags flags={[player.flag_1, player.flag_2]} className="ml-3 align-middle" />
             </h1>
             <p className="mt-3 opacity-85">
@@ -878,7 +880,7 @@ function PlayerPage() {
               <StatsOverview stats={player.season_stats} playerId={playerId} />
               <RecentTransferSection transfers={player.transfers} playerId={playerId} />
               <SchoolsPlayedFor schools={player.schools} playerId={playerId} />
-              <section className="mt-10 border-t-2 border-border pt-8">
+              <section className="reveal mt-10 border-t-2 border-border pt-8">
                 <div className="flex flex-wrap items-start gap-8">
                   <div>
                     <h2 className="text-2xl">{t("player.onThePitch")}</h2>
@@ -951,7 +953,7 @@ function PlayerPage() {
 
           <TabsContent value="stats" className="mt-6">
             <SeasonStats stats={player.season_stats} />
-            <section className="mt-10 border-t-2 border-border pt-8">
+            <section className="reveal mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.matchLog")}</h2>
               <div className="mt-4">
                 <MatchLog seasons={player.match_log} />
@@ -976,7 +978,7 @@ function PlayerPage() {
               transfers={player.transfers.filter((transfer) => transfer.org_type === "national")}
             />
             <TrialsSection trials={player.transfers.filter((transfer) => transfer.org_type === "trial")} />
-            <section className="mt-10 border-t-2 border-border pt-8">
+            <section className="reveal mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.pastTeams")}</h2>
               <PastTeams memberships={player.team_memberships} />
             </section>
@@ -987,7 +989,7 @@ function PlayerPage() {
               <h2 className="text-2xl">{t("player.careerDebuts")}</h2>
               <CareerDebuts debuts={player.debuts} birthDate={player.birth_date} />
             </section>
-            <section className="mt-10 border-t-2 border-border pt-8">
+            <section className="reveal mt-10 border-t-2 border-border pt-8">
               <h2 className="text-2xl">{t("player.careerGoals")}</h2>
               <CareerGoals goals={player.goals} />
             </section>

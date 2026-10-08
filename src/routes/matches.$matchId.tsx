@@ -56,7 +56,7 @@ function MatchPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes">
+      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto max-w-4xl px-4 py-14">
           <p className="label-caps text-accent">
             {formatDateInLang(match.match_date, "—")}
