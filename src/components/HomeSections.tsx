@@ -14,7 +14,7 @@ export function PitchArt() {
     <svg
       viewBox="0 0 300 200"
       aria-hidden="true"
-      className="pitch-art pointer-events-none absolute right-4 top-1/2 hidden w-[340px] -translate-y-1/2 text-pitch-foreground xl:block"
+      className="pitch-art pointer-events-none absolute right-4 top-1/2 hidden w-[320px] -translate-y-1/2 text-pitch-foreground opacity-45 md:block xl:w-[340px] xl:opacity-100"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.5"
