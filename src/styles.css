@@ -266,3 +266,53 @@
   pointer-events: none;
   animation: click-ripple 0.55s ease-out forwards;
 }
+
+.click-ripple.hover {
+  width: 44px;
+  height: 44px;
+  border-width: 1px;
+  background: transparent;
+  animation-duration: 0.45s;
+  opacity: 0.6;
+}
+
+/* Hover polish for player/club cards: accent bar slides in, crest pops. */
+.lift {
+  position: relative;
+}
+.lift::before {
+  content: "";
+  position: absolute;
+  inset: 8px auto 8px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--accent);
+  transform: scaleY(0);
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lift:hover::before {
+  transform: scaleY(1);
+}
+.lift img {
+  transition: transform 0.3s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+.lift:hover img {
+  transform: scale(1.12) rotate(-4deg);
+}
+
+/* Player table rows: amber edge, name nudges right. */
+.hover-row {
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.hover-row:hover {
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+.hover-row td:first-child a {
+  display: inline-block;
+  transition: transform 0.2s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.hover-row:hover td:first-child a {
+  transform: translateX(5px);
+}
