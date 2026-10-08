@@ -33,6 +33,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [loading, setLoading] = useState(false);
+  const [adult, setAdult] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -44,6 +45,10 @@ function AuthPage() {
     event.preventDefault();
     setLoading(true);
     try {
+      if (mode === "signup" && !adult) {
+        toast.error("Confirm that you are 18 or older to create an account");
+        return;
+      }
       if (mode === "signin") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -54,7 +59,7 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: displayName || email.split("@")[0] },
+            data: { display_name: displayName || email.split("@")[0], adult_confirmed: true },
           },
         });
         if (error) throw error;
@@ -91,7 +96,19 @@ function AuthPage() {
           An account is only needed to add clubs, teams and players. All data is open to read.
         </p>
 
-        <Button onClick={handleGoogle} variant="pitch" className="mt-6 w-full">
+        {mode === "signup" && (
+          <label className="mt-6 flex items-start gap-2 text-sm">
+            <input type="checkbox" checked={adult} onChange={(event) => setAdult(event.target.checked)} className="mt-1" />
+            <span>I am 18 or older. TransferWire accounts are for adults only for now.</span>
+          </label>
+        )}
+
+        <Button
+          onClick={handleGoogle}
+          variant="pitch"
+          className="mt-4 w-full"
+          disabled={mode === "signup" && !adult}
+        >
           Continue with Google
         </Button>
 

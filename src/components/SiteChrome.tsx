@@ -6,6 +6,8 @@ import { GlobalSearch } from "@/components/GlobalSearch";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Logo } from "@/components/Logo";
 import { InstallApp } from "@/components/InstallApp";
+import { AlertsBell } from "@/components/AlertsBell";
+import { MessagesLink } from "@/components/MessagesLink";
 import { useLanguage } from "@/lib/i18n";
 import type { Session } from "@supabase/supabase-js";
 
@@ -45,6 +47,8 @@ export function SiteHeader() {
         </nav>
         <div className="ml-auto flex items-center gap-3">
           <GlobalSearch />
+          {session ? <MessagesLink /> : null}
+          {session ? <AlertsBell /> : null}
           <ThemeToggle />
           {session ? (
             <Button asChild variant="accent" size="sm">

@@ -1,3 +1,5 @@
+import { MessageButton } from "@/components/MessageButton";
+import { FollowButton } from "@/components/FollowButton";
 import { isIndexablePlayer, jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -827,6 +829,8 @@ function PlayerPage() {
                 .join(" · ")}
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-3">
+              <FollowButton type="player" id={playerId} />
+              <MessageButton ownerId={player.created_by} subjectType="player" subjectId={playerId} />
               <Link
                 to="/players/$playerId/passport"
                 params={{ playerId }}

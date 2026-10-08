@@ -1,3 +1,5 @@
+import { MessageButton } from "@/components/MessageButton";
+import { FollowButton } from "@/components/FollowButton";
 import { jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -114,15 +116,19 @@ function ClubPage() {
           {club.description ? (
             <p className="mt-4 max-w-2xl text-sm opacity-80">{club.description}</p>
           ) : null}
-          {isAdmin ? (
-            <Link
-              to="/clubs/$clubId/edit"
-              params={{ clubId }}
-              className="mt-5 inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
-            >
-              {t("club.edit")}
-            </Link>
-          ) : null}
+          <div className="mt-5 flex flex-wrap items-center gap-3">
+            <FollowButton type="club" id={clubId} />
+            <MessageButton ownerId={club.created_by} subjectType="club" subjectId={clubId} />
+            {isAdmin ? (
+              <Link
+                to="/clubs/$clubId/edit"
+                params={{ clubId }}
+                className="inline-block rounded border border-pitch-foreground/40 px-3 py-1 font-display tracking-wide hover:bg-pitch-foreground/10"
+              >
+                {t("club.edit")}
+              </Link>
+            ) : null}
+          </div>
         </div>
       </section>
 

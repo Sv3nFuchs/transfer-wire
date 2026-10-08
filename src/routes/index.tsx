@@ -81,8 +81,10 @@ function Index() {
 
       <CrestStrip crests={data.crests} />
       <FixturesAndResults overview={data} />
-      <MiniTables standings={data.standings} />
-      <Leaders topScorers={data.topScorers} bestRated={data.bestRated} />
+      <div className="mt-16 border-y border-border bg-secondary/60 pb-16">
+        <MiniTables standings={data.standings} />
+        <Leaders topScorers={data.topScorers} bestRated={data.bestRated} />
+      </div>
 
       <section className="mx-auto max-w-6xl px-4 py-16">
         <h2 className="text-3xl">{t("home.latest")}</h2>

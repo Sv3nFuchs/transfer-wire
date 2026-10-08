@@ -16,6 +16,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFollowingRouteImport } from './routes/_authenticated/following'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as ClubsIndexRouteImport } from './routes/clubs.index'
 import { Route as ClubsClubIdRouteImport } from './routes/clubs.$clubId'
 import { Route as MatchesIndexRouteImport } from './routes/matches.index'
@@ -58,6 +60,16 @@ const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFollowingRoute = AuthenticatedFollowingRouteImport.update({
+  id: '/following',
+  path: '/following',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const ClubsIndexRoute = ClubsIndexRouteImport.update({
@@ -121,6 +133,8 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/following': typeof AuthenticatedFollowingRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/clubs/$clubId': typeof ClubsClubIdRoute
   '/matches/$matchId': typeof MatchesMatchIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
@@ -138,6 +152,8 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/following': typeof AuthenticatedFollowingRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/clubs/$clubId': typeof ClubsClubIdRoute
   '/matches/$matchId': typeof MatchesMatchIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
@@ -158,6 +174,8 @@ export interface FileRoutesById {
   '/robots.txt': typeof RobotsDottxtRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/following': typeof AuthenticatedFollowingRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/clubs/$clubId': typeof ClubsClubIdRoute
   '/matches/$matchId': typeof MatchesMatchIdRoute
   '/players/$playerId': typeof PlayersPlayerIdRoute
@@ -177,6 +195,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/dashboard'
+    | '/following'
+    | '/messages'
     | '/clubs/$clubId'
     | '/matches/$matchId'
     | '/players/$playerId'
@@ -194,6 +214,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/dashboard'
+    | '/following'
+    | '/messages'
     | '/clubs/$clubId'
     | '/matches/$matchId'
     | '/players/$playerId'
@@ -213,6 +235,8 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/_authenticated/dashboard'
+    | '/_authenticated/following'
+    | '/_authenticated/messages'
     | '/clubs/$clubId'
     | '/matches/$matchId'
     | '/players/$playerId'
@@ -291,6 +315,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/following': {
+      id: '/_authenticated/following'
+      path: '/following'
+      fullPath: '/following'
+      preLoaderRoute: typeof AuthenticatedFollowingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/clubs/': {
       id: '/clubs/'
       path: '/clubs'
@@ -366,6 +404,8 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFollowingRoute: typeof AuthenticatedFollowingRoute
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedClubsClubIdEditRoute: typeof AuthenticatedClubsClubIdEditRoute
   AuthenticatedMatchesMatchIdEditRoute: typeof AuthenticatedMatchesMatchIdEditRoute
   AuthenticatedPlayersPlayerIdEditRoute: typeof AuthenticatedPlayersPlayerIdEditRoute
@@ -373,6 +413,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFollowingRoute: AuthenticatedFollowingRoute,
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedClubsClubIdEditRoute: AuthenticatedClubsClubIdEditRoute,
   AuthenticatedMatchesMatchIdEditRoute: AuthenticatedMatchesMatchIdEditRoute,
   AuthenticatedPlayersPlayerIdEditRoute: AuthenticatedPlayersPlayerIdEditRoute,

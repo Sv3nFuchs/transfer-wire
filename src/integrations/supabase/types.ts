@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      alert_reads: {
+        Row: {
+          event_key: string
+          read_at: string
+          user_id: string
+        }
+        Insert: {
+          event_key: string
+          read_at?: string
+          user_id: string
+        }
+        Update: {
+          event_key?: string
+          read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       clubs: {
         Row: {
           city: string | null
@@ -59,6 +77,171 @@ export type Database = {
           logo_url?: string | null
           name?: string
           org_type?: string
+        }
+        Relationships: []
+      }
+      conversation_members: {
+        Row: {
+          conversation_id: string
+          last_read_at: string
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          last_read_at?: string
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          last_read_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          subject_id: string | null
+          subject_type: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          subject_id?: string | null
+          subject_type?: string | null
+        }
+        Relationships: []
+      }
+      message_reports: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          message_body: string
+          message_id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          status: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          message_body: string
+          message_id: string
+          reason: string
+          reported_user_id: string
+          reporter_id: string
+          status?: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          message_body?: string
+          message_id?: string
+          reason?: string
+          reported_user_id?: string
+          reporter_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
+      messaging_profiles: {
+        Row: {
+          adult_confirmed_at: string
+          created_at: string
+          display_name: string
+          user_id: string
+        }
+        Insert: {
+          adult_confirmed_at?: string
+          created_at?: string
+          display_name: string
+          user_id: string
+        }
+        Update: {
+          adult_confirmed_at?: string
+          created_at?: string
+          display_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_blocks: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+        }
+        Relationships: []
+      }
+      follows: {
+        Row: {
+          created_at: string
+          id: string
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          target_id: string
+          target_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          target_id?: string
+          target_type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -590,6 +773,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_message: {
+        Args: { _user: string }
+        Returns: boolean
+      }
+      report_message: {
+        Args: { _message: string; _reason: string }
+        Returns: undefined
+      }
+      start_conversation: {
+        Args: { _body: string; _recipient: string; _subject_id: string; _subject_type: string }
+        Returns: string
+      }
+      unread_message_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
