@@ -59,7 +59,7 @@ function AuthPage() {
           password,
           options: {
             emailRedirectTo: window.location.origin,
-            data: { display_name: displayName || email.split("@")[0], adult_confirmed: true },
+            data: { display_name: displayName.trim() || "New user", adult_confirmed: true },
           },
         });
         if (error) throw error;
@@ -99,7 +99,11 @@ function AuthPage() {
         {mode === "signup" && (
           <label className="mt-6 flex items-start gap-2 text-sm">
             <input type="checkbox" checked={adult} onChange={(event) => setAdult(event.target.checked)} className="mt-1" />
-            <span>I am 18 or older. TransferWire accounts are for adults only for now.</span>
+            <span>
+              I am 18 or older. TransferWire accounts are for adults only for now. I agree to the{" "}
+              <Link to="/terms" className="underline">Terms</Link> and{" "}
+              <Link to="/privacy" className="underline">Privacy policy</Link>.
+            </span>
           </label>
         )}
 

@@ -81,6 +81,8 @@ const dict = {
   "alerts.youFollow": "You follow",
   "alerts.nothingYet": "You aren't following anyone yet. Use the Follow button on a club or player page.",
   "alerts.unfollow": "Unfollow",
+  "footer.terms": "Terms of use",
+  "footer.privacy": "Privacy policy",
   "footer.install": "Install the app",
   "footer.installIos": "Install the app: tap Share, then Add to Home Screen.",
   "home.empty": "The database is empty. Log in and be the first to register a club and its players.",

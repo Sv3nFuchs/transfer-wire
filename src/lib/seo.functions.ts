@@ -28,6 +28,8 @@ export const getSitemapPaths = createServerFn({ method: "GET" }).handler(async (
     "/players",
     "/clubs",
     "/matches",
+    "/terms",
+    "/privacy",
     ...players.filter((p) => isIndexablePlayer(p.birth_year)).map((p) => `/players/${p.id}`),
     ...clubs.map((c) => `/clubs/${c.id}`),
     ...matches.map((m) => `/matches/${m.id}`),

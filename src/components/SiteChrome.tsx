@@ -75,6 +75,14 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-10 text-sm text-muted-foreground">
         <Logo boxed className="w-fit text-foreground" />
         <p>{t("footer.text")}</p>
+        <nav className="flex gap-4 text-xs">
+          <Link to="/terms" className="underline hover:text-foreground">
+            {t("footer.terms")}
+          </Link>
+          <Link to="/privacy" className="underline hover:text-foreground">
+            {t("footer.privacy")}
+          </Link>
+        </nav>
         <InstallApp />
       </div>
     </footer>
