@@ -1,3 +1,4 @@
+import { InjuryBadge } from "@/components/InjuryBadge";
 import { MessageButton } from "@/components/MessageButton";
 import { FollowButton } from "@/components/FollowButton";
 import { jsonLd } from "@/lib/seo";
@@ -187,6 +188,7 @@ type SquadPlayer = {
   birth_year: number | null;
   shirt_number: number | null;
   nationality: string | null;
+  injury_status?: string | null;
 };
 
 function Squad({ squad }: { squad: SquadPlayer[] }) {
@@ -207,6 +209,7 @@ function Squad({ squad }: { squad: SquadPlayer[] }) {
               {player.shirt_number ?? "–"}
             </span>
             <span className="font-display text-lg">{player.full_name}</span>
+            <InjuryBadge status={player.injury_status} />
             <span className="ml-auto text-sm text-muted-foreground">
               {[player.position, player.birth_year, player.nationality].filter(Boolean).join(" · ")}
             </span>

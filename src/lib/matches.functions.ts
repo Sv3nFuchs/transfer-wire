@@ -47,7 +47,7 @@ export const getMatch = createServerFn({ method: "GET" })
     if (!match) return null;
     const { data: ratings, error: ratingsError } = await supabase
       .from("match_player_ratings")
-      .select("id, rating, goals_scored, players(id, full_name, shirt_number, position)")
+      .select("id, rating, goals_scored, injured_off, minute_off, players(id, full_name, shirt_number, position)")
       .eq("match_id", data.id)
       .order("rating", { ascending: false, nullsFirst: false });
     if (ratingsError) throw new Error(ratingsError.message);

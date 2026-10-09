@@ -1,3 +1,4 @@
+import { InjuryNotice, OffInjuredTag } from "@/components/InjuryBadge";
 import { MessageButton } from "@/components/MessageButton";
 import { FollowButton } from "@/components/FollowButton";
 import { isIndexablePlayer, jsonLd } from "@/lib/seo";
@@ -455,6 +456,8 @@ type MatchLogRow = {
   id: string;
   rating: number | null;
   goals_scored: number;
+  injured_off?: boolean;
+  minute_off?: number | null;
   teams: { name: string; clubs: { name: string } | null } | null;
   matches: {
     id: string;
@@ -549,6 +552,7 @@ function MatchLog({ seasons }: { seasons: MatchLogSeason[] }) {
                       )}
                     </td>
                     <td className="px-3 py-2 text-right">
+                      {row.injured_off ? <OffInjuredTag minute={row.minute_off} className="mr-2" /> : null}
                       {row.rating != null ? (
                         <span className={`font-display ${row.rating >= 7 ? "text-green-600" : "text-accent"}`}>
                           {row.rating.toFixed(1)}
@@ -828,6 +832,7 @@ function PlayerPage() {
                 .filter(Boolean)
                 .join(" · ")}
             </p>
+            <InjuryNotice player={player} />
             <div className="mt-5 flex flex-wrap items-center gap-3">
               <FollowButton type="player" id={playerId} />
               <MessageButton ownerId={player.created_by} subjectType="player" subjectId={playerId} />

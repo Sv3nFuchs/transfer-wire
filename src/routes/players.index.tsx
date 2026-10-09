@@ -1,3 +1,4 @@
+import { InjuryBadge } from "@/components/InjuryBadge";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { playersQuery } from "@/lib/queries";
@@ -91,6 +92,7 @@ function PlayersPage() {
                         {player.full_name}
                       </span>
                     </Link>
+                    <InjuryBadge status={player.injury_status} className="ml-2 align-middle" />
                   </td>
                   <td className="px-4 py-3 text-muted-foreground">{player.position ?? "—"}</td>
                   <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">

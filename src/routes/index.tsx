@@ -1,3 +1,4 @@
+import { InjuryBadge } from "@/components/InjuryBadge";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { overviewQuery } from "@/lib/queries";
@@ -101,6 +102,7 @@ function Index() {
                 >
                   <div className="relative">
                     <PlayerPhoto name={player.full_name} url={player.photo_url} className="aspect-[4/5] w-full !rounded-none" />
+                    <InjuryBadge status={player.injury_status} className="absolute right-2 top-2" />
                     {player.shirt_number ? (
                       <span className="absolute left-2 top-2 rounded bg-pitch px-1.5 font-display text-lg leading-6 text-accent">
                         {player.shirt_number}

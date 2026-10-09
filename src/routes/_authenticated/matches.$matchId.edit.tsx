@@ -34,7 +34,8 @@ const emptyMatchForm: MatchForm = {
 };
 
 type RosterRow = { id: string; full_name: string; shirt_number: number | null; position: string | null };
-type RatingForm = { rating: string; goals: string };
+type RatingForm = { rating: string; goals: string; injured: boolean; minute: string; markProfile: boolean };
+const blankRating: RatingForm = { rating: "", goals: "", injured: false, minute: "", markProfile: true };
 
 function EditMatchPage() {
   const { matchId } = Route.useParams();
@@ -105,7 +106,7 @@ function EditMatchPage() {
     void (async () => {
       const { data, error } = await supabase
         .from("match_player_ratings")
-        .select("player_id, rating, goals_scored, players(id, full_name, shirt_number, position)")
+        .select("player_id, rating, goals_scored, injured_off, minute_off, players(id, full_name, shirt_number, position)")
         .eq("match_id", matchId);
       if (error) {
         toast.error("Could not load ratings: " + error.message);
@@ -133,6 +134,9 @@ function EditMatchPage() {
         next[player.id] = {
           rating: row?.rating != null ? String(row.rating) : "",
           goals: row?.goals_scored ? String(row.goals_scored) : "",
+          injured: row?.injured_off ?? false,
+          minute: row?.minute_off != null ? String(row.minute_off) : "",
+          markProfile: true,
         };
       }
       setRatings(next);
@@ -145,10 +149,10 @@ function EditMatchPage() {
     setForm((prev) => ({ ...prev, [key]: value }));
   }
 
-  function setRating(playerId: string, field: keyof RatingForm, value: string) {
+  function setRating<K extends keyof RatingForm>(playerId: string, field: K, value: RatingForm[K]) {
     setRatings((prev) => ({
       ...prev,
-      [playerId]: { ...(prev[playerId] ?? { rating: "", goals: "" }), [field]: value },
+      [playerId]: { ...(prev[playerId] ?? blankRating), [field]: value },
     }));
   }
 
@@ -164,7 +168,7 @@ function EditMatchPage() {
       ...prev,
       { id: player.id, full_name: player.full_name, shirt_number: player.shirt_number, position: player.position },
     ]);
-    setRatings((prev) => ({ ...prev, [player.id]: prev[player.id] ?? { rating: "", goals: "" } }));
+    setRatings((prev) => ({ ...prev, [player.id]: prev[player.id] ?? blankRating }));
     setAddPlayerId("");
   }
 
@@ -196,14 +200,28 @@ function EditMatchPage() {
 
     const { data: userData } = await supabase.auth.getUser();
     const season = form.match_date.slice(0, 4);
-    const toUpsert: { match_id: string; player_id: string; team_id: string; season: string; rating: number | null; goals_scored: number; created_by: string | null }[] = [];
+    const toUpsert: { match_id: string; player_id: string; team_id: string; season: string; rating: number | null; goals_scored: number; injured_off: boolean; minute_off: number | null; created_by: string | null }[] = [];
+    const markInjured: string[] = [];
     const toDelete: string[] = [];
     for (const [playerId, entry] of Object.entries(ratings)) {
       const rating = entry.rating.trim() === "" ? null : Number(entry.rating);
       const goals = entry.goals.trim() === "" ? 0 : Number(entry.goals);
-      const featured = rating != null || goals > 0;
+      const minute = entry.minute.trim() === "" ? null : Math.min(130, Math.max(0, Math.round(Number(entry.minute))));
+      // Coming off injured counts as featuring, even with no rating or goals.
+      const featured = rating != null || goals > 0 || entry.injured;
       if (featured) {
-        toUpsert.push({ match_id: matchId, player_id: playerId, team_id: match.team_id, season, rating, goals_scored: goals, created_by: userData.user?.id ?? null });
+        toUpsert.push({
+          match_id: matchId,
+          player_id: playerId,
+          team_id: match.team_id,
+          season,
+          rating,
+          goals_scored: goals,
+          injured_off: entry.injured,
+          minute_off: entry.injured && minute != null && !Number.isNaN(minute) ? minute : null,
+          created_by: userData.user?.id ?? null,
+        });
+        if (entry.injured && entry.markProfile) markInjured.push(playerId);
       } else if (initialRatedIds.has(playerId)) {
         toDelete.push(playerId);
       }
@@ -216,6 +234,19 @@ function EditMatchPage() {
         setSaving(false);
         return;
       }
+    }
+    if (markInjured.length > 0) {
+      // Also show the player as injured on their profile (best effort: only the
+      // profile's owner or an admin can change it).
+      const { error } = await supabase
+        .from("players")
+        .update({
+          injury_status: "injured",
+          injury_since: form.match_date,
+          injury_note: `Came off injured against ${form.opponent_name.trim() || "the opposition"}`,
+        })
+        .in("id", markInjured);
+      if (error) toast.error("Match saved, but the profile could not be marked injured: " + error.message);
     }
     if (toDelete.length > 0) {
       const { error } = await supabase
@@ -345,7 +376,7 @@ function EditMatchPage() {
                     <span className="w-6 text-sm text-muted-foreground">{player.shirt_number ?? "–"}</span>
                     <span className="font-display text-lg">{player.full_name}</span>
                     <span className="text-xs text-muted-foreground">{player.position}</span>
-                    <div className="ml-auto flex items-center gap-3">
+                    <div className="ml-auto flex flex-wrap items-center gap-3">
                       <label className="flex items-center gap-1 text-sm">
                         Goals
                         <Input
@@ -365,6 +396,45 @@ function EditMatchPage() {
                           onChange={(e) => setRating(player.id, "rating", e.target.value)}
                         />
                       </label>
+                    </div>
+                    <div className="flex w-full flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                      <label className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          checked={ratings[player.id]?.injured ?? false}
+                          onChange={(e) => setRating(player.id, "injured", e.target.checked)}
+                        />
+                        Came off injured
+                      </label>
+                      {ratings[player.id]?.injured ? (
+                        <>
+                          <label className="flex items-center gap-1">
+                            Minute
+                            <Input
+                              className="w-16"
+                              inputMode="numeric"
+                              placeholder="45"
+                              value={ratings[player.id]?.minute ?? ""}
+                              onChange={(e) => setRating(player.id, "minute", e.target.value)}
+                            />
+                          </label>
+                          <button
+                            type="button"
+                            className="text-primary underline"
+                            onClick={() => setRating(player.id, "minute", "45")}
+                          >
+                            Half time
+                          </button>
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={ratings[player.id]?.markProfile ?? true}
+                              onChange={(e) => setRating(player.id, "markProfile", e.target.checked)}
+                            />
+                            Also mark as injured on their profile
+                          </label>
+                        </>
+                      ) : null}
                     </div>
                   </li>
                 ))}

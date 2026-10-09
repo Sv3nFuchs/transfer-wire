@@ -1,3 +1,4 @@
+import { OffInjuredTag } from "@/components/InjuryBadge";
 import { jsonLd } from "@/lib/seo";
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -126,6 +127,7 @@ function MatchPage() {
                 <span className="w-8 font-display text-xl text-accent">{entry.players?.shirt_number ?? "–"}</span>
                 <span className="font-display text-lg">{entry.players?.full_name}</span>
                 <span className="text-sm text-muted-foreground">{entry.players?.position}</span>
+                {entry.injured_off ? <OffInjuredTag minute={entry.minute_off} /> : null}
                 {entry.goals_scored > 0 ? (
                   <span className="rounded bg-secondary px-2 py-0.5 text-xs text-secondary-foreground">
                     ⚽ {entry.goals_scored}

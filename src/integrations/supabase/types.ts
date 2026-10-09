@@ -302,7 +302,9 @@ export type Database = {
           created_by: string | null
           goals_scored: number
           id: string
+          injured_off: boolean
           match_id: string
+          minute_off: number | null
           player_id: string
           rating: number | null
           season: string
@@ -314,7 +316,9 @@ export type Database = {
           created_by?: string | null
           goals_scored?: number
           id?: string
+          injured_off?: boolean
           match_id: string
+          minute_off?: number | null
           player_id: string
           rating?: number | null
           season: string
@@ -326,7 +330,9 @@ export type Database = {
           created_by?: string | null
           goals_scored?: number
           id?: string
+          injured_off?: boolean
           match_id?: string
+          minute_off?: number | null
           player_id?: string
           rating?: number | null
           season?: string
@@ -498,6 +504,10 @@ export type Database = {
           flag_2: string | null
           full_name: string
           height_cm: number | null
+          injury_expected_return: string | null
+          injury_note: string | null
+          injury_since: string | null
+          injury_status: string | null
           highlight_video_url: string | null
           id: string
           nationality: string | null
@@ -521,6 +531,10 @@ export type Database = {
           flag_2?: string | null
           full_name: string
           height_cm?: number | null
+          injury_expected_return?: string | null
+          injury_note?: string | null
+          injury_since?: string | null
+          injury_status?: string | null
           highlight_video_url?: string | null
           id?: string
           nationality?: string | null
@@ -544,6 +558,10 @@ export type Database = {
           flag_2?: string | null
           full_name?: string
           height_cm?: number | null
+          injury_expected_return?: string | null
+          injury_note?: string | null
+          injury_since?: string | null
+          injury_status?: string | null
           highlight_video_url?: string | null
           id?: string
           nationality?: string | null

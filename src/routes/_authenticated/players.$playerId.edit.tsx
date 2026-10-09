@@ -37,6 +37,10 @@ type FormState = {
   team_id: string;
   bio: string;
   highlight_video_url: string;
+  injury_status: string;
+  injury_note: string;
+  injury_since: string;
+  injury_expected_return: string;
   photo_url: string;
 };
 
@@ -58,6 +62,10 @@ const emptyForm: FormState = {
   team_id: "",
   bio: "",
   highlight_video_url: "",
+  injury_status: "",
+  injury_note: "",
+  injury_since: "",
+  injury_expected_return: "",
   photo_url: "",
 };
 
@@ -150,6 +158,10 @@ function EditPlayerPage() {
       team_id: player.team_id ?? "",
       bio: player.bio ?? "",
       highlight_video_url: player.highlight_video_url ?? "",
+      injury_status: player.injury_status ?? "",
+      injury_note: player.injury_note ?? "",
+      injury_since: player.injury_since ?? "",
+      injury_expected_return: player.injury_expected_return ?? "",
       photo_url: player.photo_url ?? "",
     });
   }, [player]);
@@ -191,6 +203,11 @@ function EditPlayerPage() {
         team_id: str(form.team_id),
         bio: str(form.bio),
         highlight_video_url: str(form.highlight_video_url),
+        // Fit (empty status) clears the whole injury record.
+        injury_status: form.injury_status === "injured" || form.injury_status === "doubtful" ? form.injury_status : null,
+        injury_note: form.injury_status ? str(form.injury_note) : null,
+        injury_since: form.injury_status ? str(form.injury_since) : null,
+        injury_expected_return: form.injury_status ? str(form.injury_expected_return) : null,
         photo_url: str(form.photo_url),
       })
       .eq("id", playerId);
@@ -442,6 +459,53 @@ function EditPlayerPage() {
               onChange={(e) => set("highlight_video_url", e.target.value)}
             />
           </div>
+          <div className="sm:col-span-2">
+            <h2 className="mt-2 text-2xl">Fitness</h2>
+            <p className="text-sm text-muted-foreground">
+              Shows an Injured or Doubtful badge on the profile, the players list and the club squad. Set it back to Fit
+              when the player returns.
+            </p>
+          </div>
+          <div>
+            <Label htmlFor="injury_status">Status</Label>
+            <select
+              id="injury_status"
+              value={form.injury_status}
+              onChange={(e) => set("injury_status", e.target.value)}
+              className="mt-1 h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+            >
+              <option value="">Fit</option>
+              <option value="doubtful">Doubtful</option>
+              <option value="injured">Injured</option>
+            </select>
+          </div>
+          {form.injury_status ? (
+            <>
+              <div>
+                <Label htmlFor="injury_note">What happened (optional)</Label>
+                <Input
+                  id="injury_note"
+                  maxLength={200}
+                  placeholder="e.g. Hamstring, subbed off at half time"
+                  value={form.injury_note}
+                  onChange={(e) => set("injury_note", e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="injury_since">Since</Label>
+                <Input id="injury_since" type="date" value={form.injury_since} onChange={(e) => set("injury_since", e.target.value)} />
+              </div>
+              <div>
+                <Label htmlFor="injury_expected_return">Expected back (optional)</Label>
+                <Input
+                  id="injury_expected_return"
+                  type="date"
+                  value={form.injury_expected_return}
+                  onChange={(e) => set("injury_expected_return", e.target.value)}
+                />
+              </div>
+            </>
+          ) : null}
           <div className="flex flex-wrap items-center gap-3 sm:col-span-2">
             <Button type="submit" variant="accent" disabled={saving}>
               {saving ? "Saving…" : "Save changes"}

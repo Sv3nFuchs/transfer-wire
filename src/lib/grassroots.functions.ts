@@ -9,7 +9,7 @@ export const listPlayers = createServerFn({ method: "GET" })
     let query = supabase
       .from("players")
       .select(
-        "id, full_name, birth_year, position, nationality, shirt_number, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
+        "id, full_name, birth_year, position, nationality, shirt_number, injury_status, club_id, team_id, clubs(name, city, level), teams(name, age_group)",
       )
       .order("created_at", { ascending: false })
       .limit(60);
@@ -26,7 +26,7 @@ export const getPlayer = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("players")
       .select(
-        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, end_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, season, rating, goals_scored, teams(id, name, clubs(name)), matches(id, match_date, opponent_name, competition, team_score, opponent_score, opponent_logo_url, opponent_club:clubs!matches_opponent_club_id_fkey(name, logo_url)))",
+        "*, clubs(id, name, city, level, country, country_code, logo_url), teams(id, name, age_group, league, season), transfers(id, transfer_date, end_date, transfer_type, note, org_type, from_club_id, to_club_id, from_club_name, to_club_name, from_club:clubs!transfers_from_club_id_fkey(id, name, logo_url, org_type, country_code), to_club:clubs!transfers_to_club_id_fkey(id, name, logo_url, org_type, country_code)), season_stats:player_season_stats(season, league, matches_played, goals, rated_matches, average_rating, teams(name, clubs(name))), team_memberships(id, team_id, teams(name, season, league, clubs(name))), match_ratings:match_player_ratings(id, team_id, season, rating, goals_scored, injured_off, minute_off, teams(id, name, clubs(name)), matches(id, match_date, opponent_name, competition, team_score, opponent_score, opponent_logo_url, opponent_club:clubs!matches_opponent_club_id_fkey(name, logo_url)))",
       )
       .eq("id", data.id)
       .maybeSingle();
@@ -255,7 +255,7 @@ export const getClub = createServerFn({ method: "GET" })
     if (!club) return null;
     const { data: players, error: playersError } = await supabase
       .from("players")
-      .select("id, full_name, position, birth_year, shirt_number, nationality, team_id")
+      .select("id, full_name, position, birth_year, shirt_number, nationality, injury_status, team_id")
       .eq("club_id", data.id)
       .order("full_name");
     if (playersError) throw new Error(playersError.message);
@@ -293,7 +293,7 @@ export const getOverview = createServerFn({ method: "GET" }).handler(async () =>
     supabase.from("teams").select("id", { count: "exact", head: true }),
     supabase
       .from("players")
-      .select("id, full_name, position, birth_year, shirt_number, photo_url, clubs(name, logo_url)")
+      .select("id, full_name, position, birth_year, shirt_number, photo_url, injury_status, clubs(name, logo_url)")
       .order("created_at", { ascending: false })
       .limit(6),
     supabase
