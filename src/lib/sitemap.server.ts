@@ -1,4 +1,3 @@
-import { createServerFn } from "@tanstack/react-start";
 import { createPublicClient } from "./public-client.server";
 import { isIndexablePlayer } from "./seo";
 
@@ -15,8 +14,8 @@ async function fetchAll<T>(load: (from: number, to: number) => PromiseLike<{ dat
   return rows;
 }
 
-/** Every public page worth listing in the sitemap. */
-export const getSitemapPaths = createServerFn({ method: "GET" }).handler(async () => {
+/** Every public page worth listing in the sitemap. Plain helper: server routes cannot call server functions in the production build. */
+export async function getSitemapPaths() {
   const supabase = createPublicClient();
   const [players, clubs, matches] = await Promise.all([
     fetchAll((from, to) => supabase.from("players").select("id, birth_year").order("id").range(from, to)),
@@ -34,4 +33,4 @@ export const getSitemapPaths = createServerFn({ method: "GET" }).handler(async (
     ...clubs.map((c) => `/clubs/${c.id}`),
     ...matches.map((m) => `/matches/${m.id}`),
   ];
-});
+}

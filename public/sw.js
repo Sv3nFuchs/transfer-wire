@@ -1,8 +1,8 @@
 // Minimal service worker: makes the site installable, caches built assets, and
 // shows a friendly page when offline. Pages and data are never cached, so
 // signed-in views and live scores are always fresh.
-const CACHE = "transferwire-v1";
-const PRECACHE = ["/offline.html", "/favicon.svg", "/icon-192.png"];
+const CACHE = "transferwire-v2";
+const PRECACHE = ["/offline", "/favicon.svg", "/icon-192.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(PRECACHE)));
@@ -44,6 +44,6 @@ self.addEventListener("fetch", (event) => {
 
   // Page loads: always the network; offline page if it can't be reached.
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(() => caches.match("/offline.html")));
+    event.respondWith(fetch(request).catch(() => caches.match("/offline")));
   }
 });
