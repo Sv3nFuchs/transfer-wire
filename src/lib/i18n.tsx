@@ -169,6 +169,7 @@ const dict = {
   "player.ageAtDebut": "age",
   "player.seasonOnly": "season only, no match logged",
   "player.onThePitch": "On the pitch",
+  "player.pitchHint": "Drag to rotate",
   "player.noPositionMapped": "Position not recognized for the pitch diagram yet.",
   "player.recentForm": "Recent form",
   "player.noRecentForm": "No rated matches yet.",

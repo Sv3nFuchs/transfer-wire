@@ -1,16 +1,26 @@
 import { useEffect } from "react";
 
-/** Feeds the pointer position to hovered cards so their amber spotlight follows the mouse. */
+/** Largest tilt in degrees; wide/tall elements rotate less so their edges don't swing far. */
+const MAX_TILT = { lift: 5, tilt: 10 };
+
+/** Feeds the pointer position to hovered cards: the amber spotlight and the 3D tilt both follow the mouse. */
 export function CardSpotlight() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const onPointerMove = (event: PointerEvent) => {
       if (event.pointerType !== "mouse") return;
-      const card = (event.target as Element | null)?.closest<HTMLElement>(".lift");
+      const card = (event.target as Element | null)?.closest<HTMLElement>(".lift, .tilt");
       if (!card) return;
       const rect = card.getBoundingClientRect();
-      card.style.setProperty("--mx", `${event.clientX - rect.left}px`);
-      card.style.setProperty("--my", `${event.clientY - rect.top}px`);
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      card.style.setProperty("--mx", `${x}px`);
+      card.style.setProperty("--my", `${y}px`);
+      const max = card.classList.contains("tilt") ? MAX_TILT.tilt : MAX_TILT.lift;
+      const maxY = max * Math.min(1, 320 / rect.width);
+      const maxX = max * Math.min(1, 240 / rect.height);
+      card.style.setProperty("--ry", `${(x / rect.width - 0.5) * 2 * maxY}deg`);
+      card.style.setProperty("--rx", `${-(y / rect.height - 0.5) * 2 * maxX}deg`);
     };
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     return () => document.removeEventListener("pointermove", onPointerMove);

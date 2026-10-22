@@ -12,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 import { ClubLogo } from "@/components/ClubLogo";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
+import { Pitch3D } from "@/components/Pitch3D";
 import { CountryFlag } from "@/components/CountryFlag";
 import { UsStateFlag } from "@/components/UsStateFlag";
 import { calculateAge, isBirthdayToday } from "@/lib/age";
@@ -109,30 +110,13 @@ function PitchPosition({ position }: { position: string | null }) {
   const coords = getPositionCoords(position);
   const secondaryCoords = getSecondaryPositionCoords(position);
   return (
-    <div className="mt-4 max-w-xs rounded-lg border border-border bg-card p-5 shadow-card">
-      <svg viewBox="0 0 100 100" className="w-full rounded bg-pitch pitch-stripes">
-        <rect x="4" y="2" width="92" height="96" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <line x1="4" y1="50" x2="96" y2="50" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <circle cx="50" cy="50" r="9" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <rect x="26" y="2" width="48" height="16" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <rect x="38" y="2" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <rect x="26" y="82" width="48" height="16" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        <rect x="38" y="91" width="24" height="7" fill="none" stroke="white" strokeOpacity="0.35" strokeWidth="0.6" />
-        {secondaryCoords ? (
-          <circle
-            cx={secondaryCoords.x}
-            cy={secondaryCoords.y}
-            r="2.8"
-            className="fill-pitch-foreground"
-            fillOpacity="0.75"
-            stroke="white"
-            strokeWidth="0.5"
-          />
-        ) : null}
-        {coords ? (
-          <circle cx={coords.x} cy={coords.y} r="4.5" className="fill-accent" stroke="white" strokeWidth="0.8" />
-        ) : null}
-      </svg>
+    <div className="mt-4 w-72 max-w-full rounded-lg border border-border bg-card p-5 shadow-card">
+      <Pitch3D
+        coords={coords}
+        secondary={secondaryCoords}
+        label={`${t("player.onThePitch")}: ${position ?? ""}`}
+        hint={t("player.pitchHint")}
+      />
       {!coords ? <p className="mt-3 text-xs text-muted-foreground">{t("player.noPositionMapped")}</p> : null}
     </div>
   );
@@ -808,13 +792,13 @@ function PlayerPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
+      <section className="hero-3d border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-14">
           <div className="flex items-start gap-6">
             <PlayerPhoto
               name={player.full_name}
               url={player.photo_url}
-              className="h-36 w-28 border border-pitch-foreground/25 sm:h-48 sm:w-36"
+              className="tilt float-3d h-36 w-28 border border-pitch-foreground/25 shadow-[var(--shadow-float)] sm:h-48 sm:w-36"
             />
             <div>
             <p className="label-caps text-accent">{t("player.kicker")}</p>
@@ -871,7 +855,7 @@ function PlayerPage() {
             <Link
               to="/clubs/$clubId"
               params={{ clubId: player.clubs.id }}
-              className="flex items-center gap-3 rounded-lg border border-pitch-foreground/25 bg-pitch-foreground/5 px-4 py-3 hover:bg-pitch-foreground/10"
+              className="tilt flex items-center gap-3 rounded-lg border border-pitch-foreground/25 shadow-[var(--shadow-float)] bg-pitch-foreground/5 px-4 py-3 hover:bg-pitch-foreground/10"
             >
               <ClubLogo name={player.clubs.name} url={player.clubs.logo_url} className="size-12" />
               <span>

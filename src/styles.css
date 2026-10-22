@@ -43,8 +43,23 @@
   --color-pitch-foreground: var(--pitch-foreground);
   --color-chalk: var(--chalk);
 
-  --shadow-card: 0 1px 0 0 var(--border), 0 12px 28px -18px oklch(0.3 0.05 152 / 0.35);
-  --shadow-lift: 0 18px 40px -24px oklch(0.3 0.05 152 / 0.5);
+  /* Layered: bright top edge, tight contact shadow, then two soft ambient layers. */
+  --shadow-card:
+    0 1px 0 0 var(--border),
+    inset 0 1px 0 0 var(--edge-highlight),
+    0 2px 3px -1px oklch(0.3 0.05 152 / 0.1),
+    0 10px 22px -12px oklch(0.3 0.05 152 / 0.26),
+    0 26px 44px -28px oklch(0.3 0.05 152 / 0.3);
+  --shadow-lift:
+    inset 0 1px 0 0 var(--edge-highlight),
+    0 3px 5px -2px oklch(0.3 0.05 152 / 0.14),
+    0 18px 30px -14px oklch(0.3 0.05 152 / 0.34),
+    0 44px 64px -32px oklch(0.3 0.05 152 / 0.46);
+  /* For objects floating over the dark pitch-green hero. */
+  --shadow-float:
+    0 2px 4px oklch(0 0 0 / 0.25),
+    0 18px 32px -10px oklch(0 0 0 / 0.5),
+    0 40px 60px -24px oklch(0 0 0 / 0.55);
 }
 
 :root {
@@ -71,6 +86,7 @@
   --pitch: oklch(0.28 0.06 152);
   --pitch-foreground: oklch(0.96 0.02 110);
   --chalk: oklch(0.99 0.005 95);
+  --edge-highlight: oklch(1 0 0 / 0.7);
 }
 
 .dark {
@@ -96,6 +112,7 @@
   --pitch: oklch(0.24 0.05 152);
   --pitch-foreground: oklch(0.96 0.02 110);
   --chalk: oklch(0.28 0.04 152);
+  --edge-highlight: oklch(1 0 0 / 0.07);
 }
 
 @layer base {
@@ -143,25 +160,28 @@
  * Motion. Everything here is CSS-only (SSR-safe: content is never hidden
  * waiting on JS) and switched off under prefers-reduced-motion.
  */
+/* translate/scale (not transform) so a finished entrance can't override a card's hover tilt. */
 @keyframes fade-up {
   from {
     opacity: 0;
-    transform: translateY(14px);
+    translate: 0 14px;
   }
   to {
     opacity: 1;
-    transform: none;
+    translate: 0 0;
   }
 }
 
 @keyframes reveal-up {
   from {
     opacity: 0;
-    transform: translateY(26px) scale(0.98);
+    translate: 0 26px;
+    scale: 0.98;
   }
   to {
     opacity: 1;
-    transform: none;
+    translate: 0 0;
+    scale: 1;
   }
 }
 
@@ -190,17 +210,66 @@
   animation-delay: calc(var(--i, 0) * 90ms);
 }
 
-/* Cards that rise and gain a deeper shadow on hover. */
+/* Cards that rise, tilt toward the pointer and gain a deeper shadow on hover. */
 @utility lift {
   transition:
-    transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.18s ease-out,
     box-shadow 0.25s ease;
   &:hover {
-    transform: translateY(-3px);
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-4px);
     box-shadow: var(--shadow-lift);
   }
   &:active {
-    transform: translateY(-1px);
+    transform: perspective(900px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateY(-1px) scale(0.99);
+  }
+}
+
+/* Stronger tilt for single hero objects (photo, club badge). */
+@utility tilt {
+  transition:
+    transform 0.16s ease-out,
+    box-shadow 0.25s ease;
+  &:hover {
+    transform: perspective(700px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) scale(1.03);
+  }
+}
+
+/* Gentle hover-in-place bob (uses `translate`, so it stacks with a tilt). */
+@keyframes float-bob {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -6px;
+  }
+}
+@utility float-3d {
+  animation: float-bob 6s ease-in-out infinite;
+}
+
+/* Hero depth: a mown pitch recedes toward the horizon, plus an inner vignette. */
+@utility hero-3d {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  box-shadow: inset 0 -60px 80px -60px oklch(0 0 0 / 0.5);
+  &::after {
+    content: "";
+    position: absolute;
+    left: -25%;
+    right: -25%;
+    bottom: -1px;
+    height: 85%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      repeating-linear-gradient(90deg, oklch(1 0 0 / 0.07) 0 70px, transparent 70px 140px),
+      repeating-linear-gradient(0deg, oklch(1 0 0 / 0.08) 0 2px, transparent 2px 46px);
+    transform-origin: 50% 100%;
+    transform: perspective(380px) rotateX(64deg);
+    -webkit-mask-image: linear-gradient(to top, #000 15%, transparent 90%);
+    mask-image: linear-gradient(to top, #000 15%, transparent 90%);
   }
 }
 
@@ -548,4 +617,155 @@ html[data-intro="play"] .logo-stem {
     left: calc(100% - 7px);
     opacity: 1;
   }
+}
+
+
+/* 3D pitch diagram: a flat pitch tilted back in perspective, markers stand upright on it. */
+.pitch3d {
+  --tilt: 52deg;
+  --spin: 0deg;
+  position: relative;
+  height: 14.5rem;
+  perspective: 760px;
+  perspective-origin: 50% 30%;
+  touch-action: pan-y;
+  cursor: grab;
+  user-select: none;
+  border-radius: var(--radius-md);
+  outline-offset: 4px;
+}
+.pitch3d[data-dragging] {
+  cursor: grabbing;
+}
+.pitch3d__plane {
+  position: absolute;
+  left: 50%;
+  top: 54%;
+  width: 86%;
+  aspect-ratio: 1;
+  transform-style: preserve-3d;
+  transform: translate(-50%, -50%) rotateX(var(--tilt)) rotateZ(var(--spin));
+}
+.pitch3d__slab,
+.pitch3d__shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+}
+.pitch3d__slab {
+  background: oklch(0.16 0.04 152);
+  transform: translateZ(-9px);
+}
+.pitch3d__shadow {
+  background: oklch(0 0 0 / 0.5);
+  filter: blur(12px);
+  transform: translateZ(-26px) scale(1.06);
+}
+.pitch3d__surface {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  background-color: var(--pitch);
+}
+.pitch3d__anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
+/* Counter-rotates the plane's tilt and spin so the object always faces the viewer. */
+.pitch3d__upright {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform: rotateZ(calc(var(--spin) * -1)) rotateX(calc(var(--tilt) * -1));
+}
+.pitch3d__ring {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  border: 2px solid var(--accent);
+  animation: ring-ping 2.2s ease-out infinite;
+}
+@keyframes ring-ping {
+  from {
+    opacity: 0.9;
+    scale: 0.4;
+  }
+  to {
+    opacity: 0;
+    scale: 1.5;
+  }
+}
+.pitch3d__stem {
+  position: absolute;
+  left: -1px;
+  bottom: 0;
+  width: 2px;
+  height: 24px;
+  background: linear-gradient(to top, oklch(1 0 0 / 0.3), white);
+}
+.pitch3d__head {
+  position: absolute;
+  left: -12px;
+  bottom: 20px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  border: 2px solid white;
+  background: var(--accent);
+  box-shadow: 0 5px 10px oklch(0 0 0 / 0.5);
+}
+.pitch3d__mark--small .pitch3d__stem {
+  height: 14px;
+}
+.pitch3d__mark--small .pitch3d__head {
+  left: -8px;
+  bottom: 10px;
+  width: 16px;
+  height: 16px;
+  background: var(--pitch-foreground);
+  opacity: 0.85;
+}
+/* Goal frames stand up from each goal line. */
+.pitch3d__goal::before {
+  content: "";
+  position: absolute;
+  left: 38%;
+  width: 24%;
+  bottom: 0;
+  height: 18px;
+  box-sizing: content-box;
+  border: 2px solid oklch(1 0 0 / 0.85);
+  border-bottom: 0;
+  background: repeating-linear-gradient(45deg, oklch(1 0 0 / 0.18) 0 1px, transparent 1px 5px);
+  transform-origin: 50% 100%;
+  transform: rotateX(-90deg);
+}
+.pitch3d__goal {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 0;
+  transform-style: preserve-3d;
+}
+@media (prefers-reduced-motion: reduce) {
+  .pitch3d__ring {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* Hero pitch drawing lies back in perspective instead of facing the viewer flat. */
+.pitch-art {
+  transform: perspective(900px) rotateX(48deg) rotateZ(-9deg);
+  transform-origin: 50% 60%;
+  filter: drop-shadow(0 20px 12px oklch(0 0 0 / 0.35));
 }

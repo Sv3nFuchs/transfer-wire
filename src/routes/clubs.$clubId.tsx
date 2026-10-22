@@ -96,7 +96,7 @@ function ClubPage() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
+      <section className="hero-3d border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="mx-auto max-w-6xl px-4 py-14">
           <div className="flex items-center gap-5">
             <ClubLogo name={club.name} url={club.logo_url} className="size-20 sm:size-24" />

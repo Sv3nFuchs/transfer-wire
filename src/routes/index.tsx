@@ -44,7 +44,7 @@ function Index() {
   return (
     <div className="min-h-screen">
       <SiteHeader />
-      <section className="border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
+      <section className="hero-3d border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="relative mx-auto max-w-6xl px-4 py-20">
           <PitchArt />
           <p className="enter label-caps text-accent">{t("home.kicker")}</p>
