@@ -252,7 +252,7 @@
 @utility hero-3d {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
+  overflow-x: clip;
   box-shadow: inset 0 -60px 80px -60px oklch(0 0 0 / 0.5);
   &::after {
     content: "";
@@ -765,7 +765,110 @@ html[data-intro="play"] .logo-stem {
 
 /* Hero pitch drawing lies back in perspective instead of facing the viewer flat. */
 .pitch-art {
-  transform: perspective(900px) rotateX(48deg) rotateZ(-9deg);
+  transform: perspective(900px) rotateX(48deg) rotateZ(-9deg)
+    translate3d(calc(var(--px, 0) * 10px), calc(var(--py, 0) * 6px), 0);
+  transition: transform 0.3s ease-out;
   transform-origin: 50% 60%;
   filter: drop-shadow(0 20px 12px oklch(0 0 0 / 0.35));
+}
+
+
+/* Football in the home hero: it overlaps the section below and casts a shadow on it. */
+.football3d {
+  position: absolute;
+  right: 9%;
+  bottom: -64px;
+  z-index: 5;
+  width: 150px;
+  height: 150px;
+  transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px), 0);
+  transition: transform 0.3s ease-out;
+}
+.football3d__bounce {
+  width: 100%;
+  height: 100%;
+  animation: ball-bounce 2.8s infinite;
+}
+.football3d__ball {
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  cursor: grab;
+  touch-action: none;
+  filter: drop-shadow(0 8px 6px oklch(0 0 0 / 0.3));
+}
+.football3d__ball:active {
+  cursor: grabbing;
+}
+.football3d__shadow {
+  position: absolute;
+  left: 10%;
+  right: 10%;
+  bottom: -14px;
+  height: 20px;
+  border-radius: 9999px;
+  background: radial-gradient(closest-side, oklch(0 0 0 / 0.5), transparent);
+  animation: ball-shadow 2.8s infinite;
+}
+@keyframes ball-bounce {
+  0%,
+  100% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  50% {
+    translate: 0 -34px;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.8, 0.3);
+  }
+}
+@keyframes ball-shadow {
+  0%,
+  100% {
+    scale: 1;
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+  50% {
+    scale: 0.65;
+    opacity: 0.45;
+    animation-timing-function: cubic-bezier(0.7, 0, 0.8, 0.3);
+  }
+}
+
+/* Home page: a pitch stays fixed at the horizon while the page scrolls over it. */
+.home-stage::before {
+  content: "";
+  position: fixed;
+  left: -10%;
+  right: -10%;
+  bottom: 0;
+  height: 70vh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, color-mix(in oklch, var(--primary) 15%, transparent) 0 90px, transparent 90px 180px),
+    repeating-linear-gradient(0deg, color-mix(in oklch, var(--primary) 22%, transparent) 0 2px, transparent 2px 76px);
+  transform-origin: 50% 100%;
+  transform: perspective(520px) rotateX(66deg);
+  -webkit-mask-image: linear-gradient(to top, #000 8%, transparent 80%);
+  mask-image: linear-gradient(to top, #000 8%, transparent 80%);
+}
+
+/* Floodlight glows pinned to the viewport: they hold still while the page scrolls past. */
+.home-stage::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 520px at 90% -70px, color-mix(in oklch, var(--accent) 24%, transparent), transparent 70%),
+    radial-gradient(760px 520px at -6% 55%, color-mix(in oklch, var(--primary) 13%, transparent), transparent 70%);
+}
+
+/* A section band that reads as recessed, with cards floating above it. */
+@utility band-recessed {
+  box-shadow:
+    inset 0 22px 26px -22px oklch(0.3 0.05 152 / 0.28),
+    inset 0 -22px 26px -22px oklch(0.3 0.05 152 / 0.2);
 }

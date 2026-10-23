@@ -8,6 +8,7 @@ import { CountUp } from "@/components/CountUp";
 import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { ClubLogo } from "@/components/ClubLogo";
 import { CrestStrip, FixturesAndResults, Leaders, MiniTables, PitchArt } from "@/components/HomeSections";
+import { Football3D } from "@/components/Football3D";
 import { useLanguage } from "@/lib/i18n";
 
 export const Route = createFileRoute("/")({
@@ -42,11 +43,12 @@ function Index() {
 
 
   return (
-    <div className="min-h-screen">
+    <div className="home-stage min-h-screen">
       <SiteHeader />
-      <section className="hero-3d border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
+      <section data-parallax className="hero-3d border-b border-border bg-pitch text-pitch-foreground pitch-stripes stripes-drift">
         <div className="relative mx-auto max-w-6xl px-4 py-20">
           <PitchArt />
+          <Football3D className="hidden md:block" />
           <p className="enter label-caps text-accent">{t("home.kicker")}</p>
           <h1 style={{ "--i": 1 } as React.CSSProperties} className="enter mt-3 max-w-3xl text-5xl leading-[0.95] sm:text-7xl">{t("home.title")}</h1>
           <p style={{ "--i": 2 } as React.CSSProperties} className="enter mt-5 max-w-xl text-base opacity-85">{t("home.lead")}</p>
@@ -82,7 +84,7 @@ function Index() {
 
       <CrestStrip crests={data.crests} />
       <FixturesAndResults overview={data} />
-      <div className="mt-16 border-y border-border bg-secondary/60 pb-16">
+      <div className="band-recessed mt-16 border-y border-border bg-secondary/60 pb-16">
         <MiniTables standings={data.standings} />
         <Leaders topScorers={data.topScorers} bestRated={data.bestRated} />
       </div>
