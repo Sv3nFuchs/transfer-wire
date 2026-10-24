@@ -773,14 +773,14 @@ html[data-intro="play"] .logo-stem {
 }
 
 
-/* Football in the home hero: it overlaps the section below and casts a shadow on it. */
+/* Football in the home hero, resting on the receding pitch (clear of the crest strip below). */
 .football3d {
   position: absolute;
-  right: 9%;
-  bottom: -64px;
+  right: 8%;
+  bottom: 30px;
   z-index: 5;
-  width: 150px;
-  height: 150px;
+  width: 132px;
+  height: 132px;
   transform: translate3d(calc(var(--px, 0) * -16px), calc(var(--py, 0) * -10px), 0);
   transition: transform 0.3s ease-out;
 }
