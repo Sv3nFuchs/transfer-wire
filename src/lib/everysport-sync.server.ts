@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { fetchEverysportHtml } from "./everysport-fetch.server";
 
 type EverysportTeamRef = { id: string; name: string; logo?: string | null };
 
@@ -66,11 +67,9 @@ export async function syncTeamFixtures(
 ) {
   if (!team.everysport_url) throw new Error("This team has no Everysport URL set.");
 
-  const res = await fetch(team.everysport_url, {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; TransferWire/1.0)" },
-  });
-  if (!res.ok) throw new Error(`Everysport request failed: ${res.status} ${res.statusText}`);
-  const { team: everysportTeam, games, standings } = parseEverysportPage(await res.text());
+  const { team: everysportTeam, games, standings } = parseEverysportPage(
+    await fetchEverysportHtml(team.everysport_url),
+  );
 
   let imported = 0;
   for (const game of games) {

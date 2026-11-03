@@ -1,11 +1,10 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { fetchEverysportHtml } from "./everysport-fetch.server";
 
 type TeamRef = { id: string; name: string; logo?: string | null };
 type StandingsRow = { team: TeamRef };
 type Series = { name?: string; groups?: { standings?: StandingsRow[] }[] };
-
-const ALLOWED_HOSTS = new Set(["www.everysport.com", "everysport.com"]);
 
 function readPageProps(html: string) {
   const match = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
@@ -65,22 +64,9 @@ export async function importClubsFromEverysport(
   supabase: SupabaseClient<Database>,
   options: { url: string; level?: string | null | undefined; userId: string },
 ) {
-  let parsed: URL;
-  const raw = options.url.trim();
-  try {
-    parsed = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
-  } catch {
-    throw new Error("That doesn't look like a valid URL.");
-  }
-  if (parsed.protocol !== "https:" || !ALLOWED_HOSTS.has(parsed.hostname)) {
-    throw new Error("Only everysport.com league or team page URLs can be imported.");
-  }
-
-  const res = await fetch(parsed.toString(), {
-    headers: { "User-Agent": "Mozilla/5.0 (compatible; TransferWire/1.0)" },
-  });
-  if (!res.ok) throw new Error(`Everysport request failed: ${res.status} ${res.statusText}`);
-  const { teams, level: detectedLevel, countryCode } = collectEverysportTeams(await res.text());
+  const { teams, level: detectedLevel, countryCode } = collectEverysportTeams(
+    await fetchEverysportHtml(options.url),
+  );
   const level = options.level?.trim() || detectedLevel;
   const code = countryCode ?? "SE";
   const country = code === "SE" ? "Sweden" : code;
