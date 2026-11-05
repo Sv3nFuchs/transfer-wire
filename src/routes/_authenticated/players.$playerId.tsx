@@ -23,7 +23,7 @@ import type { ReactNode } from "react";
 
 type SearchParams = { tab?: "stats" | "transfers" | "career" };
 
-export const Route = createFileRoute("/players/$playerId")({
+export const Route = createFileRoute("/_authenticated/players/$playerId")({
   validateSearch: (search: Record<string, unknown>): SearchParams => {
     const result: SearchParams = {};
     if (search["tab"] === "stats" || search["tab"] === "transfers" || search["tab"] === "career") {

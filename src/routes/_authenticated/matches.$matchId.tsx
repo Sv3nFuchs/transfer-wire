@@ -8,7 +8,7 @@ import { ClubLogo } from "@/components/ClubLogo";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { formatDateInLang, useLanguage } from "@/lib/i18n";
 
-export const Route = createFileRoute("/matches/$matchId")({
+export const Route = createFileRoute("/_authenticated/matches/$matchId")({
   loader: async ({ context, params }) => {
     const match = await context.queryClient.ensureQueryData(matchQuery(params.matchId));
     if (!match) throw notFound();

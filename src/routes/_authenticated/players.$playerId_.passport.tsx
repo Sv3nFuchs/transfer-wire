@@ -11,7 +11,7 @@ import { isIndexablePlayer } from "@/lib/seo";
 import { Play, Printer } from "lucide-react";
 import type { ReactNode } from "react";
 
-export const Route = createFileRoute("/_public/players/$playerId/passport")({
+export const Route = createFileRoute("/_authenticated/players/$playerId_/passport")({
   loader: async ({ context, params }) => {
     const player = await context.queryClient.ensureQueryData(playerQuery(params.playerId));
     if (!player) throw notFound();

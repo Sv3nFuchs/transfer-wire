@@ -11,7 +11,7 @@ import { CrestStrip, FixturesAndResults, Leaders, MiniTables, PitchArt } from "@
 import { Football3D } from "@/components/Football3D";
 import { useLanguage } from "@/lib/i18n";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   head: () => ({
     meta: [
       { title: "TransferWire — player and team database" },

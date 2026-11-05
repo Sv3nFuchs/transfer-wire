@@ -15,7 +15,7 @@ import { PlayerPhoto } from "@/components/PlayerPhoto";
 import { US_STATES } from "@/lib/us-states";
 import { UsStateFlag } from "@/components/UsStateFlag";
 
-export const Route = createFileRoute("/_authenticated/players/$playerId/edit")({
+export const Route = createFileRoute("/_authenticated/players/$playerId_/edit")({
   component: EditPlayerPage,
 });
 

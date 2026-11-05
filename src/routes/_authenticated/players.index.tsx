@@ -6,7 +6,7 @@ import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { Input } from "@/components/ui/input";
 import { useLanguage } from "@/lib/i18n";
 
-export const Route = createFileRoute("/players/")({
+export const Route = createFileRoute("/_authenticated/players/")({
   head: () => ({
     meta: [
       { title: "Players — TransferWire" },

@@ -9,7 +9,7 @@ import { formatDateInLang, useLanguage } from "@/lib/i18n";
 
 type SearchParams = { tab?: "matches" | "stats"; league?: string };
 
-export const Route = createFileRoute("/matches/")({
+export const Route = createFileRoute("/_authenticated/matches/")({
   head: () => ({
     meta: [
       { title: "Matches — TransferWire" },

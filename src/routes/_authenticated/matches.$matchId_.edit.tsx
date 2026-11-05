@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 
-export const Route = createFileRoute("/_authenticated/matches/$matchId/edit")({
+export const Route = createFileRoute("/_authenticated/matches/$matchId_/edit")({
   component: EditMatchPage,
 });
 

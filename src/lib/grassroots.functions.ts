@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createPublicClient } from "./public-client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { resolveLogoUrls, applyLogo } from "./logo-urls.server";
 
 export const listPlayers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { q?: string } | undefined) => input ?? {})
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     let query = supabase
       .from("players")
       .select(
@@ -20,9 +21,10 @@ export const listPlayers = createServerFn({ method: "GET" })
   });
 
 export const getPlayer = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     const { data: row, error } = await supabase
       .from("players")
       .select(
@@ -206,9 +208,10 @@ export const getPlayer = createServerFn({ method: "GET" })
 export const CLUB_LIST_LIMIT = 120;
 
 export const listClubs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { q?: string; country?: string; league?: string } | undefined) => input ?? {})
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     let query = supabase
       .from("clubs")
       .select("id, name, city, country, country_code, level, founded_year, logo_url, teams(id), players(id)")
@@ -243,9 +246,10 @@ export const listClubs = createServerFn({ method: "GET" })
   });
 
 export const getClub = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     const { data: club, error } = await supabase
       .from("clubs")
       .select("*, teams(id, name, age_group, league, season)")
@@ -285,8 +289,10 @@ export const getClub = createServerFn({ method: "GET" })
 
 export type FormResult = "W" | "D" | "L";
 
-export const getOverview = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = createPublicClient();
+export const getOverview = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+  const { supabase } = context;
   const [players, clubs, teams, latest, matchRows, crestRows, standingRows, statRows] = await Promise.all([
     supabase.from("players").select("id", { count: "exact", head: true }),
     supabase.from("clubs").select("id", { count: "exact", head: true }),
@@ -425,9 +431,10 @@ export const getOverview = createServerFn({ method: "GET" }).handler(async () =>
 
 /** Options for the clubs page filters: countries with club counts, and leagues (within the chosen country). */
 export const getClubFilters = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { country?: string } | undefined) => input ?? {})
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     const [countryRows, leagueRows] = await Promise.all([
       supabase.from("clubs").select("country").limit(5000),
       data.country

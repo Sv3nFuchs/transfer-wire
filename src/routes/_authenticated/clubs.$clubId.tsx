@@ -10,7 +10,7 @@ import { ClubLogo } from "@/components/ClubLogo";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { useLanguage } from "@/lib/i18n";
 
-export const Route = createFileRoute("/clubs/$clubId")({
+export const Route = createFileRoute("/_authenticated/clubs/$clubId")({
   loader: async ({ context, params }) => {
     const result = await context.queryClient.ensureQueryData(clubQuery(params.clubId));
     if (!result) throw notFound();

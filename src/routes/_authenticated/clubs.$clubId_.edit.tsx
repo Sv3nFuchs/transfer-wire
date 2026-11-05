@@ -15,7 +15,7 @@ import { COUNTRIES, countryName } from "@/lib/flags";
 import { syncEverysportFixtures } from "@/lib/import-everysport.functions";
 import { syncTeamRoster } from "@/lib/import-roster.functions";
 
-export const Route = createFileRoute("/_authenticated/clubs/$clubId/edit")({
+export const Route = createFileRoute("/_authenticated/clubs/$clubId_/edit")({
   component: EditClubPage,
 });
 

@@ -1,11 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { createPublicClient } from "./public-client.server";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { resolveLogoUrls, applyLogo } from "./logo-urls.server";
 
 export const listMatches = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { teamId?: string; limit?: number } | undefined) => input ?? {})
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     let query = supabase
       .from("matches")
       .select(
@@ -33,9 +34,10 @@ export const listMatches = createServerFn({ method: "GET" })
 export type MatchListItem = Awaited<ReturnType<typeof listMatches>>[number];
 
 export const getMatch = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { id: string }) => input)
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
     const { data: match, error } = await supabase
       .from("matches")
       .select(
@@ -64,8 +66,10 @@ export const getMatch = createServerFn({ method: "GET" })
     };
   });
 
-export const listLeagues = createServerFn({ method: "GET" }).handler(async () => {
-  const supabase = createPublicClient();
+export const listLeagues = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+  const { supabase } = context;
   const { data, error } = await supabase.from("teams").select("league").not("league", "is", null);
   if (error) throw new Error(error.message);
   const leagues = [...new Set((data ?? []).map((row) => row.league).filter((v): v is string => !!v?.trim()))];
@@ -88,9 +92,10 @@ type StandingRow = {
 };
 
 export const getLeagueStats = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: { league: string }) => input)
-  .handler(async ({ data }) => {
-    const supabase = createPublicClient();
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
 
     // Prefer the official table imported from Everysport (every team in the
     // division, not just ones registered here) over one computed from our own

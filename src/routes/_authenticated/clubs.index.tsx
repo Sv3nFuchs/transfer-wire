@@ -11,7 +11,7 @@ import { useLanguage } from "@/lib/i18n";
 
 type ClubSearch = { q?: string; country?: string; league?: string };
 
-export const Route = createFileRoute("/clubs/")({
+export const Route = createFileRoute("/_authenticated/clubs/")({
   head: () => ({
     meta: [
       { title: "Clubs — TransferWire" },
